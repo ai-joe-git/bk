@@ -304,7 +304,9 @@
                         <a href="transactions.html" class="view-all-link">View All</a>
                     </div>
                     <div class="transactions-list" id="recentTransactionsList">
-                        <!-- Transactions will be loaded here -->
+                        <div style="text-align: center; padding: 40px; color: #64748b;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading recent transactions...
+                        </div>
                     </div>
                 </section>
             </div>
@@ -390,43 +392,45 @@
 
     <script src="js/bank-app.js"></script>
     <script>
-// Global function wrappers for transactions page
-function loadAllTransactions() {
-    if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
-        bankApp.loadAllTransactionsForHistory();
-    }
-}
-
-function applyFilters() {
-    loadAllTransactions(); // Just reload for now
-}
-
-// Enhanced transactions page initialization
-document.addEventListener('DOMContentLoaded', function() {
-    const waitForBankApp = () => {
-        if (window.bankApp && window.bankApp.loadUserData) {
-            loadUserData();
-            
-            // Force load transactions after data loads
-            setTimeout(() => {
-                loadAllTransactions();
-                
-                // Set up periodic refresh
-                setInterval(() => {
-                    if (window.bankApp) {
-                        bankApp.loadAllTransactionsForHistory();
-                    }
-                }, 3000); // Refresh every 3 seconds
-            }, 1000);
-        } else {
-            setTimeout(waitForBankApp, 100);
+        // Global function wrappers
+        function loadRecentTransactions() {
+            if (window.bankApp && window.bankApp.loadRecentTransactions) {
+                bankApp.loadRecentTransactions();
+            }
         }
-    };
-    
-    waitForBankApp();
-});
-</script>
 
+        function startFraudMonitoring() {
+            if (window.bankApp && window.bankApp.logFraudEvent) {
+                bankApp.logFraudEvent('Fraud monitoring started on dashboard');
+            }
+        }
+
+        // Enhanced dashboard initialization with real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            const waitForBankApp = () => {
+                if (window.bankApp && window.bankApp.loadUserData) {
+                    // Initialize dashboard
+                    loadUserData();
+                    
+                    // Force load transactions after data loads
+                    setTimeout(() => {
+                        loadRecentTransactions();
+                        startFraudMonitoring();
+                        
+                        // Set up periodic refresh for real-time updates
+                        setInterval(() => {
+                            if (window.bankApp && window.bankApp.currentUser) {
+                                bankApp.loadRecentTransactions();
+                            }
+                        }, 2000); // Refresh every 2 seconds
+                    }, 1000);
+                } else {
+                    setTimeout(waitForBankApp, 100);
+                }
+            };
+            
+            waitForBankApp();
+        });
+    </script>
 </body>
 </html>
-

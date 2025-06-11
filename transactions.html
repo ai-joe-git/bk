@@ -144,7 +144,6 @@
                             </tr>
                         </thead>
                         <tbody id="transactionsTableBody">
-                            <!-- Transactions will be loaded dynamically from Firebase -->
                             <tr>
                                 <td colspan="6" style="text-align: center; padding: 40px;">
                                     <i class="fas fa-spinner fa-spin"></i> Loading transactions...
@@ -231,42 +230,60 @@
 
     <script src="js/bank-app.js"></script>
     <script>
-// Global function wrappers for transactions page
-function loadAllTransactions() {
-    if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
-        bankApp.loadAllTransactionsForHistory();
-    }
-}
-
-function applyFilters() {
-    loadAllTransactions(); // Just reload for now
-}
-
-// Enhanced transactions page initialization
-document.addEventListener('DOMContentLoaded', function() {
-    const waitForBankApp = () => {
-        if (window.bankApp && window.bankApp.loadUserData) {
-            loadUserData();
-            
-            // Force load transactions after data loads
-            setTimeout(() => {
-                loadAllTransactions();
-                
-                // Set up periodic refresh
-                setInterval(() => {
-                    if (window.bankApp) {
-                        bankApp.loadAllTransactionsForHistory();
-                    }
-                }, 3000); // Refresh every 3 seconds
-            }, 1000);
-        } else {
-            setTimeout(waitForBankApp, 100);
+        // Global function wrappers for transactions page
+        function loadAllTransactions() {
+            if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
+                bankApp.loadAllTransactionsForHistory();
+            }
         }
-    };
-    
-    waitForBankApp();
-});
-</script>
 
+        function applyFilters() {
+            // Get filter values
+            const accountFilter = document.getElementById('accountFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            
+            // For now, just reload all transactions (filtering can be enhanced later)
+            loadAllTransactions();
+            
+            console.log('Applying filters:', { accountFilter, typeFilter, dateFrom, dateTo });
+        }
+
+        // Enhanced transactions page initialization with real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            const waitForBankApp = () => {
+                if (window.bankApp && window.bankApp.loadUserData) {
+                    // Initialize transactions page
+                    loadUserData();
+                    
+                    // Force load transactions after data loads
+                    setTimeout(() => {
+                        loadAllTransactions();
+                        
+                        // Set up filter event listeners
+                        const filterElements = ['accountFilter', 'typeFilter', 'dateFrom', 'dateTo'];
+                        filterElements.forEach(id => {
+                            const element = document.getElementById(id);
+                            if (element) {
+                                element.addEventListener('change', applyFilters);
+                            }
+                        });
+                        
+                        // Set up periodic refresh for real-time updates
+                        setInterval(() => {
+                            if (window.bankApp && window.bankApp.currentUser) {
+                                bankApp.loadAllTransactionsForHistory();
+                            }
+                        }, 3000); // Refresh every 3 seconds
+                    }, 1000);
+                } else {
+                    setTimeout(waitForBankApp, 100);
+                }
+            };
+            
+            waitForBankApp();
+        });
+    </script>
 </body>
 </html>
