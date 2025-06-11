@@ -6,37 +6,36 @@
     <title>Admin Login - SecureBank Pro</title>
     <link rel="stylesheet" href="css/bank-style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<!-- Firebase SDK -->
-<script type="module">
-  // Import Firebase modules
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+      // Import Firebase modules
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-  // Your CORRECTED Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDR6pf7aiPQrfCLo6n7lTe-AwmKpqEoTs",
-    authDomain: "bankapp-fef5a.firebaseapp.com",
-    databaseURL: "https://bankapp-fef5a-default-rtdb.europe-west1.firebasedatabase.app/",
-    projectId: "bankapp-fef5a",
-    storageBucket: "bankapp-fef5a.firebasestorage.app",
-    messagingSenderId: "188302328478",
-    appId: "1:188302328478:web:c70a8bc7f47b77ddd9318f"
-  };
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDR6pf7aiPQrfCLo6n7lTe-AwmKpqEoTs",
+        authDomain: "bankapp-fef5a.firebaseapp.com",
+        databaseURL: "https://bankapp-fef5a-default-rtdb.europe-west1.firebasedatabase.app/",
+        projectId: "bankapp-fef5a",
+        storageBucket: "bankapp-fef5a.firebasestorage.app",
+        messagingSenderId: "188302328478",
+        appId: "1:188302328478:web:c70a8bc7f47b77ddd9318f"
+      };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
 
-  // Make Firebase available globally
-  window.firebaseApp = app;
-  window.firebaseDatabase = database;
-  window.firebaseRef = ref;
-  window.firebaseSet = set;
-  window.firebaseGet = get;
-  window.firebaseOnValue = onValue;
-</script>
-
-
+      // Make Firebase available globally
+      window.firebaseApp = app;
+      window.firebaseDatabase = database;
+      window.firebaseRef = ref;
+      window.firebaseSet = set;
+      window.firebaseGet = get;
+      window.firebaseOnValue = onValue;
+    </script>
 </head>
 <body class="login-body">
     <div class="login-container">
@@ -74,26 +73,104 @@
                 <i class="fas fa-exclamation-triangle"></i>
                 <span>Authorized personnel only. All access attempts are logged.</span>
             </div>
+
+            <!-- Demo Credentials Notice -->
+            <div class="demo-notice">
+                <p><strong>Demo Admin:</strong> admin / kech2025</p>
+                <p><i class="fas fa-exclamation-triangle"></i> Educational Fraud Simulation - For Training Only</p>
+            </div>
         </div>
     </div>
 
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
     <script>
+        // Enhanced admin login with loading states
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const username = document.getElementById('adminUsername').value.trim();
             const password = document.getElementById('adminPassword').value.trim();
+            const loginBtn = document.querySelector('.admin-login-btn');
             
-            if (username === 'admin' && password === 'kech2025') {
-                localStorage.setItem('adminAuth', 'authenticated');
-                window.location.href = 'admin.html';
-            } else {
-                const notification = document.createElement('div');
-                notification.className = 'error-notification';
-                notification.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Invalid admin credentials</span>';
-                document.body.appendChild(notification);
-                setTimeout(() => notification.remove(), 5000);
+            // Show loading state
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            loginBtn.disabled = true;
+            
+            // Simulate authentication delay for realism
+            setTimeout(() => {
+                if (username === 'admin' && password === 'kech2025') {
+                    localStorage.setItem('adminAuth', 'authenticated');
+                    
+                    // Log admin access to Firebase if available
+                    if (window.firebaseSet && window.firebaseRef && window.firebaseDatabase) {
+                        const adminLogRef = window.firebaseRef(window.firebaseDatabase, 'adminLogs');
+                        window.firebaseSet(adminLogRef, {
+                            timestamp: new Date().toISOString(),
+                            action: 'Admin login successful',
+                            ip: 'Unknown' // In real app, you'd get actual IP
+                        }).catch(console.error);
+                    }
+                    
+                    // Success notification
+                    showNotification('Admin access granted', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1000);
+                } else {
+                    // Log failed attempt
+                    if (window.firebaseSet && window.firebaseRef && window.firebaseDatabase) {
+                        const adminLogRef = window.firebaseRef(window.firebaseDatabase, 'adminLogs');
+                        window.firebaseSet(adminLogRef, {
+                            timestamp: new Date().toISOString(),
+                            action: 'Failed admin login attempt',
+                            username: username,
+                            ip: 'Unknown'
+                        }).catch(console.error);
+                    }
+                    
+                    showNotification('Invalid admin credentials', 'error');
+                }
+                
+                // Restore button state
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
+            }, 1500);
+        });
+
+        // Notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `${type}-notification`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        // Dark mode toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
             }
+
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDark);
+                darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
         });
     </script>
 </body>
