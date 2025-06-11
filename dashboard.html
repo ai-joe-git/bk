@@ -6,36 +6,46 @@
     <title>Dashboard - SecureBank Pro</title>
     <link rel="stylesheet" href="css/bank-style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Authentication check -->
+    <script>
+        (function() {
+            const currentUser = localStorage.getItem('currentBankUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+            }
+        })();
+    </script>
+    
     <!-- Firebase SDK -->
-<script type="module">
-  // Import Firebase modules
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    <script type="module">
+      // Import Firebase modules
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-  // Your Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDR6pf7aiPQrfCLo6n7lTe-AwmKpqEoTs",
-    authDomain: "bankapp-fef5a.firebaseapp.com",
-    databaseURL: "https://bankapp-fef5a-default-rtdb.europe-west1.firebasedatabase.app/",
-    projectId: "bankapp-fef5a",
-    storageBucket: "bankapp-fef5a.firebasestorage.app",
-    messagingSenderId: "188302328478",
-    appId: "1:188302328478:web:c70a8bc7f47b77ddd9318f"
-  };
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDR6pf7aiPQrfCLo6n7lTe-AwmKpqEoTs",
+        authDomain: "bankapp-fef5a.firebaseapp.com",
+        databaseURL: "https://bankapp-fef5a-default-rtdb.europe-west1.firebasedatabase.app/",
+        projectId: "bankapp-fef5a",
+        storageBucket: "bankapp-fef5a.firebasestorage.app",
+        messagingSenderId: "188302328478",
+        appId: "1:188302328478:web:c70a8bc7f47b77ddd9318f"
+      };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
 
-  // Make Firebase available globally
-  window.firebaseApp = app;
-  window.firebaseDatabase = database;
-  window.firebaseRef = ref;
-  window.firebaseSet = set;
-  window.firebaseGet = get;
-  window.firebaseOnValue = onValue;
-</script>
-
+      // Make Firebase available globally
+      window.firebaseApp = app;
+      window.firebaseDatabase = database;
+      window.firebaseRef = ref;
+      window.firebaseSet = set;
+      window.firebaseGet = get;
+      window.firebaseOnValue = onValue;
+    </script>
 </head>
 <body>
     <div class="bank-app">
@@ -119,7 +129,7 @@
                                     <i class="fas fa-paper-plane"></i>
                                     Transfer
                                 </button>
-                                <button class="action-btn secondary">
+                                <button class="action-btn secondary" onclick="location.href='statements.html'">
                                     <i class="fas fa-download"></i>
                                     Statement
                                 </button>
@@ -142,11 +152,11 @@
                                 <p><strong>Monthly Transactions:</strong> Unlimited</p>
                             </div>
                             <div class="account-actions">
-                                <button class="action-btn">
+                                <button class="action-btn" onclick="location.href='transfer.html'">
                                     <i class="fas fa-exchange-alt"></i>
                                     Transfer
                                 </button>
-                                <button class="action-btn secondary">
+                                <button class="action-btn secondary" onclick="location.href='transactions.html'">
                                     <i class="fas fa-chart-line"></i>
                                     Details
                                 </button>
@@ -380,13 +390,41 @@
 
     <script src="js/bank-app.js"></script>
     <script>
+        // Global function wrappers
+        function loadRecentTransactions() {
+            if (window.bankApp && window.bankApp.loadRecentTransactions) {
+                bankApp.loadRecentTransactions();
+            }
+        }
+
+        function startFraudMonitoring() {
+            if (window.bankApp && window.bankApp.logFraudEvent) {
+                bankApp.logFraudEvent('Fraud monitoring started on dashboard');
+            }
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserData();
-            loadRecentTransactions();
-            // Start fraud monitoring
-            startFraudMonitoring();
+            // Wait for bankApp to be fully initialized
+            const waitForBankApp = () => {
+                if (window.bankApp && window.bankApp.loadUserData) {
+                    // Initialize all dashboard functions
+                    loadUserData();
+                    
+                    // Wait a bit more for data to load, then load transactions
+                    setTimeout(() => {
+                        loadRecentTransactions();
+                        startFraudMonitoring();
+                    }, 500);
+                } else {
+                    // Keep waiting for bankApp to initialize
+                    setTimeout(waitForBankApp, 100);
+                }
+            };
+            
+            waitForBankApp();
         });
     </script>
 </body>
 </html>
+
