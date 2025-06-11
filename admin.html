@@ -6,36 +6,46 @@
     <title>Admin Panel - SecureBank Pro</title>
     <link rel="stylesheet" href="css/bank-style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Admin Authentication check -->
+    <script>
+        (function() {
+            const adminAuth = localStorage.getItem('adminAuth');
+            if (!adminAuth || adminAuth !== 'authenticated') {
+                window.location.href = 'admin-login.html';
+            }
+        })();
+    </script>
+    
     <!-- Firebase SDK -->
-<script type="module">
-  // Import Firebase modules
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    <script type="module">
+      // Import Firebase modules
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-  // Your Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDR6pf7aiPQrfCLo6n7lTe-AwmKpqEoTs",
-    authDomain: "bankapp-fef5a.firebaseapp.com",
-    databaseURL: "https://bankapp-fef5a-default-rtdb.europe-west1.firebasedatabase.app/",
-    projectId: "bankapp-fef5a",
-    storageBucket: "bankapp-fef5a.firebasestorage.app",
-    messagingSenderId: "188302328478",
-    appId: "1:188302328478:web:c70a8bc7f47b77ddd9318f"
-  };
+      // Your Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDR6pf7aiPQrfCLo6n7lTe-AwmKpqEoTs",
+        authDomain: "bankapp-fef5a.firebaseapp.com",
+        databaseURL: "https://bankapp-fef5a-default-rtdb.europe-west1.firebasedatabase.app/",
+        projectId: "bankapp-fef5a",
+        storageBucket: "bankapp-fef5a.firebasestorage.app",
+        messagingSenderId: "188302328478",
+        appId: "1:188302328478:web:c70a8bc7f47b77ddd9318f"
+      };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
 
-  // Make Firebase available globally
-  window.firebaseApp = app;
-  window.firebaseDatabase = database;
-  window.firebaseRef = ref;
-  window.firebaseSet = set;
-  window.firebaseGet = get;
-  window.firebaseOnValue = onValue;
-</script>
-
+      // Make Firebase available globally
+      window.firebaseApp = app;
+      window.firebaseDatabase = database;
+      window.firebaseRef = ref;
+      window.firebaseSet = set;
+      window.firebaseGet = get;
+      window.firebaseOnValue = onValue;
+    </script>
 </head>
 <body>
     <div class="admin-app">
@@ -116,7 +126,11 @@
                                     </tr>
                                 </thead>
                                 <tbody id="accountsTableBody">
-                                    <!-- Accounts will be loaded here -->
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 40px;">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading accounts...
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -134,7 +148,9 @@
                                 </button>
                             </div>
                             <div class="fraud-logs" id="fraudLogsContainer">
-                                <!-- Fraud logs will be displayed here -->
+                                <div style="text-align: center; padding: 40px; color: #64748b;">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading fraud logs...
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -263,5 +279,67 @@
 
     <script src="js/bank-app.js"></script>
     <script src="js/admin.js"></script>
+    <script>
+        // Global function wrappers for admin page
+        function showAddAccountModal() {
+            if (window.adminPanel) {
+                adminPanel.showAddAccountModal();
+            }
+        }
+
+        function closeAccountModal() {
+            if (window.adminPanel) {
+                adminPanel.closeAccountModal();
+            }
+        }
+
+        function closeBalanceModal() {
+            if (window.adminPanel) {
+                adminPanel.closeBalanceModal();
+            }
+        }
+
+        function saveAccount() {
+            if (window.adminPanel) {
+                adminPanel.saveAccount();
+            }
+        }
+
+        function saveBalances() {
+            if (window.adminPanel) {
+                adminPanel.saveBalances();
+            }
+        }
+
+        function clearAllLogs() {
+            if (window.adminPanel) {
+                adminPanel.clearAllLogs();
+            }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('adminAuth');
+            window.location.href = 'admin-login.html';
+        }
+
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDark);
+                darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+        });
+    </script>
 </body>
 </html>
