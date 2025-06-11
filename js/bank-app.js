@@ -1,17 +1,110 @@
-// Bank Application JavaScript - Complete Fixed Version with All Issues Resolved
+// Bank Application JavaScript - Complete with Firebase Integration
 class BankApp {
     constructor() {
-        this.apiUrl = '/api';
+        this.accounts = {};
         this.currentUser = null;
         this.authToken = null;
         this.pollingInterval = null;
-        this.accounts = {
+        this.database = null;
+        this.accountsRef = null;
+        this.init();
+    }
+
+    async init() {
+        // Wait for Firebase to be available
+        await this.waitForFirebase();
+        this.database = window.firebaseDatabase;
+        this.accountsRef = window.firebaseRef(this.database, 'bankAccounts');
+        
+        await this.loadStoredData();
+        this.setupEventListeners();
+        this.setupRealTimeSync();
+        setTimeout(() => {
+            this.initializeDarkMode();
+        }, 100);
+    }
+
+    async waitForFirebase() {
+        while (!window.firebaseDatabase) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
+    // REAL-TIME DATA LOADING
+    async loadStoredData() {
+        try {
+            const snapshot = await window.firebaseGet(this.accountsRef);
+            if (snapshot.exists()) {
+                this.accounts = snapshot.val();
+                console.log('✅ Data loaded from Firebase');
+            } else {
+                // Initialize with default data
+                this.accounts = this.getDefaultAccounts();
+                await this.saveData();
+                console.log('✅ Default data created in Firebase');
+            }
+        } catch (error) {
+            console.error('❌ Error loading from Firebase:', error);
+            // Fallback to localStorage
+            const localData = localStorage.getItem('bankAccounts');
+            if (localData) {
+                this.accounts = JSON.parse(localData);
+            } else {
+                this.accounts = this.getDefaultAccounts();
+            }
+        }
+
+        this.authToken = localStorage.getItem('bankAuthToken');
+        this.currentUser = localStorage.getItem('currentBankUser');
+    }
+
+    // REAL-TIME DATA SAVING
+    async saveData() {
+        try {
+            // Add timestamp for sync tracking
+            this.accounts.lastUpdated = new Date().toISOString();
+            
+            // Save to Firebase (available to ALL users worldwide)
+            await window.firebaseSet(this.accountsRef, this.accounts);
+            console.log('✅ Data saved to Firebase - Available globally!');
+            
+            // Also save locally as backup
+            localStorage.setItem('bankAccounts', JSON.stringify(this.accounts));
+        } catch (error) {
+            console.error('❌ Error saving to Firebase:', error);
+            // Fallback to localStorage
+            localStorage.setItem('bankAccounts', JSON.stringify(this.accounts));
+        }
+    }
+
+    // REAL-TIME SYNCHRONIZATION
+    setupRealTimeSync() {
+        window.firebaseOnValue(this.accountsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const newData = snapshot.val();
+                // Only update if data is newer
+                if (newData.lastUpdated !== this.accounts.lastUpdated) {
+                    this.accounts = newData;
+                    this.updateUserInterface();
+                    console.log('🔄 Data synced in real-time from Firebase!');
+                }
+            }
+        });
+    }
+
+    getDefaultAccounts() {
+        return {
             'Brown68': {
                 password: 'brown6868',
+                companyName: 'TechSolutions Inc.',
+                businessType: 'C-Corporation',
                 businessCheckingBalance: 125847.92,
                 businessSavingsBalance: 289234.15,
                 creditLimit: 250000.00,
                 creditUsed: 35750.00,
+                address: '456 Innovation Drive, Silicon Valley, CA 94025',
+                phone: '+1 (555) 987-6543',
+                ein: '12-3456789',
                 transactions: [
                     {
                         id: 'TXN001',
@@ -42,43 +135,9 @@ class BankApp {
                     }
                 ],
                 fraudLog: []
-            }
+            },
+            lastUpdated: new Date().toISOString()
         };
-        this.init();
-    }
-
-    init() {
-        this.loadStoredData();
-        this.setupEventListeners();
-        this.startPolling();
-        // FIXED: Initialize dark mode immediately
-        setTimeout(() => {
-            this.initializeDarkMode();
-        }, 100);
-    }
-
-    loadStoredData() {
-        const storedAccounts = localStorage.getItem('bankAccounts');
-        if (storedAccounts) {
-            try {
-                const parsed = JSON.parse(storedAccounts);
-                // Merge with default data, preserving any stored changes
-                this.accounts = { ...this.accounts, ...parsed };
-            } catch (error) {
-                console.error('Error parsing stored accounts:', error);
-            }
-        }
-        
-        this.authToken = localStorage.getItem('bankAuthToken');
-        this.currentUser = localStorage.getItem('currentBankUser');
-    }
-
-    saveData() {
-        try {
-            localStorage.setItem('bankAccounts', JSON.stringify(this.accounts));
-        } catch (error) {
-            console.error('Error saving data:', error);
-        }
     }
 
     setupEventListeners() {
@@ -286,16 +345,6 @@ class BankApp {
         }
     }
 
-    startPolling() {
-        this.pollingInterval = setInterval(() => {
-            this.checkForUpdates();
-        }, 5000);
-    }
-
-    async checkForUpdates() {
-        // Polling implementation for real-time updates
-    }
-
     async handleLogin(e) {
         e.preventDefault();
         
@@ -484,8 +533,8 @@ class BankApp {
 
         account.transactions.push(outgoingTransaction);
 
-        // FIXED: Save data immediately
-        this.saveData();
+        // FIXED: Save data immediately to Firebase
+        await this.saveData();
 
         // Log fraud event
         this.logFraudEvent(`TRANSFER EXECUTED - $${transferData.amount} - ${this.getTransferDescription(transferData)}`);
@@ -731,14 +780,14 @@ class BankApp {
         window.location.href = 'index.html';
     }
 
-    logFraudEvent(event) {
+    async logFraudEvent(event) {
         if (!this.currentUser) return;
         
         const timestamp = new Date().toISOString();
         const logEntry = `[${timestamp}] ${event}`;
         
         this.accounts[this.currentUser].fraudLog.push(logEntry);
-        this.saveData();
+        await this.saveData();
         
         console.log(`🚨 FRAUD LOG: ${logEntry}`);
     }
