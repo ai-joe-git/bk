@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - SecureBank Pro</title>
+    <link rel="stylesheet" href="css/bank-style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-app">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <div class="admin-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SecureBank Pro - Admin Panel</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="admin-info">
+                    <span class="admin-text">Administrator</span>
+                    <button class="logout-btn" onclick="adminLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Admin Main Content -->
+        <main class="admin-main">
+            <div class="admin-container">
+                <!-- Admin Dashboard -->
+                <section class="admin-dashboard">
+                    <h1>Bank Account Management</h1>
+                    <p>Manage all customer accounts, balances, and transactions</p>
+
+                    <!-- Quick Stats -->
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-info">
+                                <h3 id="totalAccounts">0</h3>
+                                <p>Total Accounts</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-dollar-sign"></i>
+                            <div class="stat-info">
+                                <h3 id="totalBalance">$0</h3>
+                                <p>Total Balance</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-exchange-alt"></i>
+                            <div class="stat-info">
+                                <h3 id="totalTransactions">0</h3>
+                                <p>Total Transactions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Management -->
+                    <div class="admin-section">
+                        <div class="section-header">
+                            <h2>Account Management</h2>
+                            <button class="add-account-btn" onclick="showAddAccountModal()">
+                                <i class="fas fa-plus"></i>
+                                Add New Account
+                            </button>
+                        </div>
+
+                        <!-- Accounts Table -->
+                        <div class="accounts-table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Company Name</th>
+                                        <th>Checking Balance</th>
+                                        <th>Savings Balance</th>
+                                        <th>Credit Used</th>
+                                        <th>Transactions</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="accountsTableBody">
+                                    <!-- Accounts will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Fraud Monitoring -->
+                    <div class="admin-section">
+                        <h2>Fraud Monitoring</h2>
+                        <div class="fraud-logs-container">
+                            <div class="logs-header">
+                                <h3>Real-time Activity Logs</h3>
+                                <button class="clear-logs-btn" onclick="clearAllLogs()">
+                                    <i class="fas fa-trash"></i>
+                                    Clear Logs
+                                </button>
+                            </div>
+                            <div class="fraud-logs" id="fraudLogsContainer">
+                                <!-- Fraud logs will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Account Modal -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content admin-modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Account</h2>
+                <button class="close-btn" onclick="closeAccountModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="accountForm" class="admin-form">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="editUsername">Username</label>
+                            <input type="text" id="editUsername" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="editPassword">Password</label>
+                            <input type="password" id="editPassword" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="editCompanyName">Company Name</label>
+                            <input type="text" id="editCompanyName" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="editBusinessType">Business Type</label>
+                            <select id="editBusinessType">
+                                <option value="C-Corporation">C-Corporation</option>
+                                <option value="LLC">LLC</option>
+                                <option value="Partnership">Partnership</option>
+                                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="editCheckingBalance">Checking Balance ($)</label>
+                            <input type="number" id="editCheckingBalance" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="editSavingsBalance">Savings Balance ($)</label>
+                            <input type="number" id="editSavingsBalance" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="editCreditLimit">Credit Limit ($)</label>
+                            <input type="number" id="editCreditLimit" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="editCreditUsed">Credit Used ($)</label>
+                            <input type="number" id="editCreditUsed" step="0.01" min="0">
+                        </div>
+                        <div class="input-group full-width">
+                            <label for="editAddress">Business Address</label>
+                            <textarea id="editAddress" rows="3"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="editPhone">Phone Number</label>
+                            <input type="tel" id="editPhone">
+                        </div>
+                        <div class="input-group">
+                            <label for="editEIN">EIN</label>
+                            <input type="text" id="editEIN" placeholder="12-3456789">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeAccountModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="saveAccount()">Save Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Edit Modal -->
+    <div id="balanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Account Balances</h2>
+                <button class="close-btn" onclick="closeBalanceModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="balanceForm">
+                    <div class="balance-edit-grid">
+                        <div class="input-group">
+                            <label for="newCheckingBalance">Checking Balance ($)</label>
+                            <input type="number" id="newCheckingBalance" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="newSavingsBalance">Savings Balance ($)</label>
+                            <input type="number" id="newSavingsBalance" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="newCreditUsed">Credit Used ($)</label>
+                            <input type="number" id="newCreditUsed" step="0.01">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeBalanceModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="saveBalances()">Update Balances</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script src="js/bank-app.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

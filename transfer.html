@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Money - SecureBank Pro</title>
+    <link rel="stylesheet" href="css/bank-style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="bank-app">
+        <!-- Header -->
+        <header class="bank-header">
+            <div class="header-left">
+                <div class="bank-logo">
+                    <i class="fas fa-university"></i>
+                    <span>SecureBank Pro</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <nav class="bank-nav">
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="transfer.html" class="nav-item active">
+                        <i class="fas fa-exchange-alt"></i>
+                        Transfer
+                    </a>
+                    <a href="transactions.html" class="nav-item">
+                        <i class="fas fa-list"></i>
+                        Transactions
+                    </a>
+                    <a href="statements.html" class="nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        Statements
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="welcome-text">Welcome, <span id="currentUser">Brown68</span></span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="bank-main">
+            <div class="transfer-container">
+                <div class="page-header">
+                    <h1>Transfer Money</h1>
+                    <p>Send money securely to bank accounts worldwide</p>
+                </div>
+
+                <!-- Corporate Transfer Notice -->
+                <div class="corporate-transfer-notice">
+                    <i class="fas fa-building"></i>
+                    <div>
+                        <h4>Corporate Account Transfer</h4>
+                        <p>All transfers will be processed under TechSolutions Inc. business account</p>
+                    </div>
+                </div>
+
+                <!-- Transfer Types -->
+                <div class="transfer-types">
+                    <div class="transfer-type-card active" data-type="domestic">
+                        <i class="fas fa-building"></i>
+                        <h3>Domestic Transfer</h3>
+                        <p>Transfer within the country</p>
+                    </div>
+                    <div class="transfer-type-card" data-type="international">
+                        <i class="fas fa-globe"></i>
+                        <h3>International Wire</h3>
+                        <p>Send money worldwide</p>
+                    </div>
+                    <div class="transfer-type-card" data-type="internal">
+                        <i class="fas fa-exchange-alt"></i>
+                        <h3>Between My Accounts</h3>
+                        <p>Transfer between your accounts</p>
+                    </div>
+                </div>
+
+                <!-- Transfer Form -->
+                <div class="transfer-form-container">
+                    <form id="transferForm" class="transfer-form">
+                        <!-- From Account -->
+                        <div class="form-section">
+                            <h3>From Business Account</h3>
+                            <div class="account-selector">
+                                <select id="fromAccount" required>
+                                    <option value="">Select Business Account</option>
+                                    <option value="business-checking" selected>Business Checking (****1234) - $125,847.92</option>
+                                    <option value="business-savings">Business Savings (****5678) - $289,234.15</option>
+                                    <option value="business-credit">Business Credit Line (****9012) - $214,250.00 Available</option>
+                                </select>
+                            </div>
+                            <div class="account-holder-info">
+                                <p><strong>Account Holder:</strong> TechSolutions Inc.</p>
+                                <p><strong>EIN:</strong> 12-3456789</p>
+                                <p><strong>Authorized Signatory:</strong> Robert Brown (CEO)</p>
+                            </div>
+                        </div>
+
+                        <!-- To Account -->
+                        <div class="form-section">
+                            <h3>To Account</h3>
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label for="recipientName">Recipient Name</label>
+                                    <input type="text" id="recipientName" required placeholder="Full name of recipient">
+                                </div>
+                                <div class="input-group">
+                                    <label for="bankName">Bank Name</label>
+                                    <input type="text" id="bankName" required placeholder="Recipient's bank name">
+                                </div>
+                                <div class="input-group">
+                                    <label for="accountNumber">Account Number</label>
+                                    <input type="text" id="accountNumber" required placeholder="Recipient's account number">
+                                </div>
+                                <div class="input-group">
+                                    <label for="routingNumber">Routing Number</label>
+                                    <input type="text" id="routingNumber" required placeholder="Bank routing number">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transfer Details -->
+                        <div class="form-section">
+                            <h3>Transfer Details</h3>
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label for="transferAmount">Amount</label>
+                                    <div class="amount-input">
+                                        <span class="currency">$</span>
+                                        <input type="number" id="transferAmount" required placeholder="0.00" step="0.01" min="0.01">
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label for="transferDate">Transfer Date</label>
+                                    <input type="date" id="transferDate" required>
+                                </div>
+                                <div class="input-group full-width">
+                                    <label for="transferMemo">Memo (Optional)</label>
+                                    <input type="text" id="transferMemo" placeholder="Purpose of transfer">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Direct Deposit Information -->
+                        <div class="direct-deposit-info">
+                            <h3>Direct Deposit Information</h3>
+                            <div class="deposit-details">
+                                <div class="employer-info">
+                                    <i class="fas fa-building"></i>
+                                    <div class="employer-details">
+                                        <h4>TechSolutions Inc.</h4>
+                                        <p>Payroll Department</p>
+                                        <p>456 Innovation Drive, Silicon Valley, CA 94025</p>
+                                        <p>Payroll Contact: +1 (555) 987-6543 ext. 2401</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="deposit-schedule">
+                                    <div class="schedule-item">
+                                        <span class="label">Pay Frequency:</span>
+                                        <span class="value">Bi-weekly (Every 2 weeks)</span>
+                                    </div>
+                                    <div class="schedule-item">
+                                        <span class="label">Next Deposit:</span>
+                                        <span class="value">January 31, 2025</span>
+                                    </div>
+                                    <div class="schedule-item">
+                                        <span class="label">Typical Amount:</span>
+                                        <span class="value">$4,850.00 (Net)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transfer Summary -->
+                        <div class="transfer-summary">
+                            <h3>Transfer Summary</h3>
+                            <div class="summary-details">
+                                <div class="summary-row">
+                                    <span>Transfer Amount:</span>
+                                    <span id="summaryAmount">$0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Transfer Fee:</span>
+                                    <span id="summaryFee">$0.00</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total Debit:</span>
+                                    <span id="summaryTotal">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Verification -->
+                        <div class="security-section">
+                            <h3>Security Verification</h3>
+                            <div class="input-group">
+                                <label for="securityCode">Enter your 4-digit security code</label>
+                                <input type="password" id="securityCode" maxlength="4" placeholder="****" required>
+                                <small>This is the 4-digit code you set up for wire transfers</small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="transfer-submit-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Transfer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bank Footer -->
+        <footer class="bank-footer">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <div class="company-info">
+                        <div class="bank-logo-footer">
+                            <i class="fas fa-university"></i>
+                            <span>SecureBank Pro</span>
+                        </div>
+                        <p class="company-address">
+                            123 Banking Street<br>
+                            Financial District<br>
+                            New York, NY 10001
+                        </p>
+                        <div class="contact-info">
+                            <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                            <p><i class="fas fa-envelope"></i> support@securebankpro.com</p>
+                            <p><i class="fas fa-globe"></i> www.securebankpro.com</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Personal Banking</a></li>
+                        <li><a href="#">Business Banking</a></li>
+                        <li><a href="#">Investment Services</a></li>
+                        <li><a href="#">Loans & Mortgages</a></li>
+                        <li><a href="#">Credit Cards</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Security Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Security & Compliance</h4>
+                    <div class="compliance-badges">
+                        <div class="badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>FDIC Insured</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-lock"></i>
+                            <span>256-bit SSL</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-certificate"></i>
+                            <span>SOC 2 Certified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <p>&copy; 2025 SecureBank Pro. All rights reserved.</p>
+                    <p class="reg-info">Reg. No. 987654321 | Licensed and regulated by the Financial Services Authority</p>
+                    <p class="disclaimer">Member FDIC. Equal Housing Lender. NMLS ID: 123456</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Transfer Confirmation Modal -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h2>Transfer Initiated</h2>
+            </div>
+            <div class="modal-body">
+                <div class="transfer-confirmation">
+                    <p><strong>Your transfer has been successfully initiated.</strong></p>
+                    <div class="confirmation-details">
+                        <div class="detail-row">
+                            <span>Reference Number:</span>
+                            <span id="confirmationRef"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Amount:</span>
+                            <span id="confirmationAmount"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Recipient:</span>
+                            <span id="confirmationRecipient"></span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Expected Delivery:</span>
+                            <span id="confirmationDelivery"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn-primary">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bank-app.js"></script>
+    <script>
+        // Initialize transfer page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            initializeTransferForm();
+            // Set today's date as default
+            document.getElementById('transferDate').value = new Date().toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - SecureBank Pro</title>
+    <link rel="stylesheet" href="css/bank-style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="bank-app">
+        <!-- Header -->
+        <header class="bank-header">
+            <div class="header-left">
+                <div class="bank-logo">
+                    <i class="fas fa-university"></i>
+                    <span>SecureBank Pro</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <nav class="bank-nav">
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="transfer.html" class="nav-item">
+                        <i class="fas fa-exchange-alt"></i>
+                        Transfer
+                    </a>
+                    <a href="transactions.html" class="nav-item active">
+                        <i class="fas fa-list"></i>
+                        Transactions
+                    </a>
+                    <a href="statements.html" class="nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        Statements
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="welcome-text">Welcome, <span id="currentUser">Brown68</span></span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="bank-main">
+            <div class="transactions-container">
+                <div class="page-header">
+                    <h1>Transaction History</h1>
+                    <p>View and search your account transactions</p>
+                </div>
+
+                <!-- Transaction Filters -->
+                <div class="transaction-filters">
+                    <div class="filter-group">
+                        <label for="accountFilter">Account:</label>
+                        <select id="accountFilter">
+                            <option value="all">All Accounts</option>
+                            <option value="checking">Business Checking (****1234)</option>
+                            <option value="savings">Business Savings (****5678)</option>
+                            <option value="credit">Business Credit (****9012)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="typeFilter">Type:</label>
+                        <select id="typeFilter">
+                            <option value="all">All Types</option>
+                            <option value="incoming">Incoming</option>
+                            <option value="outgoing">Outgoing</option>
+                            <option value="internal">Internal</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateFrom">From:</label>
+                        <input type="date" id="dateFrom">
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateTo">To:</label>
+                        <input type="date" id="dateTo">
+                    </div>
+                    <button class="filter-btn" onclick="applyFilters()">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Account</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody">
+                            <tr>
+                                <td>Jan 15, 2025</td>
+                                <td>Client Payment - Microsoft Corp (Invoice #INV-2025-001)</td>
+                                <td><span class="type-badge incoming">Incoming</span></td>
+                                <td>Business Checking</td>
+                                <td class="amount positive">+$125,000.00</td>
+                                <td><span class="status-badge completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Jan 14, 2025</td>
+                                <td>Payroll Processing - January 2025</td>
+                                <td><span class="type-badge outgoing">Outgoing</span></td>
+                                <td>Business Checking</td>
+                                <td class="amount negative">-$45,000.00</td>
+                                <td><span class="status-badge completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Jan 13, 2025</td>
+                                <td>Client Payment - Google LLC (Invoice #INV-2025-002)</td>
+                                <td><span class="type-badge incoming">Incoming</span></td>
+                                <td>Business Checking</td>
+                                <td class="amount positive">+$75,000.00</td>
+                                <td><span class="status-badge completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Jan 12, 2025</td>
+                                <td>Office Rent - January 2025</td>
+                                <td><span class="type-badge outgoing">Outgoing</span></td>
+                                <td>Business Checking</td>
+                                <td class="amount negative">-$8,500.00</td>
+                                <td><span class="status-badge completed">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Jan 10, 2025</td>
+                                <td>Client Payment - Amazon Web Services (Invoice #INV-2025-003)</td>
+                                <td><span class="type-badge incoming">Incoming</span></td>
+                                <td>Business Checking</td>
+                                <td class="amount positive">+$95,000.00</td>
+                                <td><span class="status-badge completed">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bank Footer -->
+        <footer class="bank-footer">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <div class="company-info">
+                        <div class="bank-logo-footer">
+                            <i class="fas fa-university"></i>
+                            <span>SecureBank Pro</span>
+                        </div>
+                        <p class="company-address">
+                            123 Banking Street<br>
+                            Financial District<br>
+                            New York, NY 10001
+                        </p>
+                        <div class="contact-info">
+                            <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                            <p><i class="fas fa-envelope"></i> support@securebankpro.com</p>
+                            <p><i class="fas fa-globe"></i> www.securebankpro.com</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Personal Banking</a></li>
+                        <li><a href="#">Business Banking</a></li>
+                        <li><a href="#">Investment Services</a></li>
+                        <li><a href="#">Loans & Mortgages</a></li>
+                        <li><a href="#">Credit Cards</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Security Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Security & Compliance</h4>
+                    <div class="compliance-badges">
+                        <div class="badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>FDIC Insured</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-lock"></i>
+                            <span>256-bit SSL</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-certificate"></i>
+                            <span>SOC 2 Certified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <p>&copy; 2025 SecureBank Pro. All rights reserved.</p>
+                    <p class="reg-info">Reg. No. 987654321 | Licensed and regulated by the Financial Services Authority</p>
+                    <p class="disclaimer">Member FDIC. Equal Housing Lender. NMLS ID: 123456</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/bank-app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            loadAllTransactions();
+        });
+
+        function loadAllTransactions() {
+            // Implementation would load and display all transactions
+            console.log('Loading all transactions...');
+        }
+
+        function applyFilters() {
+            // Implementation would filter transactions based on selected criteria
+            console.log('Applying transaction filters...');
+        }
+    </script>
+</body>
+</html>

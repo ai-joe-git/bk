@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SecureBank Pro</title>
+    <link rel="stylesheet" href="css/bank-style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="bank-app">
+        <!-- Header -->
+        <header class="bank-header">
+            <div class="header-left">
+                <div class="bank-logo">
+                    <i class="fas fa-university"></i>
+                    <span>SecureBank Pro</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <nav class="bank-nav">
+                    <a href="dashboard.html" class="nav-item active">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a href="transfer.html" class="nav-item">
+                        <i class="fas fa-exchange-alt"></i>
+                        Transfer
+                    </a>
+                    <a href="transactions.html" class="nav-item">
+                        <i class="fas fa-list"></i>
+                        Transactions
+                    </a>
+                    <a href="statements.html" class="nav-item">
+                        <i class="fas fa-file-alt"></i>
+                        Statements
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="welcome-text">Welcome, <span id="currentUser">Brown68</span></span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="bank-main">
+            <div class="dashboard-container">
+                <!-- Corporate Account Header -->
+                <div class="corporate-account-header">
+                    <div class="account-type-badge">
+                        <i class="fas fa-building"></i>
+                        <span>Corporate Business Account</span>
+                    </div>
+                    <div class="company-info-header">
+                        <h2>TechSolutions Inc.</h2>
+                        <p>Business Banking Customer Since March 2018</p>
+                        <span class="business-id">Business ID: BIZ-789456123</span>
+                    </div>
+                </div>
+
+                <!-- Corporate Account Overview -->
+                <section class="corporate-account-overview">
+                    <h2>Business Account Overview</h2>
+                    <div class="accounts-grid">
+                        <!-- Business Checking Account -->
+                        <div class="account-card corporate-primary">
+                            <div class="account-header">
+                                <h3>Business Checking</h3>
+                                <span class="account-number">****1234</span>
+                                <div class="account-type">Corporate Operating Account</div>
+                            </div>
+                            <div class="account-balance">
+                                <span class="balance-label">Available Balance</span>
+                                <span class="balance-amount" id="businessCheckingBalance">$125,847.92</span>
+                            </div>
+                            <div class="account-details">
+                                <p><strong>Account Holder:</strong> TechSolutions Inc.</p>
+                                <p><strong>EIN:</strong> 12-3456789</p>
+                                <p><strong>Business Type:</strong> C-Corporation</p>
+                            </div>
+                            <div class="account-actions">
+                                <button class="action-btn" onclick="location.href='transfer.html'">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Transfer
+                                </button>
+                                <button class="action-btn secondary">
+                                    <i class="fas fa-download"></i>
+                                    Statement
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Business Savings Account -->
+                        <div class="account-card corporate-savings">
+                            <div class="account-header">
+                                <h3>Business Savings</h3>
+                                <span class="account-number">****5678</span>
+                                <div class="account-type">Corporate Reserve Account</div>
+                            </div>
+                            <div class="account-balance">
+                                <span class="balance-label">Available Balance</span>
+                                <span class="balance-amount" id="businessSavingsBalance">$289,234.15</span>
+                            </div>
+                            <div class="account-details">
+                                <p><strong>Interest Rate:</strong> 2.75% APY</p>
+                                <p><strong>Monthly Transactions:</strong> Unlimited</p>
+                            </div>
+                            <div class="account-actions">
+                                <button class="action-btn">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    Transfer
+                                </button>
+                                <button class="action-btn secondary">
+                                    <i class="fas fa-chart-line"></i>
+                                    Details
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Business Credit Line -->
+                        <div class="account-card corporate-credit">
+                            <div class="account-header">
+                                <h3>Business Line of Credit</h3>
+                                <span class="account-number">****9012</span>
+                                <div class="account-type">Corporate Credit Facility</div>
+                            </div>
+                            <div class="account-balance">
+                                <span class="balance-label">Available Credit</span>
+                                <span class="balance-amount">$214,250.00</span>
+                            </div>
+                            <div class="credit-info">
+                                <span class="credit-used">Used: $35,750.00</span>
+                                <span class="credit-limit">Limit: $250,000.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Corporate Business Information -->
+                <section class="corporate-business-info">
+                    <h2>Business Information</h2>
+                    <div class="business-info-grid">
+                        <div class="business-card">
+                            <h3>Company Details</h3>
+                            <div class="business-details">
+                                <div class="detail-row">
+                                    <span class="label">Legal Name:</span>
+                                    <span class="value">TechSolutions Inc.</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">DBA:</span>
+                                    <span class="value">TechSolutions</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Business Type:</span>
+                                    <span class="value">C-Corporation</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">EIN:</span>
+                                    <span class="value">12-3456789</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">State of Incorporation:</span>
+                                    <span class="value">Delaware</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">NAICS Code:</span>
+                                    <span class="value">541511 - Custom Computer Programming</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="business-card">
+                            <h3>Business Address</h3>
+                            <div class="address-info">
+                                <p><strong>Headquarters:</strong></p>
+                                <p>456 Innovation Drive<br>
+                                Silicon Valley, CA 94025</p>
+                                <p><strong>Phone:</strong> +1 (555) 987-6543</p>
+                                <p><strong>Website:</strong> www.techsolutions-inc.com</p>
+                                <p><strong>Industry:</strong> Software Development</p>
+                            </div>
+                        </div>
+
+                        <div class="business-card">
+                            <h3>Authorized Signatories</h3>
+                            <div class="signatories-list">
+                                <div class="signatory">
+                                    <p><strong>Primary:</strong> Robert Brown (CEO)</p>
+                                    <p>Authority: Unlimited</p>
+                                </div>
+                                <div class="signatory">
+                                    <p><strong>Secondary:</strong> Sarah Johnson (CFO)</p>
+                                    <p>Authority: Up to $50,000</p>
+                                </div>
+                                <div class="signatory">
+                                    <p><strong>Backup:</strong> Michael Chen (COO)</p>
+                                    <p>Authority: Up to $25,000</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="business-card">
+                            <h3>Business Metrics</h3>
+                            <div class="metrics-info">
+                                <div class="metric">
+                                    <span class="metric-label">Annual Revenue:</span>
+                                    <span class="metric-value">$12.5M</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Employees:</span>
+                                    <span class="metric-value">85</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Years in Business:</span>
+                                    <span class="metric-value">12</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Credit Rating:</span>
+                                    <span class="metric-value">A+ (Excellent)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="quick-actions">
+                    <h2>Quick Actions</h2>
+                    <div class="actions-grid">
+                        <a href="transfer.html" class="quick-action-card">
+                            <i class="fas fa-paper-plane"></i>
+                            <h3>Send Money</h3>
+                            <p>Transfer to accounts or external banks</p>
+                        </a>
+                        <a href="transfer.html" class="quick-action-card">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h3>Mobile Deposit</h3>
+                            <p>Deposit checks using your phone</p>
+                        </a>
+                        <a href="statements.html" class="quick-action-card">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <h3>Pay Bills</h3>
+                            <p>Schedule and manage bill payments</p>
+                        </a>
+                        <a href="transactions.html" class="quick-action-card">
+                            <i class="fas fa-search-dollar"></i>
+                            <h3>Find Transaction</h3>
+                            <p>Search your transaction history</p>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Recent Transactions -->
+                <section class="recent-transactions">
+                    <div class="section-header">
+                        <h2>Recent Transactions</h2>
+                        <a href="transactions.html" class="view-all-link">View All</a>
+                    </div>
+                    <div class="transactions-list" id="recentTransactionsList">
+                        <!-- Transactions will be loaded here -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Bank Footer -->
+        <footer class="bank-footer">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <div class="company-info">
+                        <div class="bank-logo-footer">
+                            <i class="fas fa-university"></i>
+                            <span>SecureBank Pro</span>
+                        </div>
+                        <p class="company-address">
+                            123 Banking Street<br>
+                            Financial District<br>
+                            New York, NY 10001
+                        </p>
+                        <div class="contact-info">
+                            <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                            <p><i class="fas fa-envelope"></i> support@securebankpro.com</p>
+                            <p><i class="fas fa-globe"></i> www.securebankpro.com</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Personal Banking</a></li>
+                        <li><a href="#">Business Banking</a></li>
+                        <li><a href="#">Investment Services</a></li>
+                        <li><a href="#">Loans & Mortgages</a></li>
+                        <li><a href="#">Credit Cards</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Security Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Security & Compliance</h4>
+                    <div class="compliance-badges">
+                        <div class="badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>FDIC Insured</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-lock"></i>
+                            <span>256-bit SSL</span>
+                        </div>
+                        <div class="badge">
+                            <i class="fas fa-certificate"></i>
+                            <span>SOC 2 Certified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <p>&copy; 2025 SecureBank Pro. All rights reserved.</p>
+                    <p class="reg-info">Reg. No. 987654321 | Licensed and regulated by the Financial Services Authority</p>
+                    <p class="disclaimer">Member FDIC. Equal Housing Lender. NMLS ID: 123456</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Fraud Backend Monitor (Hidden) -->
+    <div id="fraudMonitor" style="display: none;">
+        <div class="fraud-log" id="fraudLog"></div>
+    </div>
+
+    <script src="js/bank-app.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            loadRecentTransactions();
+            // Start fraud monitoring
+            startFraudMonitoring();
+        });
+    </script>
+</body>
+</html>

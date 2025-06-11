@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - SecureBank Pro</title>
+    <link rel="stylesheet" href="css/bank-style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="admin-login-card">
+            <div class="admin-login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Admin Access</h1>
+                <p>SecureBank Pro Administration Panel</p>
+            </div>
+            
+            <form id="adminLoginForm" class="admin-login-form">
+                <div class="input-group">
+                    <label for="adminUsername">Administrator Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user-shield"></i>
+                        <input type="text" id="adminUsername" required placeholder="Enter admin username">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="adminPassword">Administrator Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="adminPassword" required placeholder="Enter admin password">
+                    </div>
+                </div>
+
+                <button type="submit" class="admin-login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Access Admin Panel
+                </button>
+            </form>
+
+            <div class="admin-security-notice">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Authorized personnel only. All access attempts are logged.</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            
+            if (username === 'admin' && password === 'kech2025') {
+                localStorage.setItem('adminAuth', 'authenticated');
+                window.location.href = 'admin.html';
+            } else {
+                const notification = document.createElement('div');
+                notification.className = 'error-notification';
+                notification.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Invalid admin credentials</span>';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureBank Pro - Online Banking</title>
+    <link rel="stylesheet" href="css/bank-style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <!-- Left Side - Bank Branding -->
+        <div class="login-left">
+            <div class="bank-brand">
+                <div class="bank-logo">
+                    <i class="fas fa-university"></i>
+                    <h1>SecureBank Pro</h1>
+                </div>
+                <div class="company-tagline">
+                    <h2>Trusted Banking Since 1985</h2>
+                    <p class="company-description">
+                        Your financial security is our priority. Access your accounts securely 
+                        with our advanced online banking platform trusted by over 2 million customers.
+                    </p>
+                </div>
+                
+                <div class="company-credentials">
+                    <div class="credential-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>FDIC Member Bank</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>SOC 2 Certified</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-award"></i>
+                        <span>BBB A+ Rated</span>
+                    </div>
+                </div>
+                
+                <div class="company-contact">
+                    <p><strong>Need Help?</strong></p>
+                    <p>Call us: +1 (555) 123-4567</p>
+                    <p>Email: support@securebankpro.com</p>
+                </div>
+                
+                <div class="regulatory-info">
+                    <p class="reg-text">
+                        Licensed and regulated by the Financial Services Authority<br>
+                        Registration Number: 987654321<br>
+                        Member FDIC • Equal Housing Lender
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <div class="login-form-container">
+                <h2>Welcome Back</h2>
+                <p class="login-subtitle">Sign in to your SecureBank Pro account</p>
+
+                <form id="loginForm" class="bank-form">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" name="username" required placeholder="Enter your username">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" required placeholder="Enter your password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In Securely
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    <a href="#" class="forgot-link">Forgot Password?</a>
+                    <span class="divider">|</span>
+                    <a href="#" class="help-link">Need Help?</a>
+                </div>
+
+                <div class="security-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>For your security, never share your login credentials</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Notice -->
+    <div class="demo-notice">
+        <p><strong>Demo Account:</strong> Brown68 / brown6868</p>
+        <p><i class="fas fa-exclamation-triangle"></i> Educational Fraud Simulation - For Training Only</p>
+    </div>
+
+    <script src="js/bank-app.js"></script>
+</body>
+</html>
