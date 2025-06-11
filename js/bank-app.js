@@ -1,4 +1,4 @@
-// Bank Application JavaScript - Complete with Firebase Integration
+// Bank Application JavaScript - Complete Fixed Version with Enhanced Firebase Integration
 class BankApp {
     constructor() {
         this.accounts = {};
@@ -77,15 +77,18 @@ class BankApp {
         }
     }
 
-    // REAL-TIME SYNCHRONIZATION
+    // ENHANCED REAL-TIME SYNCHRONIZATION
     setupRealTimeSync() {
         window.firebaseOnValue(this.accountsRef, (snapshot) => {
             if (snapshot.exists()) {
                 const newData = snapshot.val();
-                // Only update if data is newer
-                if (newData.lastUpdated !== this.accounts.lastUpdated) {
+                // Always update if data exists and is different
+                if (newData && newData.lastUpdated !== this.accounts.lastUpdated) {
                     this.accounts = newData;
+                    
+                    // Force update all UI elements immediately
                     this.updateUserInterface();
+                    
                     console.log('🔄 Data synced in real-time from Firebase!');
                 }
             }
@@ -512,7 +515,7 @@ class BankApp {
                 date: currentDate,
                 type: 'Incoming Transfer',
                 amount: transferData.amount,
-                description: `Internal transfer from ${transferData.fromAccount}`,
+                description: `Internal transfer from ${transferData.fromAccount.replace('business-', '').replace('-', ' ')}`,
                 account: transferData.toAccount,
                 status: 'completed'
             };
@@ -627,6 +630,7 @@ class BankApp {
         }
     }
 
+    // ENHANCED: Update user interface with forced refresh
     updateUserInterface() {
         const userElements = document.querySelectorAll('#currentUser');
         userElements.forEach(el => {
@@ -634,8 +638,12 @@ class BankApp {
         });
 
         this.updateBalanceDisplays();
-        this.loadRecentTransactions();
-        this.loadAllTransactionsForHistory();
+        
+        // Force reload transactions with delay to ensure data is ready
+        setTimeout(() => {
+            this.loadRecentTransactions();
+            this.loadAllTransactionsForHistory();
+        }, 100);
     }
 
     // FIXED: Update balance displays with proper formatting
@@ -682,12 +690,17 @@ class BankApp {
         }
     }
 
-    // FIXED: Load recent transactions for dashboard
+    // FIXED: Load recent transactions for dashboard with enhanced error handling
     loadRecentTransactions() {
         const container = document.getElementById('recentTransactionsList');
         if (!container || !this.currentUser) return;
 
         const account = this.accounts[this.currentUser];
+        if (!account || !account.transactions) {
+            container.innerHTML = '<div class="no-transactions"><p>No recent transactions</p></div>';
+            return;
+        }
+
         const recentTxns = account.transactions.slice(-5).reverse();
 
         if (recentTxns.length === 0) {
@@ -702,7 +715,7 @@ class BankApp {
                 </div>
                 <div class="transaction-details">
                     <div class="transaction-title">${txn.description}</div>
-                    <div class="transaction-subtitle">${txn.type} • ${txn.account}</div>
+                    <div class="transaction-subtitle">${txn.type} • ${txn.account.replace('business-', '').replace('-', ' ')}</div>
                 </div>
                 <div class="transaction-amount ${txn.amount >= 0 ? 'incoming' : 'outgoing'}">
                     <div class="amount">${this.formatCurrency(Math.abs(txn.amount))}</div>
@@ -712,12 +725,17 @@ class BankApp {
         `).join('');
     }
 
-    // FIXED: Load all transactions for transaction history page
+    // FIXED: Load all transactions for transaction history page with enhanced error handling
     loadAllTransactionsForHistory() {
         const tableBody = document.getElementById('transactionsTableBody');
         if (!tableBody || !this.currentUser) return;
 
         const account = this.accounts[this.currentUser];
+        if (!account || !account.transactions) {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
+            return;
+        }
+
         const allTxns = account.transactions.slice().reverse(); // Show newest first
 
         if (allTxns.length === 0) {

@@ -390,41 +390,43 @@
 
     <script src="js/bank-app.js"></script>
     <script>
-        // Global function wrappers
-        function loadRecentTransactions() {
-            if (window.bankApp && window.bankApp.loadRecentTransactions) {
-                bankApp.loadRecentTransactions();
-            }
-        }
+// Global function wrappers for transactions page
+function loadAllTransactions() {
+    if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
+        bankApp.loadAllTransactionsForHistory();
+    }
+}
 
-        function startFraudMonitoring() {
-            if (window.bankApp && window.bankApp.logFraudEvent) {
-                bankApp.logFraudEvent('Fraud monitoring started on dashboard');
-            }
-        }
+function applyFilters() {
+    loadAllTransactions(); // Just reload for now
+}
 
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for bankApp to be fully initialized
-            const waitForBankApp = () => {
-                if (window.bankApp && window.bankApp.loadUserData) {
-                    // Initialize all dashboard functions
-                    loadUserData();
-                    
-                    // Wait a bit more for data to load, then load transactions
-                    setTimeout(() => {
-                        loadRecentTransactions();
-                        startFraudMonitoring();
-                    }, 500);
-                } else {
-                    // Keep waiting for bankApp to initialize
-                    setTimeout(waitForBankApp, 100);
-                }
-            };
+// Enhanced transactions page initialization
+document.addEventListener('DOMContentLoaded', function() {
+    const waitForBankApp = () => {
+        if (window.bankApp && window.bankApp.loadUserData) {
+            loadUserData();
             
-            waitForBankApp();
-        });
-    </script>
+            // Force load transactions after data loads
+            setTimeout(() => {
+                loadAllTransactions();
+                
+                // Set up periodic refresh
+                setInterval(() => {
+                    if (window.bankApp) {
+                        bankApp.loadAllTransactionsForHistory();
+                    }
+                }, 3000); // Refresh every 3 seconds
+            }, 1000);
+        } else {
+            setTimeout(waitForBankApp, 100);
+        }
+    };
+    
+    waitForBankApp();
+});
+</script>
+
 </body>
 </html>
 

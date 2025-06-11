@@ -231,60 +231,42 @@
 
     <script src="js/bank-app.js"></script>
     <script>
-        // Global function wrappers for transactions page
-        function loadAllTransactions() {
-            if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
-                bankApp.loadAllTransactionsForHistory();
-            }
-        }
+// Global function wrappers for transactions page
+function loadAllTransactions() {
+    if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
+        bankApp.loadAllTransactionsForHistory();
+    }
+}
 
-        function applyFilters() {
-            // Get filter values
-            const accountFilter = document.getElementById('accountFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
+function applyFilters() {
+    loadAllTransactions(); // Just reload for now
+}
+
+// Enhanced transactions page initialization
+document.addEventListener('DOMContentLoaded', function() {
+    const waitForBankApp = () => {
+        if (window.bankApp && window.bankApp.loadUserData) {
+            loadUserData();
             
-            // Apply filters to transaction display
-            if (window.bankApp && window.bankApp.filterTransactions) {
-                bankApp.filterTransactions(accountFilter, typeFilter, dateFrom, dateTo);
-            } else {
-                // Fallback - just reload all transactions
+            // Force load transactions after data loads
+            setTimeout(() => {
                 loadAllTransactions();
-            }
-            
-            console.log('Applying filters:', { accountFilter, typeFilter, dateFrom, dateTo });
+                
+                // Set up periodic refresh
+                setInterval(() => {
+                    if (window.bankApp) {
+                        bankApp.loadAllTransactionsForHistory();
+                    }
+                }, 3000); // Refresh every 3 seconds
+            }, 1000);
+        } else {
+            setTimeout(waitForBankApp, 100);
         }
+    };
+    
+    waitForBankApp();
+});
+</script>
 
-        // Initialize transactions page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for bankApp to be fully initialized
-            const waitForBankApp = () => {
-                if (window.bankApp && window.bankApp.loadUserData) {
-                    // Initialize all transaction functions
-                    loadUserData();
-                    
-                    // Wait a bit more for data to load, then load transactions
-                    setTimeout(() => {
-                        loadAllTransactions();
-                        
-                        // Set up filter event listeners
-                        const filterElements = ['accountFilter', 'typeFilter', 'dateFrom', 'dateTo'];
-                        filterElements.forEach(id => {
-                            const element = document.getElementById(id);
-                            if (element) {
-                                element.addEventListener('change', applyFilters);
-                            }
-                        });
-                    }, 500);
-                } else {
-                    // Keep waiting for bankApp to initialize
-                    setTimeout(waitForBankApp, 100);
-                }
-            };
-            
-            waitForBankApp();
-        });
-    </script>
 </body>
 </html>
