@@ -51,10 +51,21 @@
     <div class="bank-app">
         <!-- Header -->
         <header class="bank-header">
-            <div class="header-left">
-                <div class="bank-logo">
-                    <i class="fas fa-university"></i>
-                    <span>SecureBank Pro</span>
+            <div class="mobile-header-top">
+                <div class="header-left">
+                    <div class="bank-logo">
+                        <i class="fas fa-university"></i>
+                        <span>SecureBank Pro</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="header-center">
@@ -77,15 +88,6 @@
                     </a>
                 </nav>
             </div>
-            <div class="header-right">
-                <div class="user-info">
-                    <span class="welcome-text">Welcome, <span id="currentUser">Brown68</span></span>
-                    <button class="logout-btn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
-            </div>
         </header>
 
         <!-- Main Content -->
@@ -96,12 +98,12 @@
                     <p>Send money securely to bank accounts worldwide</p>
                 </div>
 
-                <!-- Corporate Transfer Notice -->
+                <!-- ENHANCED: Dynamic Corporate Transfer Notice -->
                 <div class="corporate-transfer-notice">
                     <i class="fas fa-building"></i>
                     <div>
                         <h4>Corporate Account Transfer</h4>
-                        <p>All transfers will be processed under TechSolutions Inc. business account</p>
+                        <p>All transfers will be processed under <span id="transferCompanyName">Loading...</span> business account</p>
                     </div>
                 </div>
 
@@ -133,15 +135,29 @@
                             <div class="account-selector">
                                 <select id="fromAccount" required>
                                     <option value="">Select Business Account</option>
-                                    <option value="business-checking" selected>Business Checking (****1234) - $125,847.92</option>
-                                    <option value="business-savings">Business Savings (****5678) - $289,234.15</option>
-                                    <option value="business-credit">Business Credit Line (****9012) - $214,250.00 Available</option>
                                 </select>
                             </div>
-                            <div class="account-holder-info">
-                                <p><strong>Account Holder:</strong> TechSolutions Inc.</p>
-                                <p><strong>EIN:</strong> 12-3456789</p>
-                                <p><strong>Authorized Signatory:</strong> Robert Brown (CEO)</p>
+                            <!-- ENHANCED: Dynamic Account Information -->
+                            <div class="account-holder-info" id="accountHolderInfo">
+                                <h4>Account Information</h4>
+                                <div class="account-info-grid">
+                                    <div class="info-item">
+                                        <span class="label">Account Holder:</span>
+                                        <span class="value" id="transferAccountHolder">Loading...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">EIN:</span>
+                                        <span class="value" id="transferEIN">Loading...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Business Type:</span>
+                                        <span class="value" id="transferBusinessType">Loading...</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Authorized Signatory:</span>
+                                        <span class="value" id="transferSignatory">Loading...</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -186,37 +202,6 @@
                                 <div class="input-group full-width">
                                     <label for="transferMemo">Memo (Optional)</label>
                                     <input type="text" id="transferMemo" placeholder="Purpose of transfer">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Direct Deposit Information -->
-                        <div class="direct-deposit-info">
-                            <h3>Direct Deposit Information</h3>
-                            <div class="deposit-details">
-                                <div class="employer-info">
-                                    <i class="fas fa-building"></i>
-                                    <div class="employer-details">
-                                        <h4>TechSolutions Inc.</h4>
-                                        <p>Payroll Department</p>
-                                        <p>456 Innovation Drive, Silicon Valley, CA 94025</p>
-                                        <p>Payroll Contact: +1 (555) 987-6543 ext. 2401</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="deposit-schedule">
-                                    <div class="schedule-item">
-                                        <span class="label">Pay Frequency:</span>
-                                        <span class="value">Bi-weekly (Every 2 weeks)</span>
-                                    </div>
-                                    <div class="schedule-item">
-                                        <span class="label">Next Deposit:</span>
-                                        <span class="value">January 31, 2025</span>
-                                    </div>
-                                    <div class="schedule-item">
-                                        <span class="label">Typical Amount:</span>
-                                        <span class="value">$4,850.00 (Net)</span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -370,38 +355,167 @@
 
     <script src="js/bank-app.js"></script>
     <script>
+        // ENHANCED: Transfer page with complete Firebase sync
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Transfer page loading...');
+            
+            const initTransferPage = async () => {
+                let attempts = 0;
+                
+                // Wait for BankApp to be ready
+                while ((!window.bankApp || !window.bankApp.database) && attempts < 200) {
+                    console.log(`⏳ Waiting for BankApp... attempt ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                if (!window.bankApp || !window.bankApp.database) {
+                    console.log('❌ BankApp failed to initialize');
+                    return;
+                }
+                
+                console.log('✅ BankApp ready, loading user data...');
+                
+                // Load user data first
+                await window.bankApp.loadUserData();
+                
+                // Set up real-time Firebase sync
+                setupTransferRealTimeSync();
+                
+                // Initialize form elements
+                initializeTransferForm();
+            };
+            
+            // Real-time Firebase sync for transfer page
+            function setupTransferRealTimeSync() {
+                console.log('🔄 Setting up transfer page Firebase sync...');
+                
+                window.firebaseOnValue(window.bankApp.accountsRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const newData = snapshot.val();
+                        console.log('📡 Transfer page: Firebase data received');
+                        
+                        // Update BankApp data
+                        window.bankApp.accounts = newData;
+                        
+                        // Force update all elements
+                        updateTransferPageElements();
+                    }
+                });
+                
+                // Initial update
+                setTimeout(() => {
+                    updateTransferPageElements();
+                }, 500);
+            }
+            
+            // Update all transfer page elements with Firebase data
+            function updateTransferPageElements() {
+                if (!window.bankApp || !window.bankApp.currentUser) {
+                    console.log('❌ No current user for transfer page update');
+                    return;
+                }
+                
+                const account = window.bankApp.accounts[window.bankApp.currentUser];
+                if (!account) {
+                    console.log('❌ No account data for transfer page');
+                    return;
+                }
+                
+                console.log('🔄 Updating transfer page with account:', account);
+                
+                // Update user display
+                const userEl = document.getElementById('currentUser');
+                if (userEl) userEl.textContent = window.bankApp.currentUser;
+                
+                // Update company name in notice
+                const companyNameEl = document.getElementById('transferCompanyName');
+                if (companyNameEl) {
+                    companyNameEl.textContent = account.companyName || window.bankApp.currentUser;
+                }
+                
+                // Update account selector
+                updateAccountSelector(account);
+                
+                // Update account information
+                updateAccountInfo(account);
+            }
+            
+            // Update account selector with current balances
+            function updateAccountSelector(account) {
+                const fromAccount = document.getElementById('fromAccount');
+                if (!fromAccount) return;
+                
+                fromAccount.innerHTML = `
+                    <option value="">Select Business Account</option>
+                    <option value="business-checking" selected>Business Checking (****1234) - ${window.bankApp.formatCurrency(account.businessCheckingBalance)}</option>
+                    <option value="business-savings">Business Savings (****5678) - ${window.bankApp.formatCurrency(account.businessSavingsBalance)}</option>
+                `;
+                
+                // Add event listener for account selection change
+                fromAccount.addEventListener('change', (e) => {
+                    updateAccountInfo(account, e.target.value);
+                });
+            }
+            
+            // Update account information based on Firebase data
+            function updateAccountInfo(account, selectedAccount = 'business-checking') {
+                console.log('🔄 Updating account info with:', account);
+                
+                // Update account holder information
+                const accountHolderEl = document.getElementById('transferAccountHolder');
+                const einEl = document.getElementById('transferEIN');
+                const businessTypeEl = document.getElementById('transferBusinessType');
+                const signatoryEl = document.getElementById('transferSignatory');
+                
+                if (accountHolderEl) {
+                    accountHolderEl.textContent = account.companyName || window.bankApp.currentUser;
+                    console.log('✅ Updated account holder to:', account.companyName);
+                }
+                
+                if (einEl) {
+                    einEl.textContent = account.ein || 'Not provided';
+                    console.log('✅ Updated EIN to:', account.ein);
+                }
+                
+                if (businessTypeEl) {
+                    businessTypeEl.textContent = account.businessType || 'Not specified';
+                    console.log('✅ Updated business type to:', account.businessType);
+                }
+                
+                if (signatoryEl) {
+                    if (account.signatories && account.signatories.primary && account.signatories.primary.name) {
+                        signatoryEl.textContent = `${account.signatories.primary.name} (${account.signatories.primary.title})`;
+                    } else {
+                        signatoryEl.textContent = 'Not specified';
+                    }
+                    console.log('✅ Updated signatory');
+                }
+            }
+            
+            // Initialize form elements
+            function initializeTransferForm() {
+                // Set today's date
+                const dateInput = document.getElementById('transferDate');
+                if (dateInput) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
+                
+                // Initialize transfer summary
+                if (window.bankApp && window.bankApp.updateTransferSummary) {
+                    window.bankApp.updateTransferSummary();
+                }
+            }
+            
+            initTransferPage();
+        });
+
         // Global function wrappers for transfer page
         function initializeTransferForm() {
             if (window.bankApp && window.bankApp.updateTransferSummary) {
-                bankApp.updateTransferSummary();
+                window.bankApp.updateTransferSummary();
             }
         }
-
-        // Initialize transfer page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for bankApp to be fully initialized
-            const waitForBankApp = () => {
-                if (window.bankApp && window.bankApp.loadUserData) {
-                    // Initialize all transfer functions
-                    loadUserData();
-                    
-                    // Wait a bit more for data to load, then initialize form
-                    setTimeout(() => {
-                        initializeTransferForm();
-                        // Set today's date as default
-                        const dateInput = document.getElementById('transferDate');
-                        if (dateInput) {
-                            dateInput.value = new Date().toISOString().split('T')[0];
-                        }
-                    }, 500);
-                } else {
-                    // Keep waiting for bankApp to initialize
-                    setTimeout(waitForBankApp, 100);
-                }
-            };
-            
-            waitForBankApp();
-        });
     </script>
 </body>
 </html>

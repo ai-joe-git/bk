@@ -2569,3 +2569,61 @@ body.dark-mode {
         scroll-behavior: auto !important;
     }
 }
+
+/* Transfer Account Information Styles */
+.account-holder-info {
+    background: var(--bank-background);
+    border: 1px solid var(--bank-border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.account-holder-info h4 {
+    margin-bottom: 16px;
+    color: var(--bank-text-primary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.account-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bank-border);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    font-weight: 600;
+    color: var(--bank-text-secondary);
+    font-size: 14px;
+}
+
+.info-item .value {
+    font-weight: 600;
+    color: var(--bank-text-primary);
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .account-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+}

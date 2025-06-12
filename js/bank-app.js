@@ -940,27 +940,92 @@ class BankApp {
         console.log('✅ ALL displays updated successfully');
     }
 
-    // FIXED: Update account selector with current balances
+    // FIXED: Update account selector with real-time Firebase sync
     updateAccountSelector() {
         const fromAccount = document.getElementById('fromAccount');
         const toAccount = document.getElementById('toAccount');
         
-        if (fromAccount && this.currentUser) {
+        if (fromAccount && this.currentUser && this.accounts[this.currentUser]) {
             const account = this.accounts[this.currentUser];
+            
+            // Update account selector with current balances
             fromAccount.innerHTML = `
                 <option value="">Select Business Account</option>
                 <option value="business-checking" selected>Business Checking (****1234) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
                 <option value="business-savings">Business Savings (****5678) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
             `;
+            
+            // Remove existing event listener to prevent duplicates
+            if (this.handleAccountChange) {
+                fromAccount.removeEventListener('change', this.handleAccountChange);
+            }
+            
+            // Create bound event handler
+            this.handleAccountChange = (e) => {
+                this.updateTransferAccountInfo(e.target.value);
+            };
+            fromAccount.addEventListener('change', this.handleAccountChange);
+            
+            // Update account info immediately
+            this.updateTransferAccountInfo('business-checking');
         }
 
-        if (toAccount && this.currentUser) {
+        if (toAccount && this.currentUser && this.accounts[this.currentUser]) {
             const account = this.accounts[this.currentUser];
             toAccount.innerHTML = `
                 <option value="">Select Destination Account</option>
                 <option value="business-savings">Business Savings (****5678) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
                 <option value="business-checking">Business Checking (****1234) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
             `;
+        }
+    }
+
+    // FIXED: Update transfer account information with Firebase data
+    updateTransferAccountInfo(selectedAccount) {
+        console.log('🔄 Updating transfer account info for user:', this.currentUser);
+        
+        if (!this.currentUser || !this.accounts[this.currentUser]) {
+            console.log('❌ No user or account data');
+            return;
+        }
+        
+        const account = this.accounts[this.currentUser];
+        console.log('📊 Using account data:', account);
+        
+        // Update account holder information with Firebase data
+        const accountHolderEl = document.getElementById('transferAccountHolder');
+        const einEl = document.getElementById('transferEIN');
+        const businessTypeEl = document.getElementById('transferBusinessType');
+        const signatoryEl = document.getElementById('transferSignatory');
+        
+        if (accountHolderEl) {
+            accountHolderEl.textContent = account.companyName || 'Unknown Company';
+            console.log('✅ Updated account holder to:', account.companyName);
+        }
+        
+        if (einEl) {
+            einEl.textContent = account.ein || 'Not provided';
+            console.log('✅ Updated EIN to:', account.ein);
+        }
+        
+        if (businessTypeEl) {
+            businessTypeEl.textContent = account.businessType || 'Not specified';
+            console.log('✅ Updated business type to:', account.businessType);
+        }
+        
+        if (signatoryEl) {
+            if (account.signatories && account.signatories.primary && account.signatories.primary.name) {
+                signatoryEl.textContent = `${account.signatories.primary.name} (${account.signatories.primary.title})`;
+            } else {
+                signatoryEl.textContent = 'Not specified';
+            }
+            console.log('✅ Updated signatory');
+        }
+        
+        // Update company name in notice
+        const companyNameEl = document.getElementById('transferCompanyName');
+        if (companyNameEl) {
+            companyNameEl.textContent = account.companyName || 'Unknown Company';
         }
     }
 
