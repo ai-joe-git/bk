@@ -230,10 +230,50 @@
 
     <script src="js/bank-app.js"></script>
     <script>
-        // Global function wrappers for transactions page
+        // ENHANCED: Transactions initialization with aggressive debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Transactions page loading...');
+            
+            // Wait for BankApp to be fully initialized
+            const initTransactions = async () => {
+                let attempts = 0;
+                
+                while ((!window.bankApp || !window.bankApp.database) && attempts < 200) {
+                    console.log(`⏳ Waiting for BankApp... attempt ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                if (!window.bankApp || !window.bankApp.database) {
+                    console.log('❌ BankApp failed to initialize after', attempts, 'attempts');
+                    return;
+                }
+                
+                console.log('✅ BankApp ready, loading user data...');
+                
+                // Load user data and wait for it to complete
+                await window.bankApp.loadUserData();
+                
+                // Force immediate load of transaction history
+                console.log('🔄 Force loading transaction history...');
+                window.bankApp.loadAllTransactionsForHistory();
+                
+                // Set up aggressive refresh for real-time updates
+                setInterval(() => {
+                    if (window.bankApp && window.bankApp.currentUser) {
+                        console.log('🔄 Periodic refresh - loading transaction history');
+                        window.bankApp.loadAllTransactionsForHistory();
+                    }
+                }, 1000); // Refresh every 1 second for testing
+            };
+            
+            initTransactions();
+        });
+
+        // Global function wrappers
         function loadAllTransactions() {
             if (window.bankApp && window.bankApp.loadAllTransactionsForHistory) {
-                bankApp.loadAllTransactionsForHistory();
+                window.bankApp.loadAllTransactionsForHistory();
             }
         }
 
@@ -249,41 +289,6 @@
             
             console.log('Applying filters:', { accountFilter, typeFilter, dateFrom, dateTo });
         }
-
-        // Enhanced transactions page initialization with real-time updates
-        document.addEventListener('DOMContentLoaded', function() {
-            const waitForBankApp = () => {
-                if (window.bankApp && window.bankApp.loadUserData) {
-                    // Initialize transactions page
-                    loadUserData();
-                    
-                    // Force load transactions after data loads
-                    setTimeout(() => {
-                        loadAllTransactions();
-                        
-                        // Set up filter event listeners
-                        const filterElements = ['accountFilter', 'typeFilter', 'dateFrom', 'dateTo'];
-                        filterElements.forEach(id => {
-                            const element = document.getElementById(id);
-                            if (element) {
-                                element.addEventListener('change', applyFilters);
-                            }
-                        });
-                        
-                        // Set up periodic refresh for real-time updates
-                        setInterval(() => {
-                            if (window.bankApp && window.bankApp.currentUser) {
-                                bankApp.loadAllTransactionsForHistory();
-                            }
-                        }, 3000); // Refresh every 3 seconds
-                    }, 1000);
-                } else {
-                    setTimeout(waitForBankApp, 100);
-                }
-            };
-            
-            waitForBankApp();
-        });
     </script>
 </body>
 </html>

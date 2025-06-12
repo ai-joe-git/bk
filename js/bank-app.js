@@ -11,17 +11,28 @@ class BankApp {
     }
 
     async init() {
+        console.log('🚀 BankApp initializing...');
+        
         // Wait for Firebase to be available
         await this.waitForFirebase();
         this.database = window.firebaseDatabase;
         this.accountsRef = window.firebaseRef(this.database, 'bankAccounts');
         
+        // Load data FIRST, then set up everything else
         await this.loadStoredData();
-        this.setupEventListeners();
+        
+        // Set up real-time sync AFTER data is loaded
         this.setupRealTimeSync();
+        
+        // Set up event listeners
+        this.setupEventListeners();
+        
+        // Initialize dark mode
         setTimeout(() => {
             this.initializeDarkMode();
         }, 100);
+        
+        console.log('✅ BankApp initialization complete');
     }
 
     async waitForFirebase() {
@@ -77,22 +88,75 @@ class BankApp {
         }
     }
 
-    // ENHANCED REAL-TIME SYNCHRONIZATION
+    // ENHANCED REAL-TIME SYNCHRONIZATION - COMPLETE FIX
     setupRealTimeSync() {
+        console.log('🔄 Setting up real-time sync...');
+        
+        // Set up Firebase listener with enhanced error handling
         window.firebaseOnValue(this.accountsRef, (snapshot) => {
+            console.log('📡 Firebase listener triggered');
+            
             if (snapshot.exists()) {
                 const newData = snapshot.val();
-                // Always update if data exists and is different
-                if (newData && newData.lastUpdated !== this.accounts.lastUpdated) {
-                    this.accounts = newData;
-                    
-                    // Force update all UI elements immediately
-                    this.updateUserInterface();
-                    
-                    console.log('🔄 Data synced in real-time from Firebase!');
-                }
+                console.log('📊 New data from Firebase:', newData);
+                
+                // Always update data
+                const oldTimestamp = this.accounts.lastUpdated;
+                const newTimestamp = newData.lastUpdated;
+                
+                console.log('🕐 Old timestamp:', oldTimestamp);
+                console.log('🕐 New timestamp:', newTimestamp);
+                
+                // Update accounts data
+                this.accounts = newData;
+                
+                // FORCE IMMEDIATE UI UPDATE
+                this.immediateUIUpdate();
+                
+                console.log('✅ Data updated and UI refreshed');
+            } else {
+                console.log('❌ No data exists in Firebase');
             }
+        }, (error) => {
+            console.error('❌ Firebase listener error:', error);
         });
+    }
+
+    // NEW: Immediate UI update function
+    immediateUIUpdate() {
+        console.log('⚡ Immediate UI update triggered');
+        
+        if (!this.currentUser || !this.accounts[this.currentUser]) {
+            console.log('❌ No user or account data for UI update');
+            return;
+        }
+        
+        // Update user display
+        const userElements = document.querySelectorAll('#currentUser');
+        userElements.forEach(el => {
+            if (el) el.textContent = this.currentUser;
+        });
+
+        // Update balances immediately
+        this.updateBalanceDisplays();
+        
+        // Force update page-specific content
+        const currentPage = window.location.pathname;
+        console.log('📄 Current page:', currentPage);
+        
+        if (currentPage.includes('dashboard') || currentPage.endsWith('/') || currentPage.endsWith('dashboard.html')) {
+            console.log('📊 Updating dashboard content...');
+            setTimeout(() => {
+                this.loadRecentTransactions();
+            }, 50);
+        }
+        
+        if (currentPage.includes('transactions') || currentPage.endsWith('transactions.html')) {
+            console.log('📋 Updating transactions content...');
+            setTimeout(() => {
+                this.loadAllTransactionsForHistory();
+            }, 50);
+        }
     }
 
     getDefaultAccounts() {
@@ -619,31 +683,38 @@ class BankApp {
                Math.random().toString(36).substr(2, 3).toUpperCase();
     }
 
-    // FIXED: Load user data with proper balance updates
+    // FIXED: Load user data with proper Firebase waiting
     async loadUserData() {
-        const storedUser = localStorage.getItem('currentBankUser');
-        if (storedUser && this.accounts[storedUser]) {
-            this.currentUser = storedUser;
-            this.updateUserInterface();
-        } else {
-            window.location.href = 'index.html';
-        }
-    }
-
-    // ENHANCED: Update user interface with forced refresh
-    updateUserInterface() {
-        const userElements = document.querySelectorAll('#currentUser');
-        userElements.forEach(el => {
-            if (el) el.textContent = this.currentUser;
-        });
-
-        this.updateBalanceDisplays();
+        console.log('📊 Loading user data...');
         
-        // Force reload transactions with delay to ensure data is ready
-        setTimeout(() => {
-            this.loadRecentTransactions();
-            this.loadAllTransactionsForHistory();
-        }, 100);
+        const storedUser = localStorage.getItem('currentBankUser');
+        if (!storedUser) {
+            console.log('❌ No stored user, redirecting to login');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        this.currentUser = storedUser;
+        console.log('👤 Current user set to:', this.currentUser);
+        
+        // Wait for accounts data to be available
+        let attempts = 0;
+        while ((!this.accounts || !this.accounts[this.currentUser]) && attempts < 50) {
+            console.log(`⏳ Waiting for account data... attempt ${attempts + 1}`);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        if (!this.accounts || !this.accounts[this.currentUser]) {
+            console.log('❌ Account data not found after waiting');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        console.log('✅ Account data loaded for user:', this.currentUser);
+        
+        // Force immediate UI update
+        this.immediateUIUpdate();
     }
 
     // FIXED: Update balance displays with proper formatting
@@ -690,69 +761,132 @@ class BankApp {
         }
     }
 
-    // FIXED: Load recent transactions for dashboard with enhanced error handling
+    // ENHANCED: Load recent transactions with better debugging
     loadRecentTransactions() {
+        console.log('📊 Loading recent transactions...');
+        console.log('👤 Current user:', this.currentUser);
+        console.log('📦 Accounts data:', this.accounts);
+        
         const container = document.getElementById('recentTransactionsList');
-        if (!container || !this.currentUser) return;
+        if (!container) {
+            console.log('❌ Recent transactions container not found');
+            return;
+        }
+
+        if (!this.currentUser) {
+            console.log('❌ No current user');
+            container.innerHTML = '<div class="no-transactions"><p>Please log in to view transactions</p></div>';
+            return;
+        }
 
         const account = this.accounts[this.currentUser];
-        if (!account || !account.transactions) {
+        if (!account) {
+            console.log('❌ Account not found for user:', this.currentUser);
+            console.log('📦 Available accounts:', Object.keys(this.accounts));
+            container.innerHTML = '<div class="no-transactions"><p>Account data not available</p></div>';
+            return;
+        }
+
+        console.log('📊 Account data:', account);
+
+        if (!account.transactions || !Array.isArray(account.transactions)) {
+            console.log('❌ No transactions array found');
+            console.log('📊 Account transactions:', account.transactions);
             container.innerHTML = '<div class="no-transactions"><p>No recent transactions</p></div>';
             return;
         }
 
         const recentTxns = account.transactions.slice(-5).reverse();
+        console.log('📊 Found', recentTxns.length, 'recent transactions:', recentTxns);
 
         if (recentTxns.length === 0) {
             container.innerHTML = '<div class="no-transactions"><p>No recent transactions</p></div>';
             return;
         }
 
-        container.innerHTML = recentTxns.map(txn => `
-            <div class="transaction-item">
-                <div class="transaction-icon ${this.getTransactionIconClass(txn.type)}">
-                    <i class="${this.getTransactionIcon(txn.type)}"></i>
+        try {
+            container.innerHTML = recentTxns.map(txn => `
+                <div class="transaction-item">
+                    <div class="transaction-icon ${this.getTransactionIconClass(txn.type)}">
+                        <i class="${this.getTransactionIcon(txn.type)}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">${txn.description}</div>
+                        <div class="transaction-subtitle">${txn.type} • ${txn.account.replace('business-', '').replace('-', ' ')}</div>
+                    </div>
+                    <div class="transaction-amount ${txn.amount >= 0 ? 'incoming' : 'outgoing'}">
+                        <div class="amount">${this.formatCurrency(Math.abs(txn.amount))}</div>
+                        <div class="transaction-date">${this.formatDate(txn.date)}</div>
+                    </div>
                 </div>
-                <div class="transaction-details">
-                    <div class="transaction-title">${txn.description}</div>
-                    <div class="transaction-subtitle">${txn.type} • ${txn.account.replace('business-', '').replace('-', ' ')}</div>
-                </div>
-                <div class="transaction-amount ${txn.amount >= 0 ? 'incoming' : 'outgoing'}">
-                    <div class="amount">${this.formatCurrency(Math.abs(txn.amount))}</div>
-                    <div class="transaction-date">${this.formatDate(txn.date)}</div>
-                </div>
-            </div>
-        `).join('');
+            `).join('');
+            
+            console.log('✅ Recent transactions loaded successfully');
+        } catch (error) {
+            console.error('❌ Error rendering transactions:', error);
+            container.innerHTML = '<div class="no-transactions"><p>Error loading transactions</p></div>';
+        }
     }
 
-    // FIXED: Load all transactions for transaction history page with enhanced error handling
+    // ENHANCED: Load all transactions with better debugging
     loadAllTransactionsForHistory() {
+        console.log('📋 Loading transaction history...');
+        console.log('👤 Current user:', this.currentUser);
+        
         const tableBody = document.getElementById('transactionsTableBody');
-        if (!tableBody || !this.currentUser) return;
+        if (!tableBody) {
+            console.log('❌ Transaction table body not found');
+            return;
+        }
+
+        if (!this.currentUser) {
+            console.log('❌ No current user');
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Please log in to view transactions</td></tr>';
+            return;
+        }
 
         const account = this.accounts[this.currentUser];
-        if (!account || !account.transactions) {
+        if (!account) {
+            console.log('❌ Account not found for user:', this.currentUser);
+            console.log('📦 Available accounts:', Object.keys(this.accounts));
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Account data not available</td></tr>';
+            return;
+        }
+
+        console.log('📋 Account data:', account);
+
+        if (!account.transactions || !Array.isArray(account.transactions)) {
+            console.log('❌ No transactions array found');
+            console.log('📋 Account transactions:', account.transactions);
             tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
             return;
         }
 
-        const allTxns = account.transactions.slice().reverse(); // Show newest first
+        const allTxns = account.transactions.slice().reverse();
+        console.log('📋 Found', allTxns.length, 'total transactions:', allTxns);
 
         if (allTxns.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
             return;
         }
 
-        tableBody.innerHTML = allTxns.map(txn => `
-            <tr>
-                <td>${this.formatDate(txn.date)}</td>
-                <td>${txn.description}</td>
-                <td><span class="type-badge ${txn.amount >= 0 ? 'incoming' : 'outgoing'}">${txn.type}</span></td>
-                <td>${txn.account.replace('business-', '').replace('-', ' ')}</td>
-                <td class="amount ${txn.amount >= 0 ? 'positive' : 'negative'}">${txn.amount >= 0 ? '+' : ''}${this.formatCurrency(Math.abs(txn.amount))}</td>
-                <td><span class="status-badge completed">${txn.status}</span></td>
-            </tr>
-        `).join('');
+        try {
+            tableBody.innerHTML = allTxns.map(txn => `
+                <tr>
+                    <td>${this.formatDate(txn.date)}</td>
+                    <td>${txn.description}</td>
+                    <td><span class="type-badge ${txn.amount >= 0 ? 'incoming' : 'outgoing'}">${txn.type}</span></td>
+                    <td>${txn.account.replace('business-', '').replace('-', ' ')}</td>
+                    <td class="amount ${txn.amount >= 0 ? 'positive' : 'negative'}">${txn.amount >= 0 ? '+' : ''}${this.formatCurrency(Math.abs(txn.amount))}</td>
+                    <td><span class="status-badge completed">${txn.status}</span></td>
+                </tr>
+            `).join('');
+            
+            console.log('✅ Transaction history loaded successfully');
+        } catch (error) {
+            console.error('❌ Error rendering transaction history:', error);
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Error loading transactions</td></tr>';
+        }
     }
 
     getTransactionIcon(type) {

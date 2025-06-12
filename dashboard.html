@@ -392,45 +392,58 @@
 
     <script src="js/bank-app.js"></script>
     <script>
+        // ENHANCED: Dashboard initialization with aggressive debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Dashboard page loading...');
+            
+            // Wait for BankApp to be fully initialized
+            const initDashboard = async () => {
+                let attempts = 0;
+                
+                while ((!window.bankApp || !window.bankApp.database) && attempts < 200) {
+                    console.log(`⏳ Waiting for BankApp... attempt ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                if (!window.bankApp || !window.bankApp.database) {
+                    console.log('❌ BankApp failed to initialize after', attempts, 'attempts');
+                    return;
+                }
+                
+                console.log('✅ BankApp ready, loading user data...');
+                
+                // Load user data and wait for it to complete
+                await window.bankApp.loadUserData();
+                
+                // Force immediate load of recent transactions
+                console.log('🔄 Force loading recent transactions...');
+                window.bankApp.loadRecentTransactions();
+                
+                // Set up aggressive refresh for real-time updates
+                setInterval(() => {
+                    if (window.bankApp && window.bankApp.currentUser) {
+                        console.log('🔄 Periodic refresh - loading recent transactions');
+                        window.bankApp.loadRecentTransactions();
+                    }
+                }, 1000); // Refresh every 1 second for testing
+            };
+            
+            initDashboard();
+        });
+
         // Global function wrappers
         function loadRecentTransactions() {
             if (window.bankApp && window.bankApp.loadRecentTransactions) {
-                bankApp.loadRecentTransactions();
+                window.bankApp.loadRecentTransactions();
             }
         }
 
         function startFraudMonitoring() {
             if (window.bankApp && window.bankApp.logFraudEvent) {
-                bankApp.logFraudEvent('Fraud monitoring started on dashboard');
+                window.bankApp.logFraudEvent('Fraud monitoring started on dashboard');
             }
         }
-
-        // Enhanced dashboard initialization with real-time updates
-        document.addEventListener('DOMContentLoaded', function() {
-            const waitForBankApp = () => {
-                if (window.bankApp && window.bankApp.loadUserData) {
-                    // Initialize dashboard
-                    loadUserData();
-                    
-                    // Force load transactions after data loads
-                    setTimeout(() => {
-                        loadRecentTransactions();
-                        startFraudMonitoring();
-                        
-                        // Set up periodic refresh for real-time updates
-                        setInterval(() => {
-                            if (window.bankApp && window.bankApp.currentUser) {
-                                bankApp.loadRecentTransactions();
-                            }
-                        }, 2000); // Refresh every 2 seconds
-                    }, 1000);
-                } else {
-                    setTimeout(waitForBankApp, 100);
-                }
-            };
-            
-            waitForBankApp();
-        });
     </script>
 </body>
 </html>
