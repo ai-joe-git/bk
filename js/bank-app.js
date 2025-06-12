@@ -100,7 +100,7 @@ class BankApp {
                 const newData = snapshot.val();
                 console.log('📊 New data from Firebase:', newData);
                 
-                // Always update data
+                // Always update if data exists
                 const oldTimestamp = this.accounts.lastUpdated;
                 const newTimestamp = newData.lastUpdated;
                 
@@ -113,12 +113,22 @@ class BankApp {
                 // FORCE IMMEDIATE UI UPDATE
                 this.immediateUIUpdate();
                 
+                // Force complete page refresh if major changes detected
+                if (this.currentUser && this.accounts[this.currentUser]) {
+                    this.updateUserInterface();
+                    // Force reload all page elements
+                    setTimeout(() => {
+                        this.loadRecentTransactions();
+                        this.updateBalanceDisplays();
+                    }, 100);
+                }
+                
                 console.log('✅ Data updated and UI refreshed');
             } else {
                 console.log('❌ No data exists in Firebase');
             }
         }, (error) => {
-            console.error('❌ Firebase listener error:', error);
+            console.error('❌ Firebase sync error:', error);
         });
     }
 
@@ -172,6 +182,32 @@ class BankApp {
                 address: '456 Innovation Drive, Silicon Valley, CA 94025',
                 phone: '+1 (555) 987-6543',
                 ein: '12-3456789',
+                // ADDED: Enhanced business information fields
+                countryOfIncorporation: 'United States',
+                industry: 'Software Development',
+                website: 'www.techsolutions-inc.com',
+                email: 'contact@techsolutions-inc.com',
+                annualRevenue: 12500000,
+                employeeCount: 85,
+                yearsInBusiness: 12,
+                creditRating: 'A+ (Excellent)',
+                signatories: {
+                    primary: {
+                        name: 'Robert Brown',
+                        title: 'CEO',
+                        authority: 'Unlimited'
+                    },
+                    secondary: {
+                        name: 'Sarah Johnson',
+                        title: 'CFO',
+                        authority: 'Up to $50,000'
+                    },
+                    backup: {
+                        name: 'Michael Chen',
+                        title: 'COO',
+                        authority: 'Up to $25,000'
+                    }
+                },
                 transactions: [
                     {
                         id: 'TXN001',
@@ -717,12 +753,29 @@ class BankApp {
         this.immediateUIUpdate();
     }
 
-    // FIXED: Update balance displays with proper formatting
+    // ENHANCED: Update user interface with better error handling
+    updateUserInterface() {
+        console.log('🔄 Updating user interface...');
+        
+        const userElements = document.querySelectorAll('#currentUser');
+        userElements.forEach(el => {
+            if (el) el.textContent = this.currentUser;
+        });
+
+        this.updateBalanceDisplays();
+        
+        // Don't call transaction functions here to avoid conflicts
+        // They will be called by immediateUIUpdate()
+    }
+
+    // ENHANCED: Complete updateBalanceDisplays with ALL business information updates
     updateBalanceDisplays() {
         const account = this.accounts[this.currentUser];
         if (!account) return;
 
-        // Update dashboard balances
+        console.log('💰 Updating ALL displays with account data:', account);
+
+        // 1. Update dashboard balances (existing working code)
         const checkingEl = document.getElementById('businessCheckingBalance');
         const savingsEl = document.getElementById('businessSavingsBalance');
 
@@ -733,8 +786,158 @@ class BankApp {
             savingsEl.textContent = this.formatCurrency(account.businessSavingsBalance);
         }
 
+        // 2. ENHANCED: Update credit information using SAME pattern
+        const creditUsed = account.creditUsed || 0;
+        const creditLimit = account.creditLimit || 0;
+        const availableCredit = creditLimit - creditUsed;
+
+        const creditUsedEl = document.getElementById('creditUsedDisplay');
+        const creditLimitEl = document.getElementById('creditLimitDisplay');
+        const availableCreditEl = document.getElementById('availableCredit');
+
+        if (creditUsedEl) {
+            creditUsedEl.textContent = `Used: ${this.formatCurrency(creditUsed)}`;
+            console.log('✅ Credit used updated to:', creditUsed);
+        }
+
+        if (creditLimitEl) {
+            creditLimitEl.textContent = `Limit: ${this.formatCurrency(creditLimit)}`;
+            console.log('✅ Credit limit updated to:', creditLimit);
+        }
+
+        if (availableCreditEl) {
+            availableCreditEl.textContent = this.formatCurrency(availableCredit);
+            console.log('✅ Available credit updated to:', availableCredit);
+        }
+
+        // 3. ENHANCED: Update ALL business information using SAME pattern
+        // Update company name
+        const companyElements = [
+            document.getElementById('companyNameHeader'),
+            document.getElementById('accountHolderName'),
+            document.getElementById('legalName')
+        ];
+        companyElements.forEach(el => {
+            if (el && account.companyName) {
+                el.textContent = account.companyName;
+            }
+        });
+
+        // Update business type
+        const businessTypeElements = [
+            document.getElementById('businessType'),
+            document.getElementById('businessTypeDetail')
+        ];
+        businessTypeElements.forEach(el => {
+            if (el && account.businessType) {
+                el.textContent = account.businessType;
+            }
+        });
+
+        // Update EIN
+        const einElements = [
+            document.getElementById('companyEIN'),
+            document.getElementById('einDetail')
+        ];
+        einElements.forEach(el => {
+            if (el && account.ein) {
+                el.textContent = account.ein;
+            }
+        });
+
+        // Update address
+        const addressEl = document.getElementById('companyAddress');
+        if (addressEl && account.address) {
+            const cleanAddress = account.address.replace(/8888888/g, '').trim();
+            addressEl.innerHTML = cleanAddress.replace(/\n/g, '<br>');
+            console.log('✅ Address updated to:', cleanAddress);
+        }
+
+        // Update phone
+        const phoneEl = document.getElementById('companyPhone');
+        if (phoneEl && account.phone) {
+            phoneEl.textContent = account.phone;
+            console.log('✅ Phone updated to:', account.phone);
+        }
+
+        // ADDED: Update website
+        const websiteEl = document.getElementById('companyWebsite');
+        if (websiteEl && account.website) {
+            websiteEl.textContent = account.website;
+            console.log('✅ Website updated to:', account.website);
+        }
+
+        // ADDED: Update industry
+        const industryEl = document.getElementById('companyIndustry');
+        if (industryEl && account.industry) {
+            industryEl.textContent = account.industry;
+            console.log('✅ Industry updated to:', account.industry);
+        }
+
+        // ADDED: Update country of incorporation
+        const countryEl = document.getElementById('countryOfIncorporation');
+        if (countryEl && account.countryOfIncorporation) {
+            countryEl.textContent = account.countryOfIncorporation;
+            console.log('✅ Country updated to:', account.countryOfIncorporation);
+        }
+
+        // ADDED: Update business metrics
+        const revenueEl = document.getElementById('annualRevenue');
+        if (revenueEl && account.annualRevenue) {
+            revenueEl.textContent = this.formatCurrency(account.annualRevenue);
+            console.log('✅ Revenue updated to:', account.annualRevenue);
+        }
+
+        const employeesEl = document.getElementById('employeeCount');
+        if (employeesEl && account.employeeCount) {
+            employeesEl.textContent = account.employeeCount;
+            console.log('✅ Employees updated to:', account.employeeCount);
+        }
+
+        const yearsEl = document.getElementById('yearsInBusiness');
+        if (yearsEl && account.yearsInBusiness) {
+            yearsEl.textContent = account.yearsInBusiness;
+            console.log('✅ Years updated to:', account.yearsInBusiness);
+        }
+
+        const ratingEl = document.getElementById('creditRating');
+        if (ratingEl && account.creditRating) {
+            ratingEl.textContent = account.creditRating;
+            console.log('✅ Rating updated to:', account.creditRating);
+        }
+
+        // ADDED: Update signatories
+        if (account.signatories) {
+            const primaryEl = document.getElementById('primarySignatory');
+            if (primaryEl && account.signatories.primary) {
+                primaryEl.innerHTML = `<p><strong>Primary:</strong> ${account.signatories.primary.name} (${account.signatories.primary.title})</p><p>Authority: ${account.signatories.primary.authority}</p>`;
+                console.log('✅ Primary signatory updated');
+            }
+            
+            const secondaryEl = document.getElementById('secondarySignatory');
+            if (secondaryEl && account.signatories.secondary) {
+                secondaryEl.innerHTML = `<p><strong>Secondary:</strong> ${account.signatories.secondary.name} (${account.signatories.secondary.title})</p><p>Authority: ${account.signatories.secondary.authority}</p>`;
+                console.log('✅ Secondary signatory updated');
+            }
+            
+            const backupEl = document.getElementById('backupSignatory');
+            if (backupEl && account.signatories.backup) {
+                backupEl.innerHTML = `<p><strong>Backup:</strong> ${account.signatories.backup.name} (${account.signatories.backup.title})</p><p>Authority: ${account.signatories.backup.authority}</p>`;
+                console.log('✅ Backup signatory updated');
+            }
+        }
+
+        // Update DBA name
+        const dbaEl = document.getElementById('dbaName');
+        if (dbaEl && account.companyName) {
+            const dbaName = account.companyName.replace(' Inc.', '').replace(' LLC', '').replace(' Corp', '');
+            dbaEl.textContent = dbaName;
+        }
+
         // Update account selector
         this.updateAccountSelector();
+
+        console.log('✅ ALL displays updated successfully');
     }
 
     // FIXED: Update account selector with current balances
@@ -932,16 +1135,24 @@ class BankApp {
         window.location.href = 'index.html';
     }
 
+    // ENHANCED: Fraud logging with proper Firebase sync
     async logFraudEvent(event) {
         if (!this.currentUser) return;
         
         const timestamp = new Date().toISOString();
         const logEntry = `[${timestamp}] ${event}`;
         
+        // Ensure fraudLog array exists
+        if (!this.accounts[this.currentUser].fraudLog) {
+            this.accounts[this.currentUser].fraudLog = [];
+        }
+        
         this.accounts[this.currentUser].fraudLog.push(logEntry);
+        
+        // Force save to Firebase immediately
         await this.saveData();
         
-        console.log(`🚨 FRAUD LOG: ${logEntry}`);
+        console.log(`🚨 FRAUD LOG SAVED: ${logEntry}`);
     }
 
     formatCurrency(amount) {

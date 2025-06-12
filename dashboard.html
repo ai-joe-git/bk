@@ -98,7 +98,7 @@
                         <span>Corporate Business Account</span>
                     </div>
                     <div class="company-info-header">
-                        <h2>TechSolutions Inc.</h2>
+                        <h2 id="companyNameHeader">TechSolutions Inc.</h2>
                         <p>Business Banking Customer Since March 2018</p>
                         <span class="business-id">Business ID: BIZ-789456123</span>
                     </div>
@@ -120,9 +120,9 @@
                                 <span class="balance-amount" id="businessCheckingBalance">$125,847.92</span>
                             </div>
                             <div class="account-details">
-                                <p><strong>Account Holder:</strong> TechSolutions Inc.</p>
-                                <p><strong>EIN:</strong> 12-3456789</p>
-                                <p><strong>Business Type:</strong> C-Corporation</p>
+                                <p><strong>Account Holder:</strong> <span id="accountHolderName">TechSolutions Inc.</span></p>
+                                <p><strong>EIN:</strong> <span id="companyEIN">12-3456789</span></p>
+                                <p><strong>Business Type:</strong> <span id="businessType">C-Corporation</span></p>
                             </div>
                             <div class="account-actions">
                                 <button class="action-btn" onclick="location.href='transfer.html'">
@@ -172,11 +172,11 @@
                             </div>
                             <div class="account-balance">
                                 <span class="balance-label">Available Credit</span>
-                                <span class="balance-amount">$214,250.00</span>
+                                <span class="balance-amount" id="availableCredit">$214,250.00</span>
                             </div>
                             <div class="credit-info">
-                                <span class="credit-used">Used: $35,750.00</span>
-                                <span class="credit-limit">Limit: $250,000.00</span>
+                                <span class="credit-used" id="creditUsedDisplay">Used: $35,750.00</span>
+                                <span class="credit-limit" id="creditLimitDisplay">Limit: $250,000.00</span>
                             </div>
                         </div>
                     </div>
@@ -191,23 +191,23 @@
                             <div class="business-details">
                                 <div class="detail-row">
                                     <span class="label">Legal Name:</span>
-                                    <span class="value">TechSolutions Inc.</span>
+                                    <span class="value" id="legalName">TechSolutions Inc.</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">DBA:</span>
-                                    <span class="value">TechSolutions</span>
+                                    <span class="value" id="dbaName">TechSolutions</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">Business Type:</span>
-                                    <span class="value">C-Corporation</span>
+                                    <span class="value" id="businessTypeDetail">C-Corporation</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">EIN:</span>
-                                    <span class="value">12-3456789</span>
+                                    <span class="value" id="einDetail">12-3456789</span>
                                 </div>
                                 <div class="detail-row">
-                                    <span class="label">State of Incorporation:</span>
-                                    <span class="value">Delaware</span>
+                                    <span class="label">Country of Incorporation:</span>
+                                    <span class="value" id="countryOfIncorporation">United States</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">NAICS Code:</span>
@@ -220,54 +220,34 @@
                             <h3>Business Address</h3>
                             <div class="address-info">
                                 <p><strong>Headquarters:</strong></p>
-                                <p>456 Innovation Drive<br>
-                                Silicon Valley, CA 94025</p>
-                                <p><strong>Phone:</strong> +1 (555) 987-6543</p>
-                                <p><strong>Website:</strong> www.techsolutions-inc.com</p>
-                                <p><strong>Industry:</strong> Software Development</p>
+                                <div class="company-address" id="companyAddress">
+                                    456 Innovation Drive<br>
+                                    Silicon Valley, CA 94025
+                                </div>
+                                <p><strong>Phone:</strong> <span class="phone-number" id="companyPhone">+1 (555) 987-6543</span></p>
+                                <p><strong>Website:</strong> <span id="companyWebsite">www.techsolutions-inc.com</span></p>
+                                <p><strong>Industry:</strong> <span id="companyIndustry">Software Development</span></p>
                             </div>
                         </div>
 
                         <div class="business-card">
                             <h3>Authorized Signatories</h3>
                             <div class="signatories-list">
-                                <div class="signatory">
+                                <div class="signatory" id="primarySignatory">
                                     <p><strong>Primary:</strong> Robert Brown (CEO)</p>
                                     <p>Authority: Unlimited</p>
                                 </div>
-                                <div class="signatory">
+                                <div class="signatory" id="secondarySignatory">
                                     <p><strong>Secondary:</strong> Sarah Johnson (CFO)</p>
                                     <p>Authority: Up to $50,000</p>
                                 </div>
-                                <div class="signatory">
+                                <div class="signatory" id="backupSignatory">
                                     <p><strong>Backup:</strong> Michael Chen (COO)</p>
                                     <p>Authority: Up to $25,000</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="business-card">
-                            <h3>Business Metrics</h3>
-                            <div class="metrics-info">
-                                <div class="metric">
-                                    <span class="metric-label">Annual Revenue:</span>
-                                    <span class="metric-value">$12.5M</span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Employees:</span>
-                                    <span class="metric-value">85</span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Years in Business:</span>
-                                    <span class="metric-value">12</span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Credit Rating:</span>
-                                    <span class="metric-value">A+ (Excellent)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </section>
 
                 <!-- Quick Actions -->
@@ -392,14 +372,14 @@
 
     <script src="js/bank-app.js"></script>
     <script>
-        // ENHANCED: Dashboard initialization with aggressive debugging
+        // SIMPLIFIED: Use the exact same pattern as working balance updates
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Dashboard page loading...');
             
-            // Wait for BankApp to be fully initialized
             const initDashboard = async () => {
                 let attempts = 0;
                 
+                // Wait for BankApp to be ready
                 while ((!window.bankApp || !window.bankApp.database) && attempts < 200) {
                     console.log(`⏳ Waiting for BankApp... attempt ${attempts + 1}`);
                     await new Promise(resolve => setTimeout(resolve, 50));
@@ -407,27 +387,231 @@
                 }
                 
                 if (!window.bankApp || !window.bankApp.database) {
-                    console.log('❌ BankApp failed to initialize after', attempts, 'attempts');
+                    console.log('❌ BankApp failed to initialize');
                     return;
                 }
                 
                 console.log('✅ BankApp ready, loading user data...');
                 
-                // Load user data and wait for it to complete
+                // Load user data first
                 await window.bankApp.loadUserData();
                 
-                // Force immediate load of recent transactions
-                console.log('🔄 Force loading recent transactions...');
-                window.bankApp.loadRecentTransactions();
+                // Set up the SAME real-time sync as balances
+                setupSimpleRealTimeSync();
+            };
+            
+            // NEW: Simple real-time sync using the SAME pattern as balances
+            function setupSimpleRealTimeSync() {
+                // Set up Firebase listener - SAME as balance sync
+                window.firebaseOnValue(window.bankApp.accountsRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const newData = snapshot.val();
+                        console.log('📡 Firebase data received:', newData);
+                        
+                        // Update BankApp data - SAME as balance sync
+                        window.bankApp.accounts = newData;
+                        
+                        // Update ALL elements using the SAME pattern
+                        updateAllElements();
+                    }
+                });
                 
-                // Set up aggressive refresh for real-time updates
+                // Initial update
+                updateAllElements();
+                
+                // Periodic refresh - SAME as balance sync
                 setInterval(() => {
                     if (window.bankApp && window.bankApp.currentUser) {
-                        console.log('🔄 Periodic refresh - loading recent transactions');
-                        window.bankApp.loadRecentTransactions();
+                        updateAllElements();
                     }
-                }, 1000); // Refresh every 1 second for testing
-            };
+                }, 1000);
+            }
+            
+            // SIMPLIFIED: Update all elements using the SAME pattern as updateBalanceDisplays
+            function updateAllElements() {
+                if (!window.bankApp || !window.bankApp.currentUser) return;
+                
+                const account = window.bankApp.accounts[window.bankApp.currentUser];
+                if (!account) return;
+                
+                console.log('🔄 Updating elements with account data:', account);
+                
+                // 1. Update balances (this already works)
+                window.bankApp.updateBalanceDisplays();
+                
+                // 2. Update credit info using SAME pattern as balances
+                updateCreditInfo(account);
+                
+                // 3. Update business info using SAME pattern as balances
+                updateBusinessInfo(account);
+                
+                // 4. Load transactions
+                window.bankApp.loadRecentTransactions();
+            }
+            
+            // NEW: Update credit info using SAME pattern as updateBalanceDisplays
+            function updateCreditInfo(account) {
+                console.log('💳 Updating credit info:', {
+                    creditUsed: account.creditUsed,
+                    creditLimit: account.creditLimit
+                });
+                
+                // Use Firebase values directly - SAME as balance updates
+                const creditUsed = account.creditUsed || 0;
+                const creditLimit = account.creditLimit || 0;
+                const availableCredit = creditLimit - creditUsed;
+                
+                // Update elements directly - SAME pattern as balances
+                const creditUsedEl = document.getElementById('creditUsedDisplay');
+                const creditLimitEl = document.getElementById('creditLimitDisplay');
+                const availableCreditEl = document.getElementById('availableCredit');
+                
+                if (creditUsedEl) {
+                    creditUsedEl.textContent = `Used: ${window.bankApp.formatCurrency(creditUsed)}`;
+                }
+                
+                if (creditLimitEl) {
+                    creditLimitEl.textContent = `Limit: ${window.bankApp.formatCurrency(creditLimit)}`;
+                }
+                
+                if (availableCreditEl) {
+                    availableCreditEl.textContent = window.bankApp.formatCurrency(availableCredit);
+                }
+                
+                console.log('✅ Credit info updated');
+            }
+            
+            // NEW: Update business info using SAME pattern as updateBalanceDisplays
+            function updateBusinessInfo(account) {
+                console.log('🏢 Updating business info:', {
+                    companyName: account.companyName,
+                    businessType: account.businessType,
+                    ein: account.ein,
+                    address: account.address,
+                    phone: account.phone,
+                    website: account.website,
+                    industry: account.industry,
+                    countryOfIncorporation: account.countryOfIncorporation,
+                    annualRevenue: account.annualRevenue,
+                    employeeCount: account.employeeCount,
+                    yearsInBusiness: account.yearsInBusiness,
+                    creditRating: account.creditRating,
+                    signatories: account.signatories
+                });
+                
+                // Update company name - SAME pattern as balances
+                const companyElements = [
+                    document.getElementById('companyNameHeader'),
+                    document.getElementById('accountHolderName'),
+                    document.getElementById('legalName')
+                ];
+                companyElements.forEach(el => {
+                    if (el && account.companyName) {
+                        el.textContent = account.companyName;
+                    }
+                });
+                
+                // Update business type - SAME pattern as balances
+                const businessTypeElements = [
+                    document.getElementById('businessType'),
+                    document.getElementById('businessTypeDetail')
+                ];
+                businessTypeElements.forEach(el => {
+                    if (el && account.businessType) {
+                        el.textContent = account.businessType;
+                    }
+                });
+                
+                // Update EIN - SAME pattern as balances
+                const einElements = [
+                    document.getElementById('companyEIN'),
+                    document.getElementById('einDetail')
+                ];
+                einElements.forEach(el => {
+                    if (el && account.ein) {
+                        el.textContent = account.ein;
+                    }
+                });
+                
+                // Update address - SAME pattern as balances
+                const addressEl = document.getElementById('companyAddress');
+                if (addressEl && account.address) {
+                    const cleanAddress = account.address.replace(/8888888/g, '').trim();
+                    addressEl.innerHTML = cleanAddress.replace(/\n/g, '<br>');
+                }
+                
+                // Update phone - SAME pattern as balances
+                const phoneEl = document.getElementById('companyPhone');
+                if (phoneEl && account.phone) {
+                    phoneEl.textContent = account.phone;
+                }
+                
+                // Update website - SAME pattern as balances
+                const websiteEl = document.getElementById('companyWebsite');
+                if (websiteEl && account.website) {
+                    websiteEl.textContent = account.website;
+                }
+                
+                // Update industry - SAME pattern as balances
+                const industryEl = document.getElementById('companyIndustry');
+                if (industryEl && account.industry) {
+                    industryEl.textContent = account.industry;
+                }
+                
+                // Update country of incorporation - SAME pattern as balances
+                const countryEl = document.getElementById('countryOfIncorporation');
+                if (countryEl && account.countryOfIncorporation) {
+                    countryEl.textContent = account.countryOfIncorporation;
+                }
+                
+                // Update business metrics - SAME pattern as balances
+                const revenueEl = document.getElementById('annualRevenue');
+                if (revenueEl && account.annualRevenue) {
+                    revenueEl.textContent = window.bankApp.formatCurrency(account.annualRevenue);
+                }
+                
+                const employeesEl = document.getElementById('employeeCount');
+                if (employeesEl && account.employeeCount) {
+                    employeesEl.textContent = account.employeeCount;
+                }
+                
+                const yearsEl = document.getElementById('yearsInBusiness');
+                if (yearsEl && account.yearsInBusiness) {
+                    yearsEl.textContent = account.yearsInBusiness;
+                }
+                
+                const ratingEl = document.getElementById('creditRating');
+                if (ratingEl && account.creditRating) {
+                    ratingEl.textContent = account.creditRating;
+                }
+                
+                // Update signatories - SAME pattern as balances
+                if (account.signatories) {
+                    const primaryEl = document.getElementById('primarySignatory');
+                    if (primaryEl && account.signatories.primary) {
+                        primaryEl.innerHTML = `<p><strong>Primary:</strong> ${account.signatories.primary.name} (${account.signatories.primary.title})</p><p>Authority: ${account.signatories.primary.authority}</p>`;
+                    }
+                    
+                    const secondaryEl = document.getElementById('secondarySignatory');
+                    if (secondaryEl && account.signatories.secondary) {
+                        secondaryEl.innerHTML = `<p><strong>Secondary:</strong> ${account.signatories.secondary.name} (${account.signatories.secondary.title})</p><p>Authority: ${account.signatories.secondary.authority}</p>`;
+                    }
+                    
+                    const backupEl = document.getElementById('backupSignatory');
+                    if (backupEl && account.signatories.backup) {
+                        backupEl.innerHTML = `<p><strong>Backup:</strong> ${account.signatories.backup.name} (${account.signatories.backup.title})</p><p>Authority: ${account.signatories.backup.authority}</p>`;
+                    }
+                }
+                
+                // Update DBA name - SAME pattern as balances
+                const dbaEl = document.getElementById('dbaName');
+                if (dbaEl && account.companyName) {
+                    const dbaName = account.companyName.replace(' Inc.', '').replace(' LLC', '').replace(' Corp', '');
+                    dbaEl.textContent = dbaName;
+                }
+                
+                console.log('✅ Business info updated');
+            }
             
             initDashboard();
         });

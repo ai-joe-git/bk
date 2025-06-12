@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/bank-style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Admin Authentication check -->
+    <!-- Authentication check -->
     <script>
         (function() {
             const adminAuth = localStorage.getItem('adminAuth');
@@ -51,106 +51,182 @@
     <div class="admin-app">
         <!-- Admin Header -->
         <header class="admin-header">
-            <div class="header-left">
-                <div class="admin-logo">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>SecureBank Pro - Admin Panel</span>
-                </div>
+            <div class="admin-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SecureBank Pro - Admin Panel</span>
             </div>
-            <div class="header-right">
-                <div class="admin-info">
-                    <span class="admin-text">Administrator</span>
-                    <button class="logout-btn" onclick="adminLogout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
+            <div class="admin-actions">
+                <button id="darkModeToggle" class="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="logout-btn" onclick="adminLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
             </div>
         </header>
 
-        <!-- Admin Main Content -->
+        <!-- Main Content -->
         <main class="admin-main">
             <div class="admin-container">
-                <!-- Admin Dashboard -->
-                <section class="admin-dashboard">
-                    <h1>Bank Account Management</h1>
-                    <p>Manage all customer accounts, balances, and transactions</p>
-
-                    <!-- Quick Stats -->
-                    <div class="admin-stats">
-                        <div class="stat-card">
-                            <i class="fas fa-users"></i>
-                            <div class="stat-info">
-                                <h3 id="totalAccounts">0</h3>
-                                <p>Total Accounts</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-dollar-sign"></i>
-                            <div class="stat-info">
-                                <h3 id="totalBalance">$0</h3>
-                                <p>Total Balance</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-exchange-alt"></i>
-                            <div class="stat-info">
-                                <h3 id="totalTransactions">0</h3>
-                                <p>Total Transactions</p>
-                            </div>
+                <!-- Admin Stats -->
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-info">
+                            <h3 id="totalAccounts">0</h3>
+                            <p>Total Accounts</p>
                         </div>
                     </div>
+                    <div class="stat-card">
+                        <i class="fas fa-dollar-sign"></i>
+                        <div class="stat-info">
+                            <h3 id="totalBalance">$0.00</h3>
+                            <p>Total Balance</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-exchange-alt"></i>
+                        <div class="stat-info">
+                            <h3 id="totalTransactions">0</h3>
+                            <p>Total Transactions</p>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Account Management -->
-                    <div class="admin-section">
-                        <div class="section-header">
-                            <h2>Account Management</h2>
-                            <button class="add-account-btn" onclick="showAddAccountModal()">
-                                <i class="fas fa-plus"></i>
-                                Add New Account
+                <!-- Account Management -->
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2>Account Management</h2>
+                        <button class="add-account-btn" onclick="showAddAccountModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Account
+                        </button>
+                    </div>
+                    
+                    <div class="accounts-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Company</th>
+                                    <th>Checking Balance</th>
+                                    <th>Savings Balance</th>
+                                    <th>Credit Used</th>
+                                    <th>Transactions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px;">Loading accounts...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Incoming Transfer Simulation -->
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2>Incoming Transfer Simulation</h2>
+                    </div>
+                    
+                    <div class="transfer-simulation-form">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="targetAccount">Target Account</label>
+                                <select id="targetAccount" required>
+                                    <option value="">Select Account</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="targetAccountType">Account Type</label>
+                                <select id="targetAccountType" required>
+                                    <option value="business-checking">Business Checking</option>
+                                    <option value="business-savings">Business Savings</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="transferAmount">Amount ($)</label>
+                                <input type="number" id="transferAmount" step="0.01" min="0.01" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="transferType">Transfer Type</label>
+                                <select id="transferType">
+                                    <option value="client-payment">Client Payment</option>
+                                    <option value="salary-deposit">Salary Deposit</option>
+                                    <option value="investment-return">Investment Return</option>
+                                    <option value="loan-disbursement">Loan Disbursement</option>
+                                    <option value="refund">Refund</option>
+                                    <option value="government-payment">Government Payment</option>
+                                    <option value="insurance-claim">Insurance Claim</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="senderName">Sender Name</label>
+                                <input type="text" id="senderName" required placeholder="John Doe">
+                            </div>
+                            <div class="input-group">
+                                <label for="senderBank">Sender Bank (Optional)</label>
+                                <input type="text" id="senderBank" placeholder="Chase Bank">
+                            </div>
+                            <div class="input-group full-width">
+                                <label for="transferDescription">Description</label>
+                                <input type="text" id="transferDescription" required placeholder="Payment for services rendered">
+                            </div>
+                            <div class="input-group">
+                                <label for="referenceNumber">Reference Number (Optional)</label>
+                                <input type="text" id="referenceNumber" placeholder="Auto-generated if empty">
+                            </div>
+                        </div>
+
+                        <div class="transfer-preview">
+                            <h3>Transfer Preview</h3>
+                            <div class="preview-details">
+                                <div class="preview-item">
+                                    <span class="label">Amount:</span>
+                                    <span class="value" id="previewAmount">$0.00</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="label">To:</span>
+                                    <span class="value" id="previewTarget">Select account</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="label">From:</span>
+                                    <span class="value" id="previewSender">Enter sender name</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="label">Description:</span>
+                                    <span class="value" id="previewDescription">Enter description</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="simulate-transfer-btn" onclick="simulateIncomingTransfer()">
+                            <i class="fas fa-paper-plane"></i>
+                            Simulate Incoming Transfer
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Fraud Monitoring -->
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2>Real-time Activity Logs</h2>
+                        <div class="logs-header">
+                            <button class="clear-logs-btn" onclick="clearAllLogs()">
+                                <i class="fas fa-trash"></i>
+                                Clear All Logs
                             </button>
                         </div>
-
-                        <!-- Accounts Table -->
-                        <div class="accounts-table-container">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Username</th>
-                                        <th>Company Name</th>
-                                        <th>Checking Balance</th>
-                                        <th>Savings Balance</th>
-                                        <th>Credit Used</th>
-                                        <th>Transactions</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="accountsTableBody">
-                                    <tr>
-                                        <td colspan="7" style="text-align: center; padding: 40px;">
-                                            <i class="fas fa-spinner fa-spin"></i> Loading accounts...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
-
-                    <!-- Fraud Monitoring -->
-                    <div class="admin-section">
-                        <h2>Fraud Monitoring</h2>
-                        <div class="fraud-logs-container">
-                            <div class="logs-header">
-                                <h3>Real-time Activity Logs</h3>
-                                <button class="clear-logs-btn" onclick="clearAllLogs()">
-                                    <i class="fas fa-trash"></i>
-                                    Clear Logs
-                                </button>
-                            </div>
-                            <div class="fraud-logs" id="fraudLogsContainer">
-                                <div style="text-align: center; padding: 40px; color: #64748b;">
-                                    <i class="fas fa-spinner fa-spin"></i> Loading fraud logs...
-                                </div>
+                    
+                    <div class="fraud-logs-container">
+                        <div class="fraud-logs" id="fraudLogsContainer">
+                            <div style="text-align: center; padding: 40px; color: #64748b;">
+                                Loading fraud logs...
                             </div>
                         </div>
                     </div>
@@ -170,55 +246,224 @@
             </div>
             <div class="modal-body">
                 <form id="accountForm" class="admin-form">
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="editUsername">Username</label>
-                            <input type="text" id="editUsername" required>
+                    <!-- Basic Account Information -->
+                    <div class="form-section">
+                        <h3>Account Credentials</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="editUsername">Username</label>
+                                <input type="text" id="editUsername" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="editPassword">Password</label>
+                                <input type="password" id="editPassword" required>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="editPassword">Password</label>
-                            <input type="password" id="editPassword" required>
+                    </div>
+
+                    <!-- Company Information -->
+                    <div class="form-section">
+                        <h3>Company Information</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="editCompanyName">Company Name</label>
+                                <input type="text" id="editCompanyName" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="editBusinessType">Business Type</label>
+                                <select id="editBusinessType">
+                                    <option value="C-Corporation">C-Corporation</option>
+                                    <option value="LLC">LLC</option>
+                                    <option value="Partnership">Partnership</option>
+                                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                                    <option value="S-Corporation">S-Corporation</option>
+                                    <option value="Non-Profit">Non-Profit</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="editEIN">EIN</label>
+                                <input type="text" id="editEIN" placeholder="12-3456789">
+                            </div>
+                            <div class="input-group">
+                                <label for="editCountryOfIncorporation">Country of Incorporation</label>
+                                <select id="editCountryOfIncorporation">
+                                    <option value="United States">United States</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="France">France</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="editIndustry">Industry</label>
+                                <select id="editIndustry">
+                                    <option value="Software Development">Software Development</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Retail">Retail</option>
+                                    <option value="Construction">Construction</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Real Estate">Real Estate</option>
+                                    <option value="Consulting">Consulting</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="editWebsite">Website URL</label>
+                                <input type="url" id="editWebsite" placeholder="https://www.company.com">
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="editCompanyName">Company Name</label>
-                            <input type="text" id="editCompanyName" required>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-section">
+                        <h3>Contact Information</h3>
+                        <div class="form-grid">
+                            <div class="input-group full-width">
+                                <label for="editAddress">Business Address</label>
+                                <textarea id="editAddress" rows="3" placeholder="Street Address, City, State/Province, Postal Code, Country"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="editPhone">Phone Number</label>
+                                <input type="tel" id="editPhone" placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div class="input-group">
+                                <label for="editEmail">Email Address</label>
+                                <input type="email" id="editEmail" placeholder="contact@company.com">
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="editBusinessType">Business Type</label>
-                            <select id="editBusinessType">
-                                <option value="C-Corporation">C-Corporation</option>
-                                <option value="LLC">LLC</option>
-                                <option value="Partnership">Partnership</option>
-                                <option value="Sole Proprietorship">Sole Proprietorship</option>
-                            </select>
+                    </div>
+
+                    <!-- Financial Information -->
+                    <div class="form-section">
+                        <h3>Financial Information</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="editCheckingBalance">Checking Balance ($)</label>
+                                <input type="number" id="editCheckingBalance" step="0.01" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="editSavingsBalance">Savings Balance ($)</label>
+                                <input type="number" id="editSavingsBalance" step="0.01" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="editCreditLimit">Credit Limit ($)</label>
+                                <input type="number" id="editCreditLimit" step="0.01" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="editCreditUsed">Credit Used ($)</label>
+                                <input type="number" id="editCreditUsed" step="0.01" min="0">
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="editCheckingBalance">Checking Balance ($)</label>
-                            <input type="number" id="editCheckingBalance" step="0.01" min="0">
+                    </div>
+
+                    <!-- Business Metrics -->
+                    <div class="form-section">
+                        <h3>Business Metrics</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="editAnnualRevenue">Annual Revenue ($)</label>
+                                <input type="number" id="editAnnualRevenue" step="0.01" min="0" placeholder="12500000">
+                            </div>
+                            <div class="input-group">
+                                <label for="editEmployeeCount">Number of Employees</label>
+                                <input type="number" id="editEmployeeCount" min="1" placeholder="85">
+                            </div>
+                            <div class="input-group">
+                                <label for="editYearsInBusiness">Years in Business</label>
+                                <input type="number" id="editYearsInBusiness" min="0" placeholder="12">
+                            </div>
+                            <div class="input-group">
+                                <label for="editCreditRating">Credit Rating</label>
+                                <select id="editCreditRating">
+                                    <option value="A+ (Excellent)">A+ (Excellent)</option>
+                                    <option value="A (Very Good)">A (Very Good)</option>
+                                    <option value="B+ (Good)">B+ (Good)</option>
+                                    <option value="B (Fair)">B (Fair)</option>
+                                    <option value="C+ (Poor)">C+ (Poor)</option>
+                                    <option value="C (Very Poor)">C (Very Poor)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label for="editSavingsBalance">Savings Balance ($)</label>
-                            <input type="number" id="editSavingsBalance" step="0.01" min="0">
-                        </div>
-                        <div class="input-group">
-                            <label for="editCreditLimit">Credit Limit ($)</label>
-                            <input type="number" id="editCreditLimit" step="0.01" min="0">
-                        </div>
-                        <div class="input-group">
-                            <label for="editCreditUsed">Credit Used ($)</label>
-                            <input type="number" id="editCreditUsed" step="0.01" min="0">
-                        </div>
-                        <div class="input-group full-width">
-                            <label for="editAddress">Business Address</label>
-                            <textarea id="editAddress" rows="3"></textarea>
-                        </div>
-                        <div class="input-group">
-                            <label for="editPhone">Phone Number</label>
-                            <input type="tel" id="editPhone">
-                        </div>
-                        <div class="input-group">
-                            <label for="editEIN">EIN</label>
-                            <input type="text" id="editEIN" placeholder="12-3456789">
+                    </div>
+
+                    <!-- Authorized Signatories -->
+                    <div class="form-section">
+                        <h3>Authorized Signatories</h3>
+                        <div class="signatories-container">
+                            <div class="signatory-group">
+                                <h4>Primary Signatory</h4>
+                                <div class="form-grid">
+                                    <div class="input-group">
+                                        <label for="editPrimaryName">Full Name</label>
+                                        <input type="text" id="editPrimaryName" placeholder="Robert Brown">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="editPrimaryTitle">Title</label>
+                                        <input type="text" id="editPrimaryTitle" placeholder="CEO">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="editPrimaryAuthority">Authority Limit</label>
+                                        <select id="editPrimaryAuthority">
+                                            <option value="Unlimited">Unlimited</option>
+                                            <option value="Up to $1,000,000">Up to $1,000,000</option>
+                                            <option value="Up to $500,000">Up to $500,000</option>
+                                            <option value="Up to $100,000">Up to $100,000</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="signatory-group">
+                                <h4>Secondary Signatory</h4>
+                                <div class="form-grid">
+                                    <div class="input-group">
+                                        <label for="editSecondaryName">Full Name</label>
+                                        <input type="text" id="editSecondaryName" placeholder="Sarah Johnson">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="editSecondaryTitle">Title</label>
+                                        <input type="text" id="editSecondaryTitle" placeholder="CFO">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="editSecondaryAuthority">Authority Limit</label>
+                                        <select id="editSecondaryAuthority">
+                                            <option value="Up to $50,000">Up to $50,000</option>
+                                            <option value="Up to $100,000">Up to $100,000</option>
+                                            <option value="Up to $250,000">Up to $250,000</option>
+                                            <option value="Up to $500,000">Up to $500,000</option>
+                                            <option value="Unlimited">Unlimited</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="signatory-group">
+                                <h4>Backup Signatory</h4>
+                                <div class="form-grid">
+                                    <div class="input-group">
+                                        <label for="editBackupName">Full Name</label>
+                                        <input type="text" id="editBackupName" placeholder="Michael Chen">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="editBackupTitle">Title</label>
+                                        <input type="text" id="editBackupTitle" placeholder="COO">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="editBackupAuthority">Authority Limit</label>
+                                        <select id="editBackupAuthority">
+                                            <option value="Up to $25,000">Up to $25,000</option>
+                                            <option value="Up to $50,000">Up to $50,000</option>
+                                            <option value="Up to $100,000">Up to $100,000</option>
+                                            <option value="Up to $250,000">Up to $250,000</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -230,7 +475,7 @@
         </div>
     </div>
 
-    <!-- Balance Edit Modal -->
+    <!-- Edit Balances Modal -->
     <div id="balanceModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -240,26 +485,24 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="balanceForm">
-                    <div class="balance-edit-grid">
-                        <div class="input-group">
-                            <label for="newCheckingBalance">Checking Balance ($)</label>
-                            <input type="number" id="newCheckingBalance" step="0.01">
-                        </div>
-                        <div class="input-group">
-                            <label for="newSavingsBalance">Savings Balance ($)</label>
-                            <input type="number" id="newSavingsBalance" step="0.01">
-                        </div>
-                        <div class="input-group">
-                            <label for="newCreditUsed">Credit Used ($)</label>
-                            <input type="number" id="newCreditUsed" step="0.01">
-                        </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="newCheckingBalance">Checking Balance ($)</label>
+                        <input type="number" id="newCheckingBalance" step="0.01" min="0">
                     </div>
-                </form>
+                    <div class="input-group">
+                        <label for="newSavingsBalance">Savings Balance ($)</label>
+                        <input type="number" id="newSavingsBalance" step="0.01" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="newCreditUsed">Credit Used ($)</label>
+                        <input type="number" id="newCreditUsed" step="0.01" min="0">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeBalanceModal()">Cancel</button>
-                <button type="button" class="btn-primary" onclick="saveBalances()">Update Balances</button>
+                <button type="button" class="btn-primary" onclick="saveBalances()">Save Changes</button>
             </div>
         </div>
     </div>
@@ -272,58 +515,12 @@
         </div>
     </div>
 
-    <!-- Dark Mode Toggle -->
-    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
-        <i class="fas fa-moon"></i>
-    </button>
-
-    <script src="js/bank-app.js"></script>
     <script src="js/admin.js"></script>
     <script>
-        // Global function wrappers for admin page
-        function showAddAccountModal() {
-            if (window.adminPanel) {
-                adminPanel.showAddAccountModal();
-            }
-        }
-
-        function closeAccountModal() {
-            if (window.adminPanel) {
-                adminPanel.closeAccountModal();
-            }
-        }
-
-        function closeBalanceModal() {
-            if (window.adminPanel) {
-                adminPanel.closeBalanceModal();
-            }
-        }
-
-        function saveAccount() {
-            if (window.adminPanel) {
-                adminPanel.saveAccount();
-            }
-        }
-
-        function saveBalances() {
-            if (window.adminPanel) {
-                adminPanel.saveBalances();
-            }
-        }
-
-        function clearAllLogs() {
-            if (window.adminPanel) {
-                adminPanel.clearAllLogs();
-            }
-        }
-
-        function adminLogout() {
-            localStorage.removeItem('adminAuth');
-            window.location.href = 'admin-login.html';
-        }
-
         // Initialize admin panel
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Admin page loading...');
+            
             // Initialize dark mode toggle
             const darkModeToggle = document.getElementById('darkModeToggle');
             

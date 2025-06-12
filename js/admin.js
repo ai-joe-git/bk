@@ -1,40 +1,90 @@
-// Admin Panel JavaScript
+// Admin Panel JavaScript - Complete Fixed Version with Enhanced Business Information
 class AdminPanel {
     constructor() {
         this.accounts = {};
         this.currentEditingAccount = null;
+        this.database = null;
+        this.accountsRef = null;
         this.init();
     }
 
-    init() {
-        this.loadAccounts();
-        this.setupEventListeners();
-        this.initializeDarkMode();
+    async init() {
+        console.log('🚀 Admin Panel initializing...');
+        
+        // Wait for Firebase to be available
+        await this.waitForFirebase();
+        this.database = window.firebaseDatabase;
+        this.accountsRef = window.firebaseRef(this.database, 'bankAccounts');
+        
+        console.log('✅ Firebase connected');
+        
+        await this.loadAccounts();
+        this.setupRealTimeSync();
+        this.populateAccountSelector();
+        this.setupTransferPreview();
         this.updateStats();
         this.loadFraudLogs();
+        
+        console.log('✅ Admin Panel initialized');
     }
 
-    loadAccounts() {
-        const storedAccounts = localStorage.getItem('bankAccounts');
-        if (storedAccounts) {
-            this.accounts = JSON.parse(storedAccounts);
+    async waitForFirebase() {
+        let attempts = 0;
+        while (!window.firebaseDatabase && attempts < 100) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        if (!window.firebaseDatabase) {
+            throw new Error('Firebase not available');
+        }
+    }
+
+    // Set up real-time sync for admin panel
+    setupRealTimeSync() {
+        console.log('🔄 Setting up admin real-time sync...');
+        
+        window.firebaseOnValue(this.accountsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const newData = snapshot.val();
+                console.log('📡 Admin received Firebase data:', newData);
+                this.accounts = newData;
+                this.displayAccounts();
+                this.updateStats();
+                this.loadFraudLogs();
+                this.populateAccountSelector();
+            }
+        }, (error) => {
+            console.error('❌ Admin Firebase sync error:', error);
+        });
+    }
+
+    async loadAccounts() {
+        try {
+            console.log('📊 Loading accounts...');
+            const snapshot = await window.firebaseGet(this.accountsRef);
+            if (snapshot.exists()) {
+                this.accounts = snapshot.val();
+                console.log('✅ Accounts loaded:', this.accounts);
+            } else {
+                console.log('❌ No accounts found in Firebase');
+                this.accounts = {};
+            }
+        } catch (error) {
+            console.error('❌ Error loading accounts:', error);
+            this.accounts = {};
         }
         this.displayAccounts();
     }
 
-    setupEventListeners() {
-        // Auto-refresh every 5 seconds
-        setInterval(() => {
-            this.loadAccounts();
-            this.loadFraudLogs();
-        }, 5000);
-    }
-
     displayAccounts() {
         const tableBody = document.getElementById('accountsTableBody');
-        if (!tableBody) return;
+        if (!tableBody) {
+            console.log('❌ Account table body not found');
+            return;
+        }
 
-        const accountEntries = Object.entries(this.accounts);
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        console.log('📊 Displaying accounts:', accountEntries);
         
         if (accountEntries.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No accounts found</td></tr>';
@@ -50,13 +100,13 @@ class AdminPanel {
                 <td class="balance">${this.formatCurrency(account.creditUsed || 0)}</td>
                 <td>${account.transactions ? account.transactions.length : 0}</td>
                 <td class="actions">
-                    <button class="action-btn edit" onclick="adminPanel.editAccount('${username}')" title="Edit Account">
+                    <button class="action-btn edit" onclick="window.adminPanel.editAccount('${username}')" title="Edit Account">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn balance" onclick="adminPanel.editBalances('${username}')" title="Edit Balances">
+                    <button class="action-btn balance" onclick="window.adminPanel.editBalances('${username}')" title="Edit Balances">
                         <i class="fas fa-dollar-sign"></i>
                     </button>
-                    <button class="action-btn delete" onclick="adminPanel.deleteAccount('${username}')" title="Delete Account">
+                    <button class="action-btn delete" onclick="window.adminPanel.deleteAccount('${username}')" title="Delete Account">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -65,7 +115,7 @@ class AdminPanel {
     }
 
     updateStats() {
-        const accountEntries = Object.entries(this.accounts);
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
         const totalAccounts = accountEntries.length;
         
         let totalBalance = 0;
@@ -76,54 +126,297 @@ class AdminPanel {
             totalTransactions += account.transactions ? account.transactions.length : 0;
         });
 
-        document.getElementById('totalAccounts').textContent = totalAccounts;
-        document.getElementById('totalBalance').textContent = this.formatCurrency(totalBalance);
-        document.getElementById('totalTransactions').textContent = totalTransactions;
+        const totalAccountsEl = document.getElementById('totalAccounts');
+        const totalBalanceEl = document.getElementById('totalBalance');
+        const totalTransactionsEl = document.getElementById('totalTransactions');
+
+        if (totalAccountsEl) totalAccountsEl.textContent = totalAccounts;
+        if (totalBalanceEl) totalBalanceEl.textContent = this.formatCurrency(totalBalance);
+        if (totalTransactionsEl) totalTransactionsEl.textContent = totalTransactions;
+
+        console.log('📊 Stats updated:', { totalAccounts, totalBalance, totalTransactions });
+    }
+
+    // Populate account selector for incoming transfers
+    populateAccountSelector() {
+        const selector = document.getElementById('targetAccount');
+        if (!selector) {
+            console.log('❌ Target account selector not found');
+            return;
+        }
+
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        console.log('📊 Populating account selector with:', accountEntries);
+        
+        selector.innerHTML = '<option value="">Select Account</option>' + 
+            accountEntries.map(([username, account]) => 
+                `<option value="${username}">${username} - ${account.companyName || 'Unknown Company'}</option>`
+            ).join('');
+    }
+
+    // Setup transfer preview updates
+    setupTransferPreview() {
+        const inputs = ['transferAmount', 'targetAccount', 'targetAccountType', 'senderName', 'transferDescription'];
+        
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', () => this.updateTransferPreview());
+            }
+        });
+    }
+
+    // Update transfer preview
+    updateTransferPreview() {
+        const amount = document.getElementById('transferAmount')?.value;
+        const targetAccount = document.getElementById('targetAccount')?.value;
+        const accountType = document.getElementById('targetAccountType')?.value;
+        const senderName = document.getElementById('senderName')?.value;
+        const description = document.getElementById('transferDescription')?.value;
+
+        const previewAmount = document.getElementById('previewAmount');
+        const previewTarget = document.getElementById('previewTarget');
+        const previewSender = document.getElementById('previewSender');
+        const previewDescription = document.getElementById('previewDescription');
+
+        if (previewAmount) previewAmount.textContent = amount ? this.formatCurrency(parseFloat(amount)) : '$0.00';
+        
+        if (previewTarget) {
+            if (targetAccount && accountType) {
+                const accountName = accountType.replace('business-', '').replace('-', ' ');
+                previewTarget.textContent = `${targetAccount} (${accountName})`;
+            } else {
+                previewTarget.textContent = 'Select account';
+            }
+        }
+        
+        if (previewSender) previewSender.textContent = senderName || 'Enter sender name';
+        if (previewDescription) previewDescription.textContent = description || 'Enter description';
+    }
+
+    // Simulate incoming transfer
+    async simulateIncomingTransfer() {
+        console.log('💰 Starting incoming transfer simulation...');
+        
+        const targetAccount = document.getElementById('targetAccount')?.value;
+        const accountType = document.getElementById('targetAccountType')?.value;
+        const amount = parseFloat(document.getElementById('transferAmount')?.value);
+        const transferType = document.getElementById('transferType')?.value;
+        const senderName = document.getElementById('senderName')?.value?.trim();
+        const description = document.getElementById('transferDescription')?.value?.trim();
+        const senderBank = document.getElementById('senderBank')?.value?.trim();
+        let referenceNumber = document.getElementById('referenceNumber')?.value?.trim();
+
+        // Validation
+        if (!targetAccount || !accountType || !amount || !senderName || !description) {
+            this.showError('Please fill in all required fields');
+            return;
+        }
+
+        if (amount <= 0) {
+            this.showError('Amount must be greater than 0');
+            return;
+        }
+
+        // Generate reference number if not provided
+        if (!referenceNumber) {
+            referenceNumber = this.generateReferenceNumber(transferType);
+        }
+
+        this.showLoading();
+
+        try {
+            const account = this.accounts[targetAccount];
+            if (!account) {
+                throw new Error('Target account not found');
+            }
+
+            // Update balance
+            if (accountType === 'business-checking') {
+                account.businessCheckingBalance = (account.businessCheckingBalance || 0) + amount;
+            } else {
+                account.businessSavingsBalance = (account.businessSavingsBalance || 0) + amount;
+            }
+
+            // Create transaction record
+            const transaction = {
+                id: this.generateTransactionId(),
+                date: new Date().toISOString().replace('T', ' ').substr(0, 19),
+                type: 'Incoming Transfer',
+                amount: amount,
+                description: `${description} - From: ${senderName}${senderBank ? ` (${senderBank})` : ''}`,
+                account: accountType,
+                status: 'completed',
+                reference: referenceNumber,
+                sender: senderName,
+                senderBank: senderBank || 'External Bank',
+                transferType: transferType,
+                simulatedBy: 'Admin'
+            };
+
+            // Add transaction to account
+            if (!account.transactions) {
+                account.transactions = [];
+            }
+            account.transactions.push(transaction);
+
+            // Log admin action
+            if (!account.fraudLog) {
+                account.fraudLog = [];
+            }
+            const logEntry = `[${new Date().toISOString()}] ADMIN: Simulated incoming transfer of ${this.formatCurrency(amount)} to ${targetAccount} (${accountType}) from ${senderName}`;
+            account.fraudLog.push(logEntry);
+
+            // Save to Firebase
+            await this.saveAccounts();
+
+            // Clear form
+            this.clearTransferForm();
+
+            setTimeout(() => {
+                this.hideLoading();
+                this.showSuccess(`Incoming transfer of ${this.formatCurrency(amount)} simulated successfully!`);
+            }, 1500);
+
+        } catch (error) {
+            console.error('❌ Error simulating transfer:', error);
+            this.hideLoading();
+            this.showError('Failed to simulate incoming transfer');
+        }
+    }
+
+    // Generate reference number based on transfer type
+    generateReferenceNumber(transferType) {
+        const timestamp = Date.now().toString(36).toUpperCase();
+        const random = Math.random().toString(36).substr(2, 3).toUpperCase();
+        
+        const prefixes = {
+            'client-payment': 'CP',
+            'salary-deposit': 'SAL',
+            'investment-return': 'INV',
+            'loan-disbursement': 'LOAN',
+            'refund': 'REF',
+            'government-payment': 'GOV',
+            'insurance-claim': 'INS',
+            'other': 'TXN'
+        };
+
+        return `${prefixes[transferType] || 'TXN'}${timestamp}${random}`;
+    }
+
+    // Generate transaction ID
+    generateTransactionId() {
+        return 'TXN' + Date.now().toString(36).toUpperCase() + 
+               Math.random().toString(36).substr(2, 3).toUpperCase();
+    }
+
+    // Clear transfer form
+    clearTransferForm() {
+        const elements = [
+            'targetAccount', 'targetAccountType', 'transferAmount', 
+            'transferType', 'senderName', 'transferDescription', 
+            'senderBank', 'referenceNumber'
+        ];
+        
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                } else {
+                    element.value = '';
+                }
+            }
+        });
+        
+        this.updateTransferPreview();
     }
 
     showAddAccountModal() {
         this.currentEditingAccount = null;
-        document.getElementById('modalTitle').textContent = 'Add New Account';
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) modalTitle.textContent = 'Add New Account';
         this.clearForm();
-        document.getElementById('accountModal').classList.add('show');
+        const modal = document.getElementById('accountModal');
+        if (modal) modal.classList.add('show');
     }
 
+    // ENHANCED: editAccount function to populate all fields including business information
     editAccount(username) {
         this.currentEditingAccount = username;
         const account = this.accounts[username];
         
-        document.getElementById('modalTitle').textContent = 'Edit Account';
-        document.getElementById('editUsername').value = username;
-        document.getElementById('editPassword').value = account.password || '';
-        document.getElementById('editCompanyName').value = account.companyName || '';
-        document.getElementById('editBusinessType').value = account.businessType || 'C-Corporation';
-        document.getElementById('editCheckingBalance').value = account.businessCheckingBalance || 0;
-        document.getElementById('editSavingsBalance').value = account.businessSavingsBalance || 0;
-        document.getElementById('editCreditLimit').value = account.creditLimit || 0;
-        document.getElementById('editCreditUsed').value = account.creditUsed || 0;
-        document.getElementById('editAddress').value = account.address || '';
-        document.getElementById('editPhone').value = account.phone || '';
-        document.getElementById('editEIN').value = account.ein || '';
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) modalTitle.textContent = 'Edit Account';
         
-        document.getElementById('accountModal').classList.add('show');
+        // Populate ALL form fields including new business information
+        const fields = {
+            'editUsername': username,
+            'editPassword': account.password || '',
+            'editCompanyName': account.companyName || '',
+            'editBusinessType': account.businessType || 'C-Corporation',
+            'editEIN': account.ein || '',
+            'editCountryOfIncorporation': account.countryOfIncorporation || 'United States',
+            'editIndustry': account.industry || 'Software Development',
+            'editWebsite': account.website || '',
+            'editAddress': account.address || '',
+            'editPhone': account.phone || '',
+            'editEmail': account.email || '',
+            'editCheckingBalance': account.businessCheckingBalance || 0,
+            'editSavingsBalance': account.businessSavingsBalance || 0,
+            'editCreditLimit': account.creditLimit || 0,
+            'editCreditUsed': account.creditUsed || 0,
+            'editAnnualRevenue': account.annualRevenue || 0,
+            'editEmployeeCount': account.employeeCount || 1,
+            'editYearsInBusiness': account.yearsInBusiness || 0,
+            'editCreditRating': account.creditRating || 'A+ (Excellent)',
+            // Signatories
+            'editPrimaryName': account.signatories?.primary?.name || '',
+            'editPrimaryTitle': account.signatories?.primary?.title || '',
+            'editPrimaryAuthority': account.signatories?.primary?.authority || 'Unlimited',
+            'editSecondaryName': account.signatories?.secondary?.name || '',
+            'editSecondaryTitle': account.signatories?.secondary?.title || '',
+            'editSecondaryAuthority': account.signatories?.secondary?.authority || 'Up to $50,000',
+            'editBackupName': account.signatories?.backup?.name || '',
+            'editBackupTitle': account.signatories?.backup?.title || '',
+            'editBackupAuthority': account.signatories?.backup?.authority || 'Up to $25,000'
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.value = value;
+        });
+        
+        const modal = document.getElementById('accountModal');
+        if (modal) modal.classList.add('show');
     }
 
     editBalances(username) {
         this.currentEditingAccount = username;
         const account = this.accounts[username];
         
-        document.getElementById('newCheckingBalance').value = account.businessCheckingBalance || 0;
-        document.getElementById('newSavingsBalance').value = account.businessSavingsBalance || 0;
-        document.getElementById('newCreditUsed').value = account.creditUsed || 0;
+        const fields = {
+            'newCheckingBalance': account.businessCheckingBalance || 0,
+            'newSavingsBalance': account.businessSavingsBalance || 0,
+            'newCreditUsed': account.creditUsed || 0
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.value = value;
+        });
         
-        document.getElementById('balanceModal').classList.add('show');
+        const modal = document.getElementById('balanceModal');
+        if (modal) modal.classList.add('show');
     }
 
-    saveAccount() {
+    // ENHANCED: saveAccount with all business information fields
+    async saveAccount() {
+        console.log('💾 Saving account with complete business information...');
         this.showLoading();
         
-        const username = document.getElementById('editUsername').value.trim();
-        const password = document.getElementById('editPassword').value.trim();
+        const username = document.getElementById('editUsername')?.value?.trim();
+        const password = document.getElementById('editPassword')?.value?.trim();
         
         if (!username || !password) {
             this.hideLoading();
@@ -131,19 +424,50 @@ class AdminPanel {
             return;
         }
 
+        // Preserve existing data when editing
+        const existingAccount = this.accounts[username] || {};
+        
         const accountData = {
             password: password,
-            companyName: document.getElementById('editCompanyName').value.trim(),
-            businessType: document.getElementById('editBusinessType').value,
-            businessCheckingBalance: parseFloat(document.getElementById('editCheckingBalance').value) || 0,
-            businessSavingsBalance: parseFloat(document.getElementById('editSavingsBalance').value) || 0,
-            creditLimit: parseFloat(document.getElementById('editCreditLimit').value) || 0,
-            creditUsed: parseFloat(document.getElementById('editCreditUsed').value) || 0,
-            address: document.getElementById('editAddress').value.trim(),
-            phone: document.getElementById('editPhone').value.trim(),
-            ein: document.getElementById('editEIN').value.trim(),
-            transactions: this.accounts[username]?.transactions || [],
-            fraudLog: this.accounts[username]?.fraudLog || []
+            companyName: document.getElementById('editCompanyName')?.value?.trim() || 'TechSolutions Inc.',
+            businessType: document.getElementById('editBusinessType')?.value || 'C-Corporation',
+            ein: document.getElementById('editEIN')?.value?.trim() || '',
+            countryOfIncorporation: document.getElementById('editCountryOfIncorporation')?.value || 'United States',
+            industry: document.getElementById('editIndustry')?.value || 'Software Development',
+            website: document.getElementById('editWebsite')?.value?.trim() || '',
+            address: document.getElementById('editAddress')?.value?.trim() || '',
+            phone: document.getElementById('editPhone')?.value?.trim() || '',
+            email: document.getElementById('editEmail')?.value?.trim() || '',
+            businessCheckingBalance: parseFloat(document.getElementById('editCheckingBalance')?.value) || 0,
+            businessSavingsBalance: parseFloat(document.getElementById('editSavingsBalance')?.value) || 0,
+            creditLimit: parseFloat(document.getElementById('editCreditLimit')?.value) || 0,
+            creditUsed: parseFloat(document.getElementById('editCreditUsed')?.value) || 0,
+            // Business Metrics
+            annualRevenue: parseFloat(document.getElementById('editAnnualRevenue')?.value) || 0,
+            employeeCount: parseInt(document.getElementById('editEmployeeCount')?.value) || 1,
+            yearsInBusiness: parseInt(document.getElementById('editYearsInBusiness')?.value) || 0,
+            creditRating: document.getElementById('editCreditRating')?.value || 'A+ (Excellent)',
+            // Authorized Signatories
+            signatories: {
+                primary: {
+                    name: document.getElementById('editPrimaryName')?.value?.trim() || '',
+                    title: document.getElementById('editPrimaryTitle')?.value?.trim() || '',
+                    authority: document.getElementById('editPrimaryAuthority')?.value || 'Unlimited'
+                },
+                secondary: {
+                    name: document.getElementById('editSecondaryName')?.value?.trim() || '',
+                    title: document.getElementById('editSecondaryTitle')?.value?.trim() || '',
+                    authority: document.getElementById('editSecondaryAuthority')?.value || 'Up to $50,000'
+                },
+                backup: {
+                    name: document.getElementById('editBackupName')?.value?.trim() || '',
+                    title: document.getElementById('editBackupTitle')?.value?.trim() || '',
+                    authority: document.getElementById('editBackupAuthority')?.value || 'Up to $25,000'
+                }
+            },
+            // PRESERVE existing transactions and fraud logs
+            transactions: existingAccount.transactions || [],
+            fraudLog: existingAccount.fraudLog || []
         };
 
         // If editing existing account and username changed, delete old entry
@@ -152,49 +476,90 @@ class AdminPanel {
         }
 
         this.accounts[username] = accountData;
-        this.saveAccounts();
         
-        setTimeout(() => {
+        // Log the admin action
+        const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${this.currentEditingAccount ? 'updated' : 'created'} - ${username}`;
+        if (!accountData.fraudLog) {
+            accountData.fraudLog = [];
+        }
+        accountData.fraudLog.push(logEntry);
+        
+        try {
+            // FORCE Firebase update with new timestamp
+            this.accounts.lastUpdated = new Date().toISOString();
+            await window.firebaseSet(this.accountsRef, this.accounts);
+            console.log('✅ Complete account data saved to Firebase successfully');
+            
+            // Force refresh all data
+            setTimeout(async () => {
+                await this.loadAccounts();
+                this.hideLoading();
+                this.closeAccountModal();
+                this.showSuccess(this.currentEditingAccount ? 'Account updated successfully' : 'Account created successfully');
+            }, 1000);
+        } catch (error) {
+            console.error('❌ Error saving account:', error);
             this.hideLoading();
-            this.closeAccountModal();
-            this.displayAccounts();
-            this.updateStats();
-            this.showSuccess(this.currentEditingAccount ? 'Account updated successfully' : 'Account created successfully');
-        }, 1000);
+            this.showError('Failed to save account');
+        }
     }
 
-    saveBalances() {
+    // FIXED: Enhanced saveBalances method
+    async saveBalances() {
+        console.log('💾 Saving balances...');
         this.showLoading();
         
-        if (!this.currentEditingAccount) return;
+        if (!this.currentEditingAccount) {
+            this.hideLoading();
+            this.showError('No account selected');
+            return;
+        }
         
         const account = this.accounts[this.currentEditingAccount];
-        account.businessCheckingBalance = parseFloat(document.getElementById('newCheckingBalance').value) || 0;
-        account.businessSavingsBalance = parseFloat(document.getElementById('newSavingsBalance').value) || 0;
-        account.creditUsed = parseFloat(document.getElementById('newCreditUsed').value) || 0;
+        const oldChecking = account.businessCheckingBalance || 0;
+        const oldSavings = account.businessSavingsBalance || 0;
+        const oldCredit = account.creditUsed || 0;
         
-        this.saveAccounts();
+        account.businessCheckingBalance = parseFloat(document.getElementById('newCheckingBalance')?.value) || 0;
+        account.businessSavingsBalance = parseFloat(document.getElementById('newSavingsBalance')?.value) || 0;
+        account.creditUsed = parseFloat(document.getElementById('newCreditUsed')?.value) || 0;
         
-        setTimeout(() => {
+        // Log the admin action with details
+        if (!account.fraudLog) {
+            account.fraudLog = [];
+        }
+        const logEntry = `[${new Date().toISOString()}] ADMIN: Balance updated for ${this.currentEditingAccount} - Checking: ${this.formatCurrency(oldChecking)} → ${this.formatCurrency(account.businessCheckingBalance)}, Savings: ${this.formatCurrency(oldSavings)} → ${this.formatCurrency(account.businessSavingsBalance)}`;
+        account.fraudLog.push(logEntry);
+        
+        try {
+            // FORCE Firebase update
+            this.accounts.lastUpdated = new Date().toISOString();
+            await window.firebaseSet(this.accountsRef, this.accounts);
+            console.log('✅ Balances saved to Firebase successfully');
+            
+            // Force refresh all data
+            setTimeout(async () => {
+                await this.loadAccounts();
+                this.hideLoading();
+                this.closeBalanceModal();
+                this.showSuccess('Balances updated successfully');
+            }, 1000);
+        } catch (error) {
+            console.error('❌ Error saving balances:', error);
             this.hideLoading();
-            this.closeBalanceModal();
-            this.displayAccounts();
-            this.updateStats();
-            this.showSuccess('Balances updated successfully');
-        }, 1000);
+            this.showError('Failed to save balances');
+        }
     }
 
-    deleteAccount(username) {
+    async deleteAccount(username) {
         if (confirm(`Are you sure you want to delete account "${username}"? This action cannot be undone.`)) {
             this.showLoading();
             
             delete this.accounts[username];
-            this.saveAccounts();
+            await this.saveAccounts();
             
             setTimeout(() => {
                 this.hideLoading();
-                this.displayAccounts();
-                this.updateStats();
                 this.showSuccess('Account deleted successfully');
             }, 1000);
         }
@@ -202,103 +567,174 @@ class AdminPanel {
 
     loadFraudLogs() {
         const container = document.getElementById('fraudLogsContainer');
-        if (!container) return;
+        if (!container) {
+            console.log('❌ Fraud logs container not found');
+            return;
+        }
+
+        console.log('📊 Loading fraud logs from accounts:', this.accounts);
 
         let allLogs = [];
-        Object.entries(this.accounts).forEach(([username, account]) => {
-            if (account.fraudLog) {
+        
+        // Get all accounts except lastUpdated
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        
+        accountEntries.forEach(([username, account]) => {
+            console.log(`📊 Checking logs for ${username}:`, account.fraudLog);
+            
+            if (account.fraudLog && Array.isArray(account.fraudLog) && account.fraudLog.length > 0) {
                 account.fraudLog.forEach(log => {
                     allLogs.push({ username, log });
                 });
             }
         });
 
+        console.log('📊 Total fraud logs found:', allLogs.length);
+
+        if (allLogs.length === 0) {
+            container.innerHTML = `
+                <div class="no-logs" style="text-align: center; padding: 40px; color: #64748b;">
+                    <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 12px; display: block;"></i>
+                    <p><strong>No activity logs yet</strong></p>
+                    <p style="font-size: 14px; opacity: 0.7; margin-top: 8px;">Logs will appear when users:</p>
+                    <ul style="font-size: 14px; opacity: 0.7; text-align: left; max-width: 300px; margin: 8px auto;">
+                        <li>• Login to accounts</li>
+                        <li>• Make transfers</li>
+                        <li>• Access different pages</li>
+                        <li>• Admin makes changes</li>
+                    </ul>
+                </div>
+            `;
+            return;
+        }
+
         // Sort by timestamp (newest first)
-        allLogs.sort((a, b) => new Date(b.log.split(']')[0].substring(1)) - new Date(a.log.split(']')[0].substring(1)));
+        allLogs.sort((a, b) => {
+            try {
+                const timeA = a.log.split(']')[0]?.substring(1);
+                const timeB = b.log.split(']')[0]?.substring(1);
+                return new Date(timeB) - new Date(timeA);
+            } catch (error) {
+                return 0;
+            }
+        });
         
         // Show only last 50 logs
         allLogs = allLogs.slice(0, 50);
 
-        if (allLogs.length === 0) {
-            container.innerHTML = '<div class="no-logs">No fraud logs available</div>';
-            return;
-        }
-
         container.innerHTML = allLogs.map(({ username, log }) => {
-            const timestamp = log.split(']')[0].substring(1);
-            const message = log.split('] ')[1];
-            return `
-                <div class="log-entry">
-                    <div class="log-header">
-                        <span class="log-user">${username}</span>
-                        <span class="log-time">${new Date(timestamp).toLocaleString()}</span>
+            try {
+                const timestamp = log.split(']')[0]?.substring(1);
+                const message = log.split('] ')[1] || log;
+                
+                // Determine log type for styling
+                let logType = 'info';
+                let icon = 'fas fa-info-circle';
+                
+                if (message.includes('TRANSFER') || message.includes('Transfer')) {
+                    logType = 'transfer';
+                    icon = 'fas fa-exchange-alt';
+                } else if (message.includes('login') || message.includes('Login')) {
+                    logType = 'login';
+                    icon = 'fas fa-sign-in-alt';
+                } else if (message.includes('ADMIN')) {
+                    logType = 'admin';
+                    icon = 'fas fa-user-shield';
+                }
+                
+                return `
+                    <div class="log-entry log-${logType}">
+                        <div class="log-header">
+                            <span class="log-user">
+                                <i class="${icon}" style="margin-right: 6px;"></i>
+                                ${username}
+                            </span>
+                            <span class="log-time">${timestamp ? new Date(timestamp).toLocaleString() : 'Unknown time'}</span>
+                        </div>
+                        <div class="log-message">${message}</div>
                     </div>
-                    <div class="log-message">${message}</div>
-                </div>
-            `;
+                `;
+            } catch (error) {
+                console.error('Error rendering log:', error);
+                return `
+                    <div class="log-entry">
+                        <div class="log-message">Error displaying log: ${log}</div>
+                    </div>
+                `;
+            }
         }).join('');
+        
+        console.log('✅ Fraud logs displayed successfully');
     }
 
-    clearAllLogs() {
+    async clearAllLogs() {
         if (confirm('Are you sure you want to clear all fraud logs?')) {
             Object.values(this.accounts).forEach(account => {
-                account.fraudLog = [];
+                if (account.fraudLog) {
+                    account.fraudLog = [];
+                }
             });
-            this.saveAccounts();
+            await this.saveAccounts();
             this.loadFraudLogs();
             this.showSuccess('All fraud logs cleared');
         }
     }
 
-    saveAccounts() {
-        localStorage.setItem('bankAccounts', JSON.stringify(this.accounts));
+    async saveAccounts() {
+        this.accounts.lastUpdated = new Date().toISOString();
+        
+        // Save to Firebase
+        try {
+            await window.firebaseSet(this.accountsRef, this.accounts);
+            console.log('✅ Admin data saved to Firebase');
+        } catch (error) {
+            console.error('❌ Error saving to Firebase:', error);
+            throw error;
+        }
     }
 
     clearForm() {
-        document.getElementById('editUsername').value = '';
-        document.getElementById('editPassword').value = '';
-        document.getElementById('editCompanyName').value = '';
-        document.getElementById('editBusinessType').value = 'C-Corporation';
-        document.getElementById('editCheckingBalance').value = '';
-        document.getElementById('editSavingsBalance').value = '';
-        document.getElementById('editCreditLimit').value = '';
-        document.getElementById('editCreditUsed').value = '';
-        document.getElementById('editAddress').value = '';
-        document.getElementById('editPhone').value = '';
-        document.getElementById('editEIN').value = '';
+        const fields = [
+            'editUsername', 'editPassword', 'editCompanyName', 'editBusinessType',
+            'editEIN', 'editCountryOfIncorporation', 'editIndustry', 'editWebsite',
+            'editAddress', 'editPhone', 'editEmail', 'editCheckingBalance', 
+            'editSavingsBalance', 'editCreditLimit', 'editCreditUsed',
+            'editAnnualRevenue', 'editEmployeeCount', 'editYearsInBusiness', 'editCreditRating',
+            'editPrimaryName', 'editPrimaryTitle', 'editPrimaryAuthority',
+            'editSecondaryName', 'editSecondaryTitle', 'editSecondaryAuthority',
+            'editBackupName', 'editBackupTitle', 'editBackupAuthority'
+        ];
+
+        fields.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                } else {
+                    element.value = '';
+                }
+            }
+        });
     }
 
     closeAccountModal() {
-        document.getElementById('accountModal').classList.remove('show');
+        const modal = document.getElementById('accountModal');
+        if (modal) modal.classList.remove('show');
     }
 
     closeBalanceModal() {
-        document.getElementById('balanceModal').classList.remove('show');
+        const modal = document.getElementById('balanceModal');
+        if (modal) modal.classList.remove('show');
     }
 
     showLoading() {
-        document.getElementById('loadingOverlay').style.display = 'flex';
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.style.display = 'flex';
     }
 
     hideLoading() {
-        document.getElementById('loadingOverlay').style.display = 'none';
-    }
-
-    initializeDarkMode() {
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        }
-
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDark);
-            darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        });
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.style.display = 'none';
     }
 
     formatCurrency(amount) {
@@ -325,11 +761,46 @@ class AdminPanel {
     }
 }
 
-// Admin authentication
-function checkAdminAuth() {
-    const adminAuth = localStorage.getItem('adminAuth');
-    if (!adminAuth || adminAuth !== 'authenticated') {
-        window.location.href = 'admin-login.html';
+// Global functions for HTML
+function showAddAccountModal() {
+    if (window.adminPanel) {
+        window.adminPanel.showAddAccountModal();
+    }
+}
+
+function closeAccountModal() {
+    if (window.adminPanel) {
+        window.adminPanel.closeAccountModal();
+    }
+}
+
+function closeBalanceModal() {
+    if (window.adminPanel) {
+        window.adminPanel.closeBalanceModal();
+    }
+}
+
+function saveAccount() {
+    if (window.adminPanel) {
+        window.adminPanel.saveAccount();
+    }
+}
+
+function saveBalances() {
+    if (window.adminPanel) {
+        window.adminPanel.saveBalances();
+    }
+}
+
+function clearAllLogs() {
+    if (window.adminPanel) {
+        window.adminPanel.clearAllLogs();
+    }
+}
+
+function simulateIncomingTransfer() {
+    if (window.adminPanel) {
+        window.adminPanel.simulateIncomingTransfer();
     }
 }
 
@@ -338,31 +809,5 @@ function adminLogout() {
     window.location.href = 'admin-login.html';
 }
 
-// Global functions
-function showAddAccountModal() {
-    adminPanel.showAddAccountModal();
-}
-
-function closeAccountModal() {
-    adminPanel.closeAccountModal();
-}
-
-function closeBalanceModal() {
-    adminPanel.closeBalanceModal();
-}
-
-function saveAccount() {
-    adminPanel.saveAccount();
-}
-
-function saveBalances() {
-    adminPanel.saveBalances();
-}
-
-function clearAllLogs() {
-    adminPanel.clearAllLogs();
-}
-
-// Initialize admin panel
-checkAdminAuth();
-const adminPanel = new AdminPanel();
+// Initialize admin panel and make it globally available
+window.adminPanel = new AdminPanel();
