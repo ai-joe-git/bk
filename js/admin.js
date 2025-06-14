@@ -133,7 +133,7 @@ class AdminPanel {
         if (totalAccountsEl) totalAccountsEl.textContent = totalAccounts;
         if (totalBalanceEl) totalBalanceEl.textContent = this.formatCurrency(totalBalance);
         if (totalTransactionsEl) totalTransactionsEl.textContent = totalTransactions;
-
+        
         console.log('📊 Stats updated:', { totalAccounts, totalBalance, totalTransactions });
     }
 
@@ -254,9 +254,10 @@ class AdminPanel {
                 simulatedBy: 'Admin'
             };
 
-            // Add transaction to account
-            if (!account.transactions) {
+            // FIXED: Ensure transactions array exists before pushing
+            if (!account.transactions || !Array.isArray(account.transactions)) {
                 account.transactions = [];
+                console.log('✅ Initialized transactions array for:', targetAccount);
             }
             account.transactions.push(transaction);
 
@@ -410,7 +411,7 @@ class AdminPanel {
         if (modal) modal.classList.add('show');
     }
 
-    // ENHANCED: saveAccount with all business information fields
+    // FIXED: saveAccount with proper transactions array initialization
     async saveAccount() {
         console.log('💾 Saving account with complete business information...');
         this.showLoading();
@@ -424,7 +425,7 @@ class AdminPanel {
             return;
         }
 
-        // Preserve existing data when editing
+        // Get existing account data if editing, or create empty object for new account
         const existingAccount = this.accounts[username] || {};
         
         const accountData = {
@@ -465,9 +466,10 @@ class AdminPanel {
                     authority: document.getElementById('editBackupAuthority')?.value || 'Up to $25,000'
                 }
             },
-            // PRESERVE existing transactions and fraud logs
-            transactions: existingAccount.transactions || [],
-            fraudLog: existingAccount.fraudLog || []
+            // CRITICAL FIX: Always ensure transactions array exists
+            transactions: (existingAccount.transactions && Array.isArray(existingAccount.transactions)) ? existingAccount.transactions : [],
+            // CRITICAL FIX: Always ensure fraudLog array exists
+            fraudLog: (existingAccount.fraudLog && Array.isArray(existingAccount.fraudLog)) ? existingAccount.fraudLog : []
         };
 
         // If editing existing account and username changed, delete old entry
@@ -479,10 +481,9 @@ class AdminPanel {
         
         // Log the admin action
         const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${this.currentEditingAccount ? 'updated' : 'created'} - ${username}`;
-        if (!accountData.fraudLog) {
-            accountData.fraudLog = [];
-        }
         accountData.fraudLog.push(logEntry);
+        
+        console.log('✅ Account data prepared with transactions array:', accountData.transactions);
         
         try {
             // FORCE Firebase update with new timestamp
