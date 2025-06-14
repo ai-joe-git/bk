@@ -411,9 +411,9 @@ class AdminPanel {
         if (modal) modal.classList.add('show');
     }
 
-    // FIXED: saveAccount with proper transactions array initialization
+    // COMPLETELY FIXED: saveAccount with bulletproof array initialization
     async saveAccount() {
-        console.log('💾 Saving account with complete business information...');
+        console.log('💾 Saving account with complete structure...');
         this.showLoading();
         
         const username = document.getElementById('editUsername')?.value?.trim();
@@ -425,12 +425,17 @@ class AdminPanel {
             return;
         }
 
-        // Get existing account data if editing, or create empty object for new account
-        const existingAccount = this.accounts[username] || {};
+        // FIXED: Determine if this is a NEW account or EDITING existing account
+        const isNewAccount = !this.currentEditingAccount;
+        const existingAccount = isNewAccount ? null : this.accounts[username];
         
+        console.log('🔍 Account creation mode:', isNewAccount ? 'NEW' : 'EDIT');
+        console.log('🔍 Existing account data:', existingAccount);
+        
+        // FIXED: Create account with GUARANTEED proper structure
         const accountData = {
             password: password,
-            companyName: document.getElementById('editCompanyName')?.value?.trim() || 'TechSolutions Inc.',
+            companyName: document.getElementById('editCompanyName')?.value?.trim() || 'New Company',
             businessType: document.getElementById('editBusinessType')?.value || 'C-Corporation',
             ein: document.getElementById('editEIN')?.value?.trim() || '',
             countryOfIncorporation: document.getElementById('editCountryOfIncorporation')?.value || 'United States',
@@ -465,39 +470,60 @@ class AdminPanel {
                     title: document.getElementById('editBackupTitle')?.value?.trim() || '',
                     authority: document.getElementById('editBackupAuthority')?.value || 'Up to $25,000'
                 }
-            },
-            // CRITICAL FIX: Always ensure transactions array exists
-            transactions: (existingAccount.transactions && Array.isArray(existingAccount.transactions)) ? existingAccount.transactions : [],
-            // CRITICAL FIX: Always ensure fraudLog array exists
-            fraudLog: (existingAccount.fraudLog && Array.isArray(existingAccount.fraudLog)) ? existingAccount.fraudLog : []
+            }
         };
+
+        // CRITICAL FIX: GUARANTEED transactions and fraudLog arrays
+        if (isNewAccount) {
+            // NEW ACCOUNT: Always create fresh empty arrays
+            accountData.transactions = [];
+            accountData.fraudLog = [];
+            console.log('✅ NEW ACCOUNT: Created fresh transactions and fraudLog arrays');
+        } else {
+            // EDITING EXISTING: Preserve existing arrays or create if missing
+            accountData.transactions = (existingAccount && Array.isArray(existingAccount.transactions)) 
+                ? existingAccount.transactions 
+                : [];
+            accountData.fraudLog = (existingAccount && Array.isArray(existingAccount.fraudLog)) 
+                ? existingAccount.fraudLog 
+                : [];
+            console.log('✅ EDIT ACCOUNT: Preserved existing arrays or created new ones');
+        }
 
         // If editing existing account and username changed, delete old entry
         if (this.currentEditingAccount && this.currentEditingAccount !== username) {
             delete this.accounts[this.currentEditingAccount];
         }
 
-        this.accounts[username] = accountData;
-        
-        // Log the admin action
-        const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${this.currentEditingAccount ? 'updated' : 'created'} - ${username}`;
+        // Add fraud log entry
+        const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${isNewAccount ? 'created' : 'updated'} - ${username}`;
         accountData.fraudLog.push(logEntry);
         
-        console.log('✅ Account data prepared with transactions array:', accountData.transactions);
+        console.log('✅ Final account structure:', {
+            username,
+            hasTransactions: Array.isArray(accountData.transactions),
+            transactionsLength: accountData.transactions.length,
+            hasFraudLog: Array.isArray(accountData.fraudLog),
+            fraudLogLength: accountData.fraudLog.length
+        });
         
         try {
-            // FORCE Firebase update with new timestamp
+            // Update accounts object
+            this.accounts[username] = accountData;
             this.accounts.lastUpdated = new Date().toISOString();
+            
+            // FORCE Firebase update
             await window.firebaseSet(this.accountsRef, this.accounts);
-            console.log('✅ Complete account data saved to Firebase successfully');
+            console.log('✅ Complete account saved to Firebase with guaranteed arrays');
             
             // Force refresh all data
             setTimeout(async () => {
                 await this.loadAccounts();
                 this.hideLoading();
                 this.closeAccountModal();
-                this.showSuccess(this.currentEditingAccount ? 'Account updated successfully' : 'Account created successfully');
+                this.showSuccess(`Account ${isNewAccount ? 'created' : 'updated'} successfully with complete structure`);
             }, 1000);
+            
         } catch (error) {
             console.error('❌ Error saving account:', error);
             this.hideLoading();
