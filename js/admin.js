@@ -411,9 +411,9 @@ class AdminPanel {
         if (modal) modal.classList.add('show');
     }
 
-    // COMPLETELY FIXED: saveAccount with bulletproof array initialization
+    // COMPLETELY FIXED: Create accounts EXACTLY like Brown68
     async saveAccount() {
-        console.log('💾 Saving account with complete structure...');
+        console.log('💾 Creating account with EXACT Brown68 structure...');
         this.showLoading();
         
         const username = document.getElementById('editUsername')?.value?.trim();
@@ -425,103 +425,113 @@ class AdminPanel {
             return;
         }
 
-        // FIXED: Determine if this is a NEW account or EDITING existing account
-        const isNewAccount = !this.currentEditingAccount;
-        const existingAccount = isNewAccount ? null : this.accounts[username];
+        // Check if this is editing existing account
+        const isEditingExisting = this.currentEditingAccount && this.accounts[this.currentEditingAccount];
         
-        console.log('🔍 Account creation mode:', isNewAccount ? 'NEW' : 'EDIT');
-        console.log('🔍 Existing account data:', existingAccount);
-        
-        // FIXED: Create account with GUARANTEED proper structure
+        // FIXED: Create account with EXACT Brown68 structure including initial transaction
         const accountData = {
             password: password,
-            companyName: document.getElementById('editCompanyName')?.value?.trim() || 'New Company',
+            companyName: document.getElementById('editCompanyName')?.value?.trim() || 'TechSolutions Inc.',
             businessType: document.getElementById('editBusinessType')?.value || 'C-Corporation',
-            ein: document.getElementById('editEIN')?.value?.trim() || '',
+            businessCheckingBalance: parseFloat(document.getElementById('editCheckingBalance')?.value) || 125847.92,
+            businessSavingsBalance: parseFloat(document.getElementById('editSavingsBalance')?.value) || 289234.15,
+            creditLimit: parseFloat(document.getElementById('editCreditLimit')?.value) || 250000.00,
+            creditUsed: parseFloat(document.getElementById('editCreditUsed')?.value) || 35750.00,
+            address: document.getElementById('editAddress')?.value?.trim() || '456 Innovation Drive, Silicon Valley, CA 94025',
+            phone: document.getElementById('editPhone')?.value?.trim() || '+1 (555) 987-6543',
+            ein: document.getElementById('editEIN')?.value?.trim() || '12-3456789',
+            // EXACT Brown68 business fields
             countryOfIncorporation: document.getElementById('editCountryOfIncorporation')?.value || 'United States',
             industry: document.getElementById('editIndustry')?.value || 'Software Development',
-            website: document.getElementById('editWebsite')?.value?.trim() || '',
-            address: document.getElementById('editAddress')?.value?.trim() || '',
-            phone: document.getElementById('editPhone')?.value?.trim() || '',
-            email: document.getElementById('editEmail')?.value?.trim() || '',
-            businessCheckingBalance: parseFloat(document.getElementById('editCheckingBalance')?.value) || 0,
-            businessSavingsBalance: parseFloat(document.getElementById('editSavingsBalance')?.value) || 0,
-            creditLimit: parseFloat(document.getElementById('editCreditLimit')?.value) || 0,
-            creditUsed: parseFloat(document.getElementById('editCreditUsed')?.value) || 0,
-            // Business Metrics
-            annualRevenue: parseFloat(document.getElementById('editAnnualRevenue')?.value) || 0,
-            employeeCount: parseInt(document.getElementById('editEmployeeCount')?.value) || 1,
-            yearsInBusiness: parseInt(document.getElementById('editYearsInBusiness')?.value) || 0,
+            website: document.getElementById('editWebsite')?.value?.trim() || 'www.techsolutions-inc.com',
+            email: document.getElementById('editEmail')?.value?.trim() || 'contact@techsolutions-inc.com',
+            annualRevenue: parseFloat(document.getElementById('editAnnualRevenue')?.value) || 12500000,
+            employeeCount: parseInt(document.getElementById('editEmployeeCount')?.value) || 85,
+            yearsInBusiness: parseInt(document.getElementById('editYearsInBusiness')?.value) || 12,
             creditRating: document.getElementById('editCreditRating')?.value || 'A+ (Excellent)',
-            // Authorized Signatories
+            // EXACT Brown68 signatories structure
             signatories: {
                 primary: {
-                    name: document.getElementById('editPrimaryName')?.value?.trim() || '',
-                    title: document.getElementById('editPrimaryTitle')?.value?.trim() || '',
+                    name: document.getElementById('editPrimaryName')?.value?.trim() || 'Robert Brown',
+                    title: document.getElementById('editPrimaryTitle')?.value?.trim() || 'CEO',
                     authority: document.getElementById('editPrimaryAuthority')?.value || 'Unlimited'
                 },
                 secondary: {
-                    name: document.getElementById('editSecondaryName')?.value?.trim() || '',
-                    title: document.getElementById('editSecondaryTitle')?.value?.trim() || '',
+                    name: document.getElementById('editSecondaryName')?.value?.trim() || 'Sarah Johnson',
+                    title: document.getElementById('editSecondaryTitle')?.value?.trim() || 'CFO',
                     authority: document.getElementById('editSecondaryAuthority')?.value || 'Up to $50,000'
                 },
                 backup: {
-                    name: document.getElementById('editBackupName')?.value?.trim() || '',
-                    title: document.getElementById('editBackupTitle')?.value?.trim() || '',
+                    name: document.getElementById('editBackupName')?.value?.trim() || 'Michael Chen',
+                    title: document.getElementById('editBackupTitle')?.value?.trim() || 'COO',
                     authority: document.getElementById('editBackupAuthority')?.value || 'Up to $25,000'
                 }
             }
         };
 
-        // CRITICAL FIX: GUARANTEED transactions and fraudLog arrays
-        if (isNewAccount) {
-            // NEW ACCOUNT: Always create fresh empty arrays
-            accountData.transactions = [];
-            accountData.fraudLog = [];
-            console.log('✅ NEW ACCOUNT: Created fresh transactions and fraudLog arrays');
+        // CRITICAL FIX: Create transactions array EXACTLY like Brown68
+        if (isEditingExisting && this.accounts[this.currentEditingAccount].transactions) {
+            // If editing, preserve existing transactions
+            accountData.transactions = this.accounts[this.currentEditingAccount].transactions;
+            accountData.fraudLog = this.accounts[this.currentEditingAccount].fraudLog || [];
         } else {
-            // EDITING EXISTING: Preserve existing arrays or create if missing
-            accountData.transactions = (existingAccount && Array.isArray(existingAccount.transactions)) 
-                ? existingAccount.transactions 
-                : [];
-            accountData.fraudLog = (existingAccount && Array.isArray(existingAccount.fraudLog)) 
-                ? existingAccount.fraudLog 
-                : [];
-            console.log('✅ EDIT ACCOUNT: Preserved existing arrays or created new ones');
+            // NEW ACCOUNT: Create with sample transactions like Brown68
+            accountData.transactions = [
+                {
+                    id: 'TXN001',
+                    date: new Date().toISOString().replace('T', ' ').substr(0, 19),
+                    type: 'Incoming Transfer',
+                    amount: 125000.00,
+                    description: `Initial deposit for ${username} - Account Setup`,
+                    account: 'business-checking',
+                    status: 'completed'
+                },
+                {
+                    id: 'TXN002',
+                    date: new Date(Date.now() - 86400000).toISOString().replace('T', ' ').substr(0, 19),
+                    type: 'Incoming Transfer',
+                    amount: 75000.00,
+                    description: `Initial savings deposit for ${username}`,
+                    account: 'business-savings',
+                    status: 'completed'
+                }
+            ];
+            
+            accountData.fraudLog = [
+                `[${new Date().toISOString()}] ADMIN: Account created - ${username}`
+            ];
         }
 
-        // If editing existing account and username changed, delete old entry
-        if (this.currentEditingAccount && this.currentEditingAccount !== username) {
-            delete this.accounts[this.currentEditingAccount];
-        }
-
-        // Add fraud log entry
-        const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${isNewAccount ? 'created' : 'updated'} - ${username}`;
+        // Add current fraud log entry
+        const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${isEditingExisting ? 'updated' : 'created'} - ${username}`;
         accountData.fraudLog.push(logEntry);
         
-        console.log('✅ Final account structure:', {
+        console.log('✅ Account created with EXACT Brown68 structure including transactions:', {
             username,
             hasTransactions: Array.isArray(accountData.transactions),
-            transactionsLength: accountData.transactions.length,
-            hasFraudLog: Array.isArray(accountData.fraudLog),
-            fraudLogLength: accountData.fraudLog.length
+            transactionCount: accountData.transactions.length,
+            hasFraudLog: Array.isArray(accountData.fraudLog)
         });
         
         try {
-            // Update accounts object
+            // If editing and username changed, delete old entry
+            if (this.currentEditingAccount && this.currentEditingAccount !== username) {
+                delete this.accounts[this.currentEditingAccount];
+            }
+
+            // Save account with complete Brown68 structure
             this.accounts[username] = accountData;
             this.accounts.lastUpdated = new Date().toISOString();
             
-            // FORCE Firebase update
+            // FORCE save to Firebase
             await window.firebaseSet(this.accountsRef, this.accounts);
-            console.log('✅ Complete account saved to Firebase with guaranteed arrays');
+            console.log('✅ Account saved to Firebase with EXACT Brown68 structure');
             
-            // Force refresh all data
             setTimeout(async () => {
                 await this.loadAccounts();
                 this.hideLoading();
                 this.closeAccountModal();
-                this.showSuccess(`Account ${isNewAccount ? 'created' : 'updated'} successfully with complete structure`);
+                this.showSuccess(`Account ${username} ${isEditingExisting ? 'updated' : 'created'} with complete Brown68 structure - transfers will work!`);
             }, 1000);
             
         } catch (error) {
