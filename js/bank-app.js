@@ -576,9 +576,44 @@ class BankApp {
         return true;
     }
 
-    // FIXED: Process transfer with proper balance updates and transaction recording
+    // COMPLETELY FIXED: Process transfer with bulletproof array initialization
     async processTransfer(transferData) {
+        console.log('🔧 TRANSFER: Starting transfer process...');
+        console.log('🔧 TRANSFER: Current user:', this.currentUser);
+        
         const account = this.accounts[this.currentUser];
+        if (!account) {
+            throw new Error('Account not found');
+        }
+        
+        console.log('🔧 TRANSFER: Account found, checking structure...');
+        
+        // CRITICAL FIX: Always ensure transactions array exists before ANY transfer operation
+        if (!account.transactions || !Array.isArray(account.transactions)) {
+            console.log('🔧 FIXING: Missing transactions array for', this.currentUser);
+            account.transactions = [];
+            
+            // Save the fix immediately to Firebase
+            await this.saveData();
+            console.log('✅ FIXED: Added transactions array and saved to Firebase');
+        } else {
+            console.log('✅ TRANSFER: Transactions array exists with', account.transactions.length, 'transactions');
+        }
+        
+        // CRITICAL FIX: Always ensure fraudLog array exists
+        if (!account.fraudLog || !Array.isArray(account.fraudLog)) {
+            console.log('🔧 FIXING: Missing fraudLog array for', this.currentUser);
+            account.fraudLog = [];
+            
+            // Save the fix immediately
+            await this.saveData();
+            console.log('✅ FIXED: Added fraudLog array and saved to Firebase');
+        } else {
+            console.log('✅ TRANSFER: FraudLog array exists with', account.fraudLog.length, 'entries');
+        }
+        
+        console.log('✅ TRANSFER: Account structure verified, proceeding with transfer');
+        
         const fee = this.calculateTransferFee(transferData.amount, transferData.type);
         const totalDebit = transferData.amount + fee;
 
@@ -619,7 +654,10 @@ class BankApp {
                 account: transferData.toAccount,
                 status: 'completed'
             };
+            
+            // Now we're guaranteed the array exists
             account.transactions.push(incomingTransaction);
+            console.log('✅ TRANSFER: Added incoming transaction');
         }
 
         // FIXED: Add outgoing transaction
@@ -634,10 +672,13 @@ class BankApp {
             fee: fee
         };
 
+        // Now we're guaranteed the array exists
         account.transactions.push(outgoingTransaction);
+        console.log('✅ TRANSFER: Added outgoing transaction');
 
         // FIXED: Save data immediately to Firebase
         await this.saveData();
+        console.log('✅ TRANSFER: All data saved to Firebase');
 
         // Log fraud event
         this.logFraudEvent(`TRANSFER EXECUTED - $${transferData.amount} - ${this.getTransferDescription(transferData)}`);
@@ -648,6 +689,8 @@ class BankApp {
         
         // Show success message
         this.showSuccess('Transfer completed successfully!');
+        
+        console.log('✅ TRANSFER: Transfer process completed successfully');
     }
 
     getTransferDescription(transferData) {
