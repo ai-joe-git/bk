@@ -2595,3 +2595,86 @@ body.dark-mode {
         scroll-behavior: auto !important;
     }
 }
+
+/* EMERGENCY MOBILE HEADER FIX - Add to end of CSS file */
+@media (max-width: 768px) {
+    /* FORCE hide desktop header */
+    .bank-header > .header-left,
+    .bank-header > .header-center,
+    .bank-header > .header-right {
+        display: none !important;
+    }
+    
+    /* FORCE show mobile header */
+    .mobile-header {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    /* Mobile top row - logo + logout */
+    .mobile-header-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0 16px !important;
+        height: 60px !important;
+        background: var(--bank-surface) !important;
+        border-bottom: 1px solid var(--bank-border) !important;
+    }
+    
+    /* Mobile logo */
+    .mobile-header-top .bank-logo {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        color: var(--bank-primary) !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+    }
+    
+    /* Mobile logout */
+    .mobile-header-top .logout-btn {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        padding: 6px 12px !important;
+        border: 1px solid var(--bank-border) !important;
+        border-radius: 6px !important;
+        background: transparent !important;
+        color: var(--bank-text-secondary) !important;
+        font-size: 12px !important;
+    }
+    
+    /* Mobile navigation row */
+    .mobile-header-bottom {
+        display: flex !important;
+        padding: 12px 16px !important;
+        background: rgba(30, 64, 175, 0.05) !important;
+    }
+    
+    .mobile-header-bottom .bank-nav {
+        display: flex !important;
+        width: 100% !important;
+        justify-content: space-around !important;
+        gap: 8px !important;
+    }
+    
+    .mobile-header-bottom .nav-item {
+        flex: 1 !important;
+        text-align: center !important;
+        padding: 8px 4px !important;
+        font-size: 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 4px !important;
+        color: var(--bank-text-secondary) !important;
+        text-decoration: none !important;
+        border-radius: 6px !important;
+    }
+    
+    .mobile-header-bottom .nav-item.active {
+        background: var(--bank-primary) !important;
+        color: white !important;
+    }
+}

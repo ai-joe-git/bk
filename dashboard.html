@@ -51,6 +51,7 @@
     <div class="bank-app">
         <!-- Header -->
         <header class="bank-header">
+            <!-- Desktop: Standard single-row layout -->
             <div class="header-left">
                 <div class="bank-logo">
                     <i class="fas fa-university"></i>
@@ -79,11 +80,52 @@
             </div>
             <div class="header-right">
                 <div class="user-info">
-                    <span class="welcome-text">Welcome, <span id="currentUser">Brown68</span></span>
+                    <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </button>
+                </div>
+            </div>
+
+            <!-- Mobile: Two-row layout -->
+            <div class="mobile-header">
+                <div class="mobile-header-top">
+                    <div class="header-left">
+                        <div class="bank-logo">
+                            <i class="fas fa-university"></i>
+                            <span>SecureBank Pro</span>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="user-info">
+                            <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
+                            <button class="logout-btn" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-header-bottom">
+                    <nav class="bank-nav">
+                        <a href="dashboard.html" class="nav-item active">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                        <a href="transfer.html" class="nav-item">
+                            <i class="fas fa-exchange-alt"></i>
+                            Transfer
+                        </a>
+                        <a href="transactions.html" class="nav-item">
+                            <i class="fas fa-list"></i>
+                            Transactions
+                        </a>
+                        <a href="statements.html" class="nav-item">
+                            <i class="fas fa-file-alt"></i>
+                            Statements
+                        </a>
+                    </nav>
                 </div>
             </div>
         </header>
