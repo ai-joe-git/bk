@@ -7,6 +7,7 @@ class BankApp {
         this.pollingInterval = null;
         this.database = null;
         this.accountsRef = null;
+        this.isDataLoaded = false; // ADD: Loading state tracking
         this.init();
     }
 
@@ -27,6 +28,9 @@ class BankApp {
         // Set up event listeners
         this.setupEventListeners();
         
+        // Apply branding if available
+        this.applyStoredBranding();
+        
         // Initialize dark mode
         setTimeout(() => {
             this.initializeDarkMode();
@@ -39,6 +43,46 @@ class BankApp {
         while (!window.firebaseDatabase) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
+    }
+
+    // ANTI-FLASH PROTECTION: Loading management functions
+    showPageLoading() {
+        const overlay = document.getElementById('pageLoadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.classList.remove('fade-out');
+        }
+        
+        // Hide main content
+        const mainContent = document.querySelector('.bank-main');
+        if (mainContent) {
+            mainContent.classList.remove('loaded');
+        }
+        
+        console.log('🔄 Page loading overlay shown');
+    }
+
+    hidePageLoading() {
+        const overlay = document.getElementById('pageLoadingOverlay');
+        if (overlay) {
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500);
+        }
+        
+        // Show main content
+        const mainContent = document.querySelector('.bank-main');
+        if (mainContent) {
+            mainContent.classList.add('loaded');
+        }
+        
+        // Mark content as loaded
+        document.body.classList.add('content-loaded');
+        document.documentElement.classList.add('loaded');
+        
+        this.isDataLoaded = true;
+        console.log('✅ Page loading overlay hidden - content revealed');
     }
 
     // REAL-TIME DATA LOADING
@@ -110,6 +154,9 @@ class BankApp {
                 // Update accounts data
                 this.accounts = newData;
                 
+                // Apply branding changes if they exist
+                this.applyStoredBranding();
+                
                 // FORCE IMMEDIATE UI UPDATE
                 this.immediateUIUpdate();
                 
@@ -132,6 +179,34 @@ class BankApp {
         });
     }
 
+    // ADDED: Apply stored branding settings
+    applyStoredBranding() {
+        if (this.accounts.brandingSettings) {
+            const settings = this.accounts.brandingSettings;
+            
+            // Update all logo text elements
+            document.querySelectorAll('.bank-logo span, .bank-logo h1').forEach(el => {
+                if (el && (el.textContent.includes('SecureBank') || el.textContent.includes('Bank'))) {
+                    el.textContent = settings.logoText;
+                }
+            });
+            
+            // Update all logo icons
+            document.querySelectorAll('.bank-logo i').forEach(el => {
+                if (el && (el.className.includes('university') || el.className.includes('landmark') || el.className.includes('building'))) {
+                    el.className = settings.logoIcon;
+                    el.style.color = settings.logoColor;
+                }
+            });
+            
+            // Update CSS variables
+            document.documentElement.style.setProperty('--bank-primary', settings.primaryColor);
+            document.documentElement.style.setProperty('--bank-warning', settings.logoColor);
+            
+            console.log('✅ Branding applied:', settings);
+        }
+    }
+
     // NEW: Immediate UI update function
     immediateUIUpdate() {
         console.log('⚡ Immediate UI update triggered');
@@ -150,6 +225,9 @@ class BankApp {
         // Update balances immediately
         this.updateBalanceDisplays();
         
+        // Apply branding immediately
+        this.applyStoredBranding();
+        
         // Force update page-specific content
         const currentPage = window.location.pathname;
         console.log('📄 Current page:', currentPage);
@@ -167,6 +245,8 @@ class BankApp {
                 this.loadAllTransactionsForHistory();
             }, 50);
         }
+        
+        console.log('✅ UI updated with anti-flash protection');
     }
 
     getDefaultAccounts() {
@@ -182,6 +262,11 @@ class BankApp {
                 address: '456 Innovation Drive, Silicon Valley, CA 94025',
                 phone: '+1 (555) 987-6543',
                 ein: '12-3456789',
+                // ADDED: Account numbers and banking details
+                checkingAccountNumber: '4521-1234-5678-9012',
+                savingsAccountNumber: '4521-5678-9012-3456',
+                iban: 'US12BANK4521123456789012',
+                swift: 'SBPROUS33',
                 // ADDED: Enhanced business information fields
                 countryOfIncorporation: 'United States',
                 industry: 'Software Development',
@@ -216,7 +301,8 @@ class BankApp {
                         amount: 125000.00,
                         description: 'Client Payment - Microsoft Corp (Invoice #INV-2025-001)',
                         account: 'business-checking',
-                        status: 'completed'
+                        status: 'completed',
+                        delivery: 'Immediate'
                     },
                     {
                         id: 'TXN002',
@@ -225,7 +311,8 @@ class BankApp {
                         amount: -45000.00,
                         description: 'Payroll Processing - January 2025',
                         account: 'business-checking',
-                        status: 'completed'
+                        status: 'completed',
+                        delivery: 'Next business day'
                     },
                     {
                         id: 'TXN003',
@@ -234,7 +321,8 @@ class BankApp {
                         amount: 75000.00,
                         description: 'Client Payment - Google LLC (Invoice #INV-2025-002)',
                         account: 'business-checking',
-                        status: 'completed'
+                        status: 'completed',
+                        delivery: 'Immediate'
                     }
                 ],
                 fraudLog: []
@@ -402,13 +490,16 @@ class BankApp {
         const recipientSection = document.querySelector('.form-section:nth-child(2)');
         if (recipientSection) {
             const account = this.accounts[this.currentUser];
+            const savingsNumber = account.savingsAccountNumber || '****5678';
+            const checkingNumber = account.checkingAccountNumber || '****1234';
+            
             recipientSection.innerHTML = `
                 <h3>To Account</h3>
                 <div class="account-selector">
                     <select id="toAccount" required>
                         <option value="">Select Destination Account</option>
-                        <option value="business-savings">Business Savings (****5678) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
-                        <option value="business-checking">Business Checking (****1234) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
+                        <option value="business-savings">Business Savings (${savingsNumber}) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
+                        <option value="business-checking">Business Checking (${checkingNumber}) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
                     </select>
                 </div>
             `;
@@ -576,7 +667,7 @@ class BankApp {
         return true;
     }
 
-    // COMPLETELY FIXED: Process transfer with bulletproof array initialization
+    // COMPLETELY FIXED: Process transfer with bulletproof array initialization and delivery status
     async processTransfer(transferData) {
         console.log('🔧 TRANSFER: Starting transfer process...');
         console.log('🔧 TRANSFER: Current user:', this.currentUser);
@@ -652,7 +743,9 @@ class BankApp {
                 amount: transferData.amount,
                 description: `Internal transfer from ${transferData.fromAccount.replace('business-', '').replace('-', ' ')}`,
                 account: transferData.toAccount,
-                status: 'completed'
+                status: 'completed',
+                // FIXED: Add delivery status
+                delivery: 'Immediate'
             };
             
             // Now we're guaranteed the array exists
@@ -660,7 +753,7 @@ class BankApp {
             console.log('✅ TRANSFER: Added incoming transaction');
         }
 
-        // FIXED: Add outgoing transaction
+        // FIXED: Add outgoing transaction WITH delivery status
         const outgoingTransaction = {
             id: transactionId,
             date: currentDate,
@@ -669,7 +762,9 @@ class BankApp {
             description: this.getTransferDescription(transferData),
             account: transferData.fromAccount,
             status: 'completed',
-            fee: fee
+            fee: fee,
+            // FIXED: Add delivery status to transaction
+            delivery: transferData.type === 'internal' ? 'Immediate' : 'Next business day'
         };
 
         // Now we're guaranteed the array exists
@@ -762,9 +857,12 @@ class BankApp {
                Math.random().toString(36).substr(2, 3).toUpperCase();
     }
 
-    // FIXED: Load user data with proper Firebase waiting
+    // ENHANCED: Load user data with anti-flash protection
     async loadUserData() {
-        console.log('📊 Loading user data...');
+        console.log('📊 Loading user data with anti-flash protection...');
+        
+        // Show loading immediately
+        this.showPageLoading();
         
         const storedUser = localStorage.getItem('currentBankUser');
         if (!storedUser) {
@@ -794,6 +892,11 @@ class BankApp {
         
         // Force immediate UI update
         this.immediateUIUpdate();
+        
+        // Wait a moment to ensure all updates are complete
+        setTimeout(() => {
+            this.hidePageLoading();
+        }, 800); // Small delay to ensure smooth transition
     }
 
     // ENHANCED: Update user interface with better error handling
@@ -811,14 +914,14 @@ class BankApp {
         // They will be called by immediateUIUpdate()
     }
 
-    // ENHANCED: Complete updateBalanceDisplays with ALL business information updates
+    // COMPLETELY FIXED: updateBalanceDisplays with ALL missing elements properly handled
     updateBalanceDisplays() {
         const account = this.accounts[this.currentUser];
         if (!account) return;
 
-        console.log('💰 Updating ALL displays with account data:', account);
+        console.log('💰 FIXING: ALL dashboard elements including missing ones:', account);
 
-        // 1. Update dashboard balances (existing working code)
+        // 1. Update basic balances
         const checkingEl = document.getElementById('businessCheckingBalance');
         const savingsEl = document.getElementById('businessSavingsBalance');
 
@@ -829,7 +932,7 @@ class BankApp {
             savingsEl.textContent = this.formatCurrency(account.businessSavingsBalance);
         }
 
-        // 2. ENHANCED: Update credit information using SAME pattern
+        // 2. Update credit information
         const creditUsed = account.creditUsed || 0;
         const creditLimit = account.creditLimit || 0;
         const availableCredit = creditLimit - creditUsed;
@@ -840,25 +943,41 @@ class BankApp {
 
         if (creditUsedEl) {
             creditUsedEl.textContent = `Used: ${this.formatCurrency(creditUsed)}`;
-            console.log('✅ Credit used updated to:', creditUsed);
         }
-
         if (creditLimitEl) {
             creditLimitEl.textContent = `Limit: ${this.formatCurrency(creditLimit)}`;
-            console.log('✅ Credit limit updated to:', creditLimit);
         }
-
         if (availableCreditEl) {
             availableCreditEl.textContent = this.formatCurrency(availableCredit);
-            console.log('✅ Available credit updated to:', availableCredit);
         }
 
-        // 3. ENHANCED: Update ALL business information using SAME pattern
-        // Update company name
+        // 3. FIXED: Update ALL account numbers display
+        const checkingNumberEl = document.getElementById('checkingAccountNumber');
+        const savingsNumberEl = document.getElementById('savingsAccountNumber');
+        const ibanEl = document.getElementById('accountIBAN');
+        const swiftEl = document.getElementById('accountSWIFT');
+
+        if (checkingNumberEl && account.checkingAccountNumber) {
+            checkingNumberEl.textContent = account.checkingAccountNumber;
+        }
+        if (savingsNumberEl && account.savingsAccountNumber) {
+            savingsNumberEl.textContent = account.savingsAccountNumber;
+        }
+        if (ibanEl && account.iban) {
+            ibanEl.textContent = account.iban;
+        }
+        if (swiftEl && account.swift) {
+            swiftEl.textContent = account.swift;
+        }
+
+        // 4. FIXED: Update ALL business information fields
         const companyElements = [
             document.getElementById('companyNameHeader'),
             document.getElementById('accountHolderName'),
-            document.getElementById('legalName')
+            document.getElementById('legalName'),
+            document.getElementById('transferCompanyName'),
+            document.getElementById('transactionCompanyName'),
+            document.getElementById('statementCompanyName')
         ];
         companyElements.forEach(el => {
             if (el && account.companyName) {
@@ -866,7 +985,6 @@ class BankApp {
             }
         });
 
-        // Update business type
         const businessTypeElements = [
             document.getElementById('businessType'),
             document.getElementById('businessTypeDetail')
@@ -877,7 +995,6 @@ class BankApp {
             }
         });
 
-        // Update EIN
         const einElements = [
             document.getElementById('companyEIN'),
             document.getElementById('einDetail')
@@ -888,89 +1005,99 @@ class BankApp {
             }
         });
 
-        // Update address
+        // 5. FIXED: Update contact information
         const addressEl = document.getElementById('companyAddress');
         if (addressEl && account.address) {
             const cleanAddress = account.address.replace(/8888888/g, '').trim();
             addressEl.innerHTML = cleanAddress.replace(/\n/g, '<br>');
-            console.log('✅ Address updated to:', cleanAddress);
         }
 
-        // Update phone
         const phoneEl = document.getElementById('companyPhone');
         if (phoneEl && account.phone) {
             phoneEl.textContent = account.phone;
-            console.log('✅ Phone updated to:', account.phone);
         }
 
-        // ADDED: Update website
+        // CRITICAL FIX: Update email field that was showing "Loading..."
+        const emailElements = [
+            document.getElementById('companyEmail'),
+            document.getElementById('contactEmail')
+        ];
+        emailElements.forEach(el => {
+            if (el && account.email) {
+                el.textContent = account.email;
+                console.log('✅ FIXED email display:', account.email);
+            }
+        });
+
         const websiteEl = document.getElementById('companyWebsite');
         if (websiteEl && account.website) {
             websiteEl.textContent = account.website;
-            console.log('✅ Website updated to:', account.website);
         }
 
-        // ADDED: Update industry
         const industryEl = document.getElementById('companyIndustry');
         if (industryEl && account.industry) {
             industryEl.textContent = account.industry;
-            console.log('✅ Industry updated to:', account.industry);
         }
 
-        // ADDED: Update country of incorporation
         const countryEl = document.getElementById('countryOfIncorporation');
         if (countryEl && account.countryOfIncorporation) {
             countryEl.textContent = account.countryOfIncorporation;
-            console.log('✅ Country updated to:', account.countryOfIncorporation);
         }
 
-        // ADDED: Update business metrics
+        // 6. FIXED: Update business metrics
         const revenueEl = document.getElementById('annualRevenue');
         if (revenueEl && account.annualRevenue) {
             revenueEl.textContent = this.formatCurrency(account.annualRevenue);
-            console.log('✅ Revenue updated to:', account.annualRevenue);
         }
 
         const employeesEl = document.getElementById('employeeCount');
         if (employeesEl && account.employeeCount) {
             employeesEl.textContent = account.employeeCount;
-            console.log('✅ Employees updated to:', account.employeeCount);
         }
 
         const yearsEl = document.getElementById('yearsInBusiness');
         if (yearsEl && account.yearsInBusiness) {
             yearsEl.textContent = account.yearsInBusiness;
-            console.log('✅ Years updated to:', account.yearsInBusiness);
         }
 
-        const ratingEl = document.getElementById('creditRating');
-        if (ratingEl && account.creditRating) {
-            ratingEl.textContent = account.creditRating;
-            console.log('✅ Rating updated to:', account.creditRating);
-        }
+        // CRITICAL FIX: Update ALL credit rating fields that were showing "Loading..."
+        const creditRatingElements = [
+            document.getElementById('creditRating'),
+            document.getElementById('businessCreditRating')
+        ];
+        creditRatingElements.forEach(el => {
+            if (el && account.creditRating) {
+                el.textContent = account.creditRating;
+                console.log('✅ FIXED credit rating display:', account.creditRating);
+            }
+        });
 
-        // ADDED: Update signatories
+        // 7. FIXED: Update signatories
         if (account.signatories) {
             const primaryEl = document.getElementById('primarySignatory');
             if (primaryEl && account.signatories.primary) {
                 primaryEl.innerHTML = `<p><strong>Primary:</strong> ${account.signatories.primary.name} (${account.signatories.primary.title})</p><p>Authority: ${account.signatories.primary.authority}</p>`;
-                console.log('✅ Primary signatory updated');
             }
             
             const secondaryEl = document.getElementById('secondarySignatory');
             if (secondaryEl && account.signatories.secondary) {
                 secondaryEl.innerHTML = `<p><strong>Secondary:</strong> ${account.signatories.secondary.name} (${account.signatories.secondary.title})</p><p>Authority: ${account.signatories.secondary.authority}</p>`;
-                console.log('✅ Secondary signatory updated');
             }
             
             const backupEl = document.getElementById('backupSignatory');
             if (backupEl && account.signatories.backup) {
                 backupEl.innerHTML = `<p><strong>Backup:</strong> ${account.signatories.backup.name} (${account.signatories.backup.title})</p><p>Authority: ${account.signatories.backup.authority}</p>`;
-                console.log('✅ Backup signatory updated');
             }
         }
 
-        // Update DBA name
+        // 8. CRITICAL FIX: Update savings IBAN that was showing "Loading..."
+        const savingsIbanEl = document.getElementById('savingsIBAN');
+        if (savingsIbanEl && account.iban) {
+            savingsIbanEl.textContent = account.iban;
+            console.log('✅ FIXED savings IBAN display:', account.iban);
+        }
+
+        // 9. Update DBA name
         const dbaEl = document.getElementById('dbaName');
         if (dbaEl && account.companyName) {
             const dbaName = account.companyName.replace(' Inc.', '').replace(' LLC', '').replace(' Corp', '');
@@ -980,10 +1107,10 @@ class BankApp {
         // Update account selector
         this.updateAccountSelector();
 
-        console.log('✅ ALL displays updated successfully');
+        console.log('✅ ALL displays updated successfully - NO MORE LOADING STATES');
     }
 
-    // FIXED: Update account selector with real-time Firebase sync
+    // FIXED: Update account selector with FULL ACCOUNT NUMBERS instead of ****
     updateAccountSelector() {
         const fromAccount = document.getElementById('fromAccount');
         const toAccount = document.getElementById('toAccount');
@@ -991,11 +1118,15 @@ class BankApp {
         if (fromAccount && this.currentUser && this.accounts[this.currentUser]) {
             const account = this.accounts[this.currentUser];
             
-            // Update account selector with current balances
+            // FIXED: Show FULL account numbers instead of ****
+            const checkingNumber = account.checkingAccountNumber || '4521-1234-5678-9012';
+            const savingsNumber = account.savingsAccountNumber || '4521-5678-9012-3456';
+            
+            // Update account selector with current balances and FULL account numbers
             fromAccount.innerHTML = `
                 <option value="">Select Business Account</option>
-                <option value="business-checking" selected>Business Checking (****1234) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
-                <option value="business-savings">Business Savings (****5678) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
+                <option value="business-checking" selected>Business Checking (${checkingNumber}) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
+                <option value="business-savings">Business Savings (${savingsNumber}) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
             `;
             
             // Remove existing event listener to prevent duplicates
@@ -1015,15 +1146,18 @@ class BankApp {
 
         if (toAccount && this.currentUser && this.accounts[this.currentUser]) {
             const account = this.accounts[this.currentUser];
+            const checkingNumber = account.checkingAccountNumber || '4521-1234-5678-9012';
+            const savingsNumber = account.savingsAccountNumber || '4521-5678-9012-3456';
+            
             toAccount.innerHTML = `
                 <option value="">Select Destination Account</option>
-                <option value="business-savings">Business Savings (****5678) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
-                <option value="business-checking">Business Checking (****1234) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
+                <option value="business-savings">Business Savings (${savingsNumber}) - ${this.formatCurrency(account.businessSavingsBalance)}</option>
+                <option value="business-checking">Business Checking (${checkingNumber}) - ${this.formatCurrency(account.businessCheckingBalance)}</option>
             `;
         }
     }
 
-    // FIXED: Update transfer account information with Firebase data
+    // FIXED: Update transfer account information with Firebase data and ACCOUNT NUMBERS
     updateTransferAccountInfo(selectedAccount) {
         console.log('🔄 Updating transfer account info for user:', this.currentUser);
         
@@ -1040,6 +1174,11 @@ class BankApp {
         const einEl = document.getElementById('transferEIN');
         const businessTypeEl = document.getElementById('transferBusinessType');
         const signatoryEl = document.getElementById('transferSignatory');
+        
+        // ADDED: Update account numbers in transfer info
+        const accountNumberEl = document.getElementById('transferAccountNumber');
+        const ibanEl = document.getElementById('transferIBAN');
+        const swiftEl = document.getElementById('transferSWIFT');
         
         if (accountHolderEl) {
             accountHolderEl.textContent = account.companyName || 'Unknown Company';
@@ -1065,6 +1204,24 @@ class BankApp {
             console.log('✅ Updated signatory');
         }
         
+        // ADDED: Update account numbers in transfer info
+        if (accountNumberEl) {
+            const accountNumber = selectedAccount === 'business-checking' ? 
+                account.checkingAccountNumber : account.savingsAccountNumber;
+            accountNumberEl.textContent = accountNumber || 'Not available';
+            console.log('✅ Updated transfer account number to:', accountNumber);
+        }
+        
+        if (ibanEl && account.iban) {
+            ibanEl.textContent = account.iban;
+            console.log('✅ Updated transfer IBAN to:', account.iban);
+        }
+        
+        if (swiftEl && account.swift) {
+            swiftEl.textContent = account.swift;
+            console.log('✅ Updated transfer SWIFT to:', account.swift);
+        }
+        
         // Update company name in notice
         const companyNameEl = document.getElementById('transferCompanyName');
         if (companyNameEl) {
@@ -1072,7 +1229,7 @@ class BankApp {
         }
     }
 
-    // ENHANCED: Load recent transactions with better debugging
+    // ENHANCED: Load recent transactions with delivery status display
     loadRecentTransactions() {
         console.log('📊 Loading recent transactions...');
         console.log('👤 Current user:', this.currentUser);
@@ -1116,6 +1273,7 @@ class BankApp {
         }
 
         try {
+            // FIXED: Include delivery status in recent transactions display
             container.innerHTML = recentTxns.map(txn => `
                 <div class="transaction-item">
                     <div class="transaction-icon ${this.getTransactionIconClass(txn.type)}">
@@ -1124,6 +1282,7 @@ class BankApp {
                     <div class="transaction-details">
                         <div class="transaction-title">${txn.description}</div>
                         <div class="transaction-subtitle">${txn.type} • ${txn.account.replace('business-', '').replace('-', ' ')}</div>
+                        ${txn.delivery ? `<div class="transaction-delivery"><i class="fas fa-clock"></i> ${txn.delivery}</div>` : ''}
                     </div>
                     <div class="transaction-amount ${txn.amount >= 0 ? 'incoming' : 'outgoing'}">
                         <div class="amount">${this.formatCurrency(Math.abs(txn.amount))}</div>
@@ -1132,14 +1291,14 @@ class BankApp {
                 </div>
             `).join('');
             
-            console.log('✅ Recent transactions loaded successfully');
+            console.log('✅ Recent transactions loaded successfully with delivery status');
         } catch (error) {
             console.error('❌ Error rendering transactions:', error);
             container.innerHTML = '<div class="no-transactions"><p>Error loading transactions</p></div>';
         }
     }
 
-    // ENHANCED: Load all transactions with better debugging
+    // ENHANCED: Load all transactions with delivery status in table
     loadAllTransactionsForHistory() {
         console.log('📋 Loading transaction history...');
         console.log('👤 Current user:', this.currentUser);
@@ -1152,7 +1311,7 @@ class BankApp {
 
         if (!this.currentUser) {
             console.log('❌ No current user');
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Please log in to view transactions</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Please log in to view transactions</td></tr>';
             return;
         }
 
@@ -1160,7 +1319,7 @@ class BankApp {
         if (!account) {
             console.log('❌ Account not found for user:', this.currentUser);
             console.log('📦 Available accounts:', Object.keys(this.accounts));
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Account data not available</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Account data not available</td></tr>';
             return;
         }
 
@@ -1169,7 +1328,7 @@ class BankApp {
         if (!account.transactions || !Array.isArray(account.transactions)) {
             console.log('❌ No transactions array found');
             console.log('📋 Account transactions:', account.transactions);
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
             return;
         }
 
@@ -1177,11 +1336,12 @@ class BankApp {
         console.log('📋 Found', allTxns.length, 'total transactions:', allTxns);
 
         if (allTxns.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No transactions found</td></tr>';
             return;
         }
 
         try {
+            // FIXED: Include delivery status in transaction history table
             tableBody.innerHTML = allTxns.map(txn => `
                 <tr>
                     <td>${this.formatDate(txn.date)}</td>
@@ -1190,13 +1350,14 @@ class BankApp {
                     <td>${txn.account.replace('business-', '').replace('-', ' ')}</td>
                     <td class="amount ${txn.amount >= 0 ? 'positive' : 'negative'}">${txn.amount >= 0 ? '+' : ''}${this.formatCurrency(Math.abs(txn.amount))}</td>
                     <td><span class="status-badge completed">${txn.status}</span></td>
+                    <td>${txn.delivery || 'N/A'}</td>
                 </tr>
             `).join('');
             
-            console.log('✅ Transaction history loaded successfully');
+            console.log('✅ Transaction history loaded successfully with delivery status');
         } catch (error) {
             console.error('❌ Error rendering transaction history:', error);
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Error loading transactions</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">Error loading transactions</td></tr>';
         }
     }
 
@@ -1320,6 +1481,9 @@ class BankApp {
 
 // Initialize the bank app
 const bankApp = new BankApp();
+
+// Make bankApp globally available
+window.bankApp = bankApp;
 
 // Global functions for HTML
 function loadUserData() {

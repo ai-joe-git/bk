@@ -83,7 +83,7 @@ class AdminPanel {
             return;
         }
 
-        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated' && key !== 'brandingSettings');
         console.log('📊 Displaying accounts:', accountEntries);
         
         if (accountEntries.length === 0) {
@@ -115,7 +115,7 @@ class AdminPanel {
     }
 
     updateStats() {
-        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated' && key !== 'brandingSettings');
         const totalAccounts = accountEntries.length;
         
         let totalBalance = 0;
@@ -145,7 +145,7 @@ class AdminPanel {
             return;
         }
 
-        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated' && key !== 'brandingSettings');
         console.log('📊 Populating account selector with:', accountEntries);
         
         selector.innerHTML = '<option value="">Select Account</option>' + 
@@ -342,7 +342,7 @@ class AdminPanel {
         if (modal) modal.classList.add('show');
     }
 
-    // ENHANCED: editAccount function to populate all fields including business information
+    // ENHANCED: editAccount function to populate all fields including business information and ACCOUNT NUMBERS
     editAccount(username) {
         this.currentEditingAccount = username;
         const account = this.accounts[username];
@@ -350,13 +350,18 @@ class AdminPanel {
         const modalTitle = document.getElementById('modalTitle');
         if (modalTitle) modalTitle.textContent = 'Edit Account';
         
-        // Populate ALL form fields including new business information
+        // Populate ALL form fields including new business information and ACCOUNT NUMBERS
         const fields = {
             'editUsername': username,
             'editPassword': account.password || '',
             'editCompanyName': account.companyName || '',
             'editBusinessType': account.businessType || 'C-Corporation',
             'editEIN': account.ein || '',
+            // ADDED: Account Numbers
+            'editCheckingAccountNumber': account.checkingAccountNumber || '4521-1234-5678-9012',
+            'editSavingsAccountNumber': account.savingsAccountNumber || '4521-5678-9012-3456',
+            'editIBAN': account.iban || 'US12BANK4521123456789012',
+            'editSWIFT': account.swift || 'SBPROUS33',
             'editCountryOfIncorporation': account.countryOfIncorporation || 'United States',
             'editIndustry': account.industry || 'Software Development',
             'editWebsite': account.website || '',
@@ -411,9 +416,9 @@ class AdminPanel {
         if (modal) modal.classList.add('show');
     }
 
-    // COMPLETELY FIXED: Create accounts EXACTLY like Brown68
+    // COMPLETELY FIXED: Create accounts with PROPER credit handling for zero values
     async saveAccount() {
-        console.log('💾 Creating account with EXACT Brown68 structure...');
+        console.log('💾 Saving account with PROPER credit handling...');
         this.showLoading();
         
         const username = document.getElementById('editUsername')?.value?.trim();
@@ -428,18 +433,33 @@ class AdminPanel {
         // Check if this is editing existing account
         const isEditingExisting = this.currentEditingAccount && this.accounts[this.currentEditingAccount];
         
-        // FIXED: Create account with EXACT Brown68 structure including initial transaction
+        // CRITICAL FIX: Proper handling of credit values (including 0)
+        const getCreditValue = (fieldId, defaultValue) => {
+            const value = document.getElementById(fieldId)?.value;
+            if (value === '' || value === null || value === undefined) {
+                return defaultValue;
+            }
+            return parseFloat(value);
+        };
+        
+        // FIXED: Create account with EXACT Brown68 structure including account numbers
         const accountData = {
             password: password,
             companyName: document.getElementById('editCompanyName')?.value?.trim() || 'TechSolutions Inc.',
             businessType: document.getElementById('editBusinessType')?.value || 'C-Corporation',
             businessCheckingBalance: parseFloat(document.getElementById('editCheckingBalance')?.value) || 125847.92,
             businessSavingsBalance: parseFloat(document.getElementById('editSavingsBalance')?.value) || 289234.15,
-            creditLimit: parseFloat(document.getElementById('editCreditLimit')?.value) || 250000.00,
-            creditUsed: parseFloat(document.getElementById('editCreditUsed')?.value) || 35750.00,
+            // CRITICAL FIX: Allow zero values for credit fields
+            creditLimit: getCreditValue('editCreditLimit', 250000.00),
+            creditUsed: getCreditValue('editCreditUsed', 35750.00),
             address: document.getElementById('editAddress')?.value?.trim() || '456 Innovation Drive, Silicon Valley, CA 94025',
             phone: document.getElementById('editPhone')?.value?.trim() || '+1 (555) 987-6543',
             ein: document.getElementById('editEIN')?.value?.trim() || '12-3456789',
+            // ADDED: Account Numbers and Banking Details
+            checkingAccountNumber: document.getElementById('editCheckingAccountNumber')?.value?.trim() || this.generateAccountNumber('checking'),
+            savingsAccountNumber: document.getElementById('editSavingsAccountNumber')?.value?.trim() || this.generateAccountNumber('savings'),
+            iban: document.getElementById('editIBAN')?.value?.trim() || this.generateIBAN(),
+            swift: document.getElementById('editSWIFT')?.value?.trim() || 'SBPROUS33',
             // EXACT Brown68 business fields
             countryOfIncorporation: document.getElementById('editCountryOfIncorporation')?.value || 'United States',
             industry: document.getElementById('editIndustry')?.value || 'Software Development',
@@ -506,11 +526,12 @@ class AdminPanel {
         const logEntry = `[${new Date().toISOString()}] ADMIN: Account ${isEditingExisting ? 'updated' : 'created'} - ${username}`;
         accountData.fraudLog.push(logEntry);
         
-        console.log('✅ Account created with EXACT Brown68 structure including transactions:', {
+        console.log('✅ Account created with proper credit handling:', {
             username,
+            creditLimit: accountData.creditLimit,
+            creditUsed: accountData.creditUsed,
             hasTransactions: Array.isArray(accountData.transactions),
-            transactionCount: accountData.transactions.length,
-            hasFraudLog: Array.isArray(accountData.fraudLog)
+            transactionCount: accountData.transactions.length
         });
         
         try {
@@ -525,13 +546,13 @@ class AdminPanel {
             
             // FORCE save to Firebase
             await window.firebaseSet(this.accountsRef, this.accounts);
-            console.log('✅ Account saved to Firebase with EXACT Brown68 structure');
+            console.log('✅ Account saved to Firebase with proper credit handling');
             
             setTimeout(async () => {
                 await this.loadAccounts();
                 this.hideLoading();
                 this.closeAccountModal();
-                this.showSuccess(`Account ${username} ${isEditingExisting ? 'updated' : 'created'} with complete Brown68 structure - transfers will work!`);
+                this.showSuccess(`Account ${username} ${isEditingExisting ? 'updated' : 'created'} - Credit values saved properly!`);
             }, 1000);
             
         } catch (error) {
@@ -539,6 +560,107 @@ class AdminPanel {
             this.hideLoading();
             this.showError('Failed to save account');
         }
+    }
+
+    // ADDED: Generate account numbers
+    generateAccountNumber(type) {
+        const prefix = type === 'checking' ? '4521' : '4522';
+        const random1 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const random2 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const random3 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `${prefix}-${random1}-${random2}-${random3}`;
+    }
+
+    // ADDED: Generate IBAN
+    generateIBAN() {
+        const bankCode = 'BANK';
+        const accountNumber = Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
+        return `US12${bankCode}${accountNumber}`;
+    }
+
+    // ADDED: Logo & Branding Functions
+    showLogoModal() {
+        // Load current settings
+        const currentSettings = this.accounts.brandingSettings || {
+            logoText: 'SecureBank Pro',
+            logoIcon: 'fas fa-university',
+            primaryColor: '#1e40af',
+            logoColor: '#d97706'
+        };
+        
+        document.getElementById('logoText').value = currentSettings.logoText;
+        document.getElementById('logoIcon').value = currentSettings.logoIcon;
+        document.getElementById('primaryColor').value = currentSettings.primaryColor;
+        document.getElementById('logoColor').value = currentSettings.logoColor;
+        
+        // Update preview
+        document.getElementById('previewText').textContent = currentSettings.logoText;
+        document.getElementById('previewIcon').className = currentSettings.logoIcon;
+        document.getElementById('previewText').style.color = currentSettings.primaryColor;
+        document.getElementById('previewIcon').style.color = currentSettings.logoColor;
+        
+        const modal = document.getElementById('logoModal');
+        if (modal) modal.classList.add('show');
+    }
+
+    closeLogoModal() {
+        const modal = document.getElementById('logoModal');
+        if (modal) modal.classList.remove('show');
+    }
+
+    async saveBrandingSettings() {
+        this.showLoading();
+        
+        const settings = {
+            logoText: document.getElementById('logoText').value || 'SecureBank Pro',
+            logoIcon: document.getElementById('logoIcon').value || 'fas fa-university',
+            primaryColor: document.getElementById('primaryColor').value || '#1e40af',
+            logoColor: document.getElementById('logoColor').value || '#d97706'
+        };
+        
+        try {
+            // Save to accounts
+            this.accounts.brandingSettings = settings;
+            this.accounts.lastUpdated = new Date().toISOString();
+            
+            // Save to Firebase
+            await window.firebaseSet(this.accountsRef, this.accounts);
+            
+            // Apply changes immediately
+            this.applyBrandingChanges(settings);
+            
+            this.hideLoading();
+            this.closeLogoModal();
+            this.showSuccess('Branding settings updated successfully! Changes applied immediately.');
+            
+        } catch (error) {
+            console.error('Error saving branding settings:', error);
+            this.hideLoading();
+            this.showError('Failed to save branding settings');
+        }
+    }
+
+    applyBrandingChanges(settings) {
+        // Update all logo text elements
+        document.querySelectorAll('.bank-logo span, .bank-logo h1, .admin-logo span').forEach(el => {
+            if (el && el.textContent.includes('SecureBank') || el.textContent.includes('Bank')) {
+                el.textContent = settings.logoText;
+            }
+        });
+        
+        // Update all logo icons
+        document.querySelectorAll('.bank-logo i, .admin-logo i').forEach(el => {
+            if (el && (el.className.includes('university') || el.className.includes('landmark') || el.className.includes('building'))) {
+                el.className = settings.logoIcon;
+                el.style.color = settings.logoColor;
+            }
+        });
+        
+        // Update CSS variables
+        document.documentElement.style.setProperty('--bank-primary', settings.primaryColor);
+        document.documentElement.style.setProperty('--bank-warning', settings.logoColor);
+        
+        console.log('✅ Branding changes applied:', settings);
     }
 
     // FIXED: Enhanced saveBalances method
@@ -613,8 +735,8 @@ class AdminPanel {
 
         let allLogs = [];
         
-        // Get all accounts except lastUpdated
-        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated');
+        // Get all accounts except lastUpdated and brandingSettings
+        const accountEntries = Object.entries(this.accounts).filter(([key]) => key !== 'lastUpdated' && key !== 'brandingSettings');
         
         accountEntries.forEach(([username, account]) => {
             console.log(`📊 Checking logs for ${username}:`, account.fraudLog);
@@ -733,7 +855,8 @@ class AdminPanel {
     clearForm() {
         const fields = [
             'editUsername', 'editPassword', 'editCompanyName', 'editBusinessType',
-            'editEIN', 'editCountryOfIncorporation', 'editIndustry', 'editWebsite',
+            'editEIN', 'editCheckingAccountNumber', 'editSavingsAccountNumber', 'editIBAN', 'editSWIFT',
+            'editCountryOfIncorporation', 'editIndustry', 'editWebsite',
             'editAddress', 'editPhone', 'editEmail', 'editCheckingBalance', 
             'editSavingsBalance', 'editCreditLimit', 'editCreditUsed',
             'editAnnualRevenue', 'editEmployeeCount', 'editYearsInBusiness', 'editCreditRating',
@@ -838,6 +961,25 @@ function clearAllLogs() {
 function simulateIncomingTransfer() {
     if (window.adminPanel) {
         window.adminPanel.simulateIncomingTransfer();
+    }
+}
+
+// ADDED: Logo & Branding Functions
+function showLogoModal() {
+    if (window.adminPanel) {
+        window.adminPanel.showLogoModal();
+    }
+}
+
+function closeLogoModal() {
+    if (window.adminPanel) {
+        window.adminPanel.closeLogoModal();
+    }
+}
+
+function saveBrandingSettings() {
+    if (window.adminPanel) {
+        window.adminPanel.saveBrandingSettings();
     }
 }
 

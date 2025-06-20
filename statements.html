@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statements - SecureBank Pro</title>
+    <title>Account Statements - SecureBank Pro</title>
     <link rel="stylesheet" href="css/bank-style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -48,6 +48,18 @@
     </script>
 </head>
 <body>
+    <!-- ANTI-FLASH LOADING OVERLAY -->
+    <div id="pageLoadingOverlay" class="page-loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">SecureBank Pro</div>
+            <div class="loading-subtitle">Loading account statements...</div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="bank-app">
         <!-- Header -->
         <header class="bank-header">
@@ -80,7 +92,7 @@
             </div>
             <div class="header-right">
                 <div class="user-info">
-                    <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
+                    <span class="welcome-text">Welcome, <span id="currentUser">Loading...</span></span>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
@@ -91,21 +103,14 @@
             <!-- Mobile: Two-row layout -->
             <div class="mobile-header">
                 <div class="mobile-header-top">
-                    <div class="header-left">
-                        <div class="bank-logo">
-                            <i class="fas fa-university"></i>
-                            <span>SecureBank Pro</span>
-                        </div>
+                    <div class="bank-logo">
+                        <i class="fas fa-university"></i>
+                        <span>SecureBank Pro</span>
                     </div>
-                    <div class="header-right">
-                        <div class="user-info">
-                            <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
-                            <button class="logout-btn" onclick="logout()">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </button>
-                        </div>
-                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
                 </div>
                 <div class="mobile-header-bottom">
                     <nav class="bank-nav">
@@ -133,139 +138,135 @@
         <!-- Main Content -->
         <main class="bank-main">
             <div class="statements-container">
+                <!-- Page Header -->
                 <div class="page-header">
                     <h1>Account Statements</h1>
                     <p>Download and view your monthly account statements</p>
                 </div>
 
-                <!-- Account Selection -->
-                <div class="account-selection">
-                    <div class="account-tabs">
-                        <button class="account-tab active" data-account="checking">
-                            <i class="fas fa-university"></i>
-                            Business Checking (****1234)
-                        </button>
-                        <button class="account-tab" data-account="savings">
-                            <i class="fas fa-piggy-bank"></i>
-                            Business Savings (****5678)
-                        </button>
-                        <button class="account-tab" data-account="credit">
-                            <i class="fas fa-credit-card"></i>
-                            Business Credit (****9012)
-                        </button>
+                <!-- Business Account Information Banner -->
+                <div class="corporate-transfer-notice">
+                    <i class="fas fa-building"></i>
+                    <div>
+                        <h4>Business Account Statements</h4>
+                        <p>Statements for <span id="statementCompanyName">TechSolutions Inc.</span> corporate accounts</p>
                     </div>
                 </div>
 
-                <!-- Statement Options -->
-                <div class="statement-options">
-                    <div class="option-card">
-                        <i class="fas fa-calendar-alt"></i>
-                        <h3>Monthly Statements</h3>
-                        <p>Download PDF statements for any month</p>
-                        <button class="option-btn" onclick="showMonthlyStatements()">
-                            View Available
-                        </button>
-                    </div>
-                    <div class="option-card">
-                        <i class="fas fa-file-export"></i>
-                        <h3>Custom Date Range</h3>
-                        <p>Generate statement for specific date range</p>
-                        <button class="option-btn" onclick="showCustomRange()">
-                            Create Custom
-                        </button>
-                    </div>
-                    <div class="option-card">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Annual Summary</h3>
-                        <p>Year-end summary and tax documents</p>
-                        <button class="option-btn" onclick="showAnnualSummary()">
-                            View Summary
-                        </button>
-                    </div>
+                <!-- Account Type Tabs -->
+                <div class="account-type-tabs">
+                    <a href="#checking" class="account-tab active" data-account="business-checking">
+                        <i class="fas fa-university"></i>
+                        Business Checking
+                    </a>
+                    <a href="#savings" class="account-tab" data-account="business-savings">
+                        <i class="fas fa-piggy-bank"></i>
+                        Business Savings
+                    </a>
+                    <a href="#credit" class="account-tab" data-account="business-credit">
+                        <i class="fas fa-credit-card"></i>
+                        Line of Credit
+                    </a>
                 </div>
 
                 <!-- Monthly Statements Section -->
-                <div id="monthlyStatementsSection" class="statements-section">
-                    <h2>Monthly Statements - Business Checking</h2>
-                    <div class="statements-grid">
+                <div id="monthlyStatementsSection" class="statement-section">
+                    <h2>
+                        <i class="fas fa-calendar-alt"></i>
+                        Monthly Statements - <span id="currentAccountType">Business Checking</span>
+                    </h2>
+                    <p>Download your monthly account statements in PDF format</p>
+                    
+                    <div class="statement-actions">
+                        <button class="statement-btn" onclick="showMonthlyStatements()">
+                            <i class="fas fa-calendar-alt"></i>
+                            Monthly Statements
+                        </button>
+                        <button class="statement-btn secondary" onclick="showCustomRange()">
+                            <i class="fas fa-calendar-week"></i>
+                            Custom Date Range
+                        </button>
+                        <button class="statement-btn secondary" onclick="showAnnualSummary()">
+                            <i class="fas fa-chart-line"></i>
+                            Annual Summary
+                        </button>
+                    </div>
+
+                    <div class="statement-list">
+                        <!-- January 2025 Statement -->
                         <div class="statement-item">
                             <div class="statement-info">
-                                <i class="fas fa-file-pdf"></i>
-                                <div class="statement-details">
-                                    <h4>January 2025 Statement</h4>
-                                    <p>Statement Period: Jan 1 - Jan 31, 2025</p>
-                                    <span class="statement-size">245 KB</span>
-                                </div>
+                                <h3>January 2025 Statement</h3>
+                                <p>Statement Period: Jan 1 - Jan 31, 2025 • 245 KB</p>
+                                <p><strong>Account:</strong> <span id="account1Number">4521-1234-5678-9012</span></p>
+                                <p><strong>Transactions:</strong> 8 • <strong>Ending Balance:</strong> <span id="account1Balance">$125,847.92</span></p>
                             </div>
-                            <div class="statement-actions">
-                                <button class="action-btn view" onclick="viewStatement('2025-01')">
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="viewStatement('2025-01')">
                                     <i class="fas fa-eye"></i>
                                     View
                                 </button>
-                                <button class="action-btn download" onclick="downloadStatement('2025-01')">
+                                <button class="statement-btn secondary" onclick="downloadStatement('2025-01')">
                                     <i class="fas fa-download"></i>
                                     Download
                                 </button>
                             </div>
                         </div>
 
+                        <!-- December 2024 Statement -->
                         <div class="statement-item">
                             <div class="statement-info">
-                                <i class="fas fa-file-pdf"></i>
-                                <div class="statement-details">
-                                    <h4>December 2024 Statement</h4>
-                                    <p>Statement Period: Dec 1 - Dec 31, 2024</p>
-                                    <span class="statement-size">312 KB</span>
-                                </div>
+                                <h3>December 2024 Statement</h3>
+                                <p>Statement Period: Dec 1 - Dec 31, 2024 • 312 KB</p>
+                                <p><strong>Account:</strong> <span id="account2Number">4521-1234-5678-9012</span></p>
+                                <p><strong>Transactions:</strong> 15 • <strong>Ending Balance:</strong> $98,523.47</p>
                             </div>
-                            <div class="statement-actions">
-                                <button class="action-btn view" onclick="viewStatement('2024-12')">
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="viewStatement('2024-12')">
                                     <i class="fas fa-eye"></i>
                                     View
                                 </button>
-                                <button class="action-btn download" onclick="downloadStatement('2024-12')">
+                                <button class="statement-btn secondary" onclick="downloadStatement('2024-12')">
                                     <i class="fas fa-download"></i>
                                     Download
                                 </button>
                             </div>
                         </div>
 
+                        <!-- November 2024 Statement -->
                         <div class="statement-item">
                             <div class="statement-info">
-                                <i class="fas fa-file-pdf"></i>
-                                <div class="statement-details">
-                                    <h4>November 2024 Statement</h4>
-                                    <p>Statement Period: Nov 1 - Nov 30, 2024</p>
-                                    <span class="statement-size">298 KB</span>
-                                </div>
+                                <h3>November 2024 Statement</h3>
+                                <p>Statement Period: Nov 1 - Nov 30, 2024 • 298 KB</p>
+                                <p><strong>Account:</strong> <span id="account3Number">4521-1234-5678-9012</span></p>
+                                <p><strong>Transactions:</strong> 12 • <strong>Ending Balance:</strong> $87,291.33</p>
                             </div>
-                            <div class="statement-actions">
-                                <button class="action-btn view" onclick="viewStatement('2024-11')">
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="viewStatement('2024-11')">
                                     <i class="fas fa-eye"></i>
                                     View
                                 </button>
-                                <button class="action-btn download" onclick="downloadStatement('2024-11')">
+                                <button class="statement-btn secondary" onclick="downloadStatement('2024-11')">
                                     <i class="fas fa-download"></i>
                                     Download
                                 </button>
                             </div>
                         </div>
 
+                        <!-- October 2024 Statement -->
                         <div class="statement-item">
                             <div class="statement-info">
-                                <i class="fas fa-file-pdf"></i>
-                                <div class="statement-details">
-                                    <h4>October 2024 Statement</h4>
-                                    <p>Statement Period: Oct 1 - Oct 31, 2024</p>
-                                    <span class="statement-size">267 KB</span>
-                                </div>
+                                <h3>October 2024 Statement</h3>
+                                <p>Statement Period: Oct 1 - Oct 31, 2024 • 267 KB</p>
+                                <p><strong>Account:</strong> <span id="account4Number">4521-1234-5678-9012</span></p>
+                                <p><strong>Transactions:</strong> 9 • <strong>Ending Balance:</strong> $73,845.12</p>
                             </div>
-                            <div class="statement-actions">
-                                <button class="action-btn view" onclick="viewStatement('2024-10')">
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="viewStatement('2024-10')">
                                     <i class="fas fa-eye"></i>
                                     View
                                 </button>
-                                <button class="action-btn download" onclick="downloadStatement('2024-10')">
+                                <button class="statement-btn secondary" onclick="downloadStatement('2024-10')">
                                     <i class="fas fa-download"></i>
                                     Download
                                 </button>
@@ -275,148 +276,157 @@
                 </div>
 
                 <!-- Custom Date Range Section -->
-                <div id="customRangeSection" class="statements-section" style="display: none;">
-                    <h2>Custom Statement Generator</h2>
-                    <div class="custom-range-form">
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label for="startDate">Start Date:</label>
-                                <input type="date" id="startDate" required>
-                            </div>
-                            <div class="input-group">
-                                <label for="endDate">End Date:</label>
-                                <input type="date" id="endDate" required>
-                            </div>
+                <div id="customRangeSection" class="statement-section" style="display: none;">
+                    <h2>
+                        <i class="fas fa-calendar-week"></i>
+                        Custom Date Range Statement
+                    </h2>
+                    <p>Generate a statement for a specific date range</p>
+                    
+                    <div class="date-range-picker">
+                        <div class="date-input-group">
+                            <label for="customFromDate">From Date</label>
+                            <input type="date" id="customFromDate">
                         </div>
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label for="statementFormat">Format:</label>
-                                <select id="statementFormat">
-                                    <option value="pdf">PDF Document</option>
-                                    <option value="csv">CSV (Excel)</option>
-                                    <option value="xlsx">Excel Spreadsheet</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label for="includeImages">Include:</label>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="includeImages" checked>
-                                        Check Images
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="includeMemos" checked>
-                                        Transaction Memos
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="date-input-group">
+                            <label for="customToDate">To Date</label>
+                            <input type="date" id="customToDate">
                         </div>
-                        <button class="generate-btn" onclick="generateCustomStatement()">
-                            <i class="fas fa-file-export"></i>
+                    </div>
+
+                    <div class="statement-actions">
+                        <button class="statement-btn" onclick="generateCustomStatement()">
+                            <i class="fas fa-file-pdf"></i>
                             Generate Statement
+                        </button>
+                        <button class="statement-btn secondary" onclick="previewCustomStatement()">
+                            <i class="fas fa-eye"></i>
+                            Preview
                         </button>
                     </div>
                 </div>
 
                 <!-- Annual Summary Section -->
-                <div id="annualSummarySection" class="statements-section" style="display: none;">
-                    <h2>Annual Summary - 2024</h2>
-                    <div class="annual-summary-grid">
-                        <div class="summary-card">
-                            <h3>Account Activity</h3>
-                            <div class="summary-stats">
-                                <div class="stat-item">
-                                    <span class="stat-label">Total Deposits:</span>
-                                    <span class="stat-value positive">$1,275,450.00</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Total Withdrawals:</span>
-                                    <span class="stat-value negative">$892,300.00</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Net Change:</span>
-                                    <span class="stat-value positive">+$383,150.00</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Average Balance:</span>
-                                    <span class="stat-value">$523,400.00</span>
-                                </div>
+                <div id="annualSummarySection" class="statement-section" style="display: none;">
+                    <h2>
+                        <i class="fas fa-chart-line"></i>
+                        Annual Summary & Tax Documents
+                    </h2>
+                    <p>Download annual summaries and tax-related documents</p>
+
+                    <div class="statement-list">
+                        <!-- 2024 Annual Summary -->
+                        <div class="statement-item">
+                            <div class="statement-info">
+                                <h3>2024 Annual Summary</h3>
+                                <p>Complete year summary with transaction analysis • 1.2 MB</p>
+                                <p><strong>Total Transactions:</strong> 156 • <strong>Net Flow:</strong> +$2,847,392.15</p>
+                            </div>
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="downloadTaxDoc('annual-2024')">
+                                    <i class="fas fa-download"></i>
+                                    Download
+                                </button>
                             </div>
                         </div>
 
-                        <div class="summary-card">
-                            <h3>Interest Earned</h3>
-                            <div class="summary-stats">
-                                <div class="stat-item">
-                                    <span class="stat-label">Checking Interest:</span>
-                                    <span class="stat-value">$1,245.50</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Savings Interest:</span>
-                                    <span class="stat-value">$18,473.30</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Total Interest:</span>
-                                    <span class="stat-value positive">$19,718.80</span>
-                                </div>
+                        <!-- Tax Document 1099-INT -->
+                        <div class="statement-item">
+                            <div class="statement-info">
+                                <h3>Form 1099-INT (Interest Income)</h3>
+                                <p>Interest earned on business savings account • 2024 Tax Year</p>
+                                <p><strong>Total Interest:</strong> $7,245.83</p>
+                            </div>
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="downloadTaxDoc('1099-int-2024')">
+                                    <i class="fas fa-download"></i>
+                                    Download
+                                </button>
                             </div>
                         </div>
 
-                        <div class="summary-card">
-                            <h3>Tax Documents</h3>
-                            <div class="tax-documents">
-                                <div class="tax-doc-item">
-                                    <i class="fas fa-file-alt"></i>
-                                    <span>1099-INT Interest Statement</span>
-                                    <button class="download-tax-btn" onclick="downloadTaxDoc('1099-int')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="tax-doc-item">
-                                    <i class="fas fa-file-alt"></i>
-                                    <span>Annual Account Summary</span>
-                                    <button class="download-tax-btn" onclick="downloadTaxDoc('annual-summary')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
+                        <!-- Business Banking Summary -->
+                        <div class="statement-item">
+                            <div class="statement-info">
+                                <h3>Business Banking Summary 2024</h3>
+                                <p>Comprehensive business banking activity report</p>
+                                <p><strong>Average Balance:</strong> $287,543.21 • <strong>Fees:</strong> $0.00</p>
+                            </div>
+                            <div class="statement-actions-inline">
+                                <button class="statement-btn" onclick="downloadTaxDoc('business-summary-2024')">
+                                    <i class="fas fa-download"></i>
+                                    Download
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Statement Delivery Preferences -->
-                <div class="delivery-preferences">
-                    <h2>Statement Delivery Preferences</h2>
-                    <div class="preference-options">
+                <!-- Statement Preferences -->
+                <div class="statement-section">
+                    <h2>
+                        <i class="fas fa-cog"></i>
+                        Statement Preferences
+                    </h2>
+                    <p>Manage how you receive your account statements</p>
+                    
+                    <div class="preferences-grid">
                         <div class="preference-card">
-                            <div class="preference-header">
-                                <i class="fas fa-envelope"></i>
-                                <h3>Email Delivery</h3>
-                            </div>
-                            <p>Receive statements via email (Recommended)</p>
-                            <div class="preference-controls">
-                                <label class="switch">
-                                    <input type="checkbox" id="emailDelivery" checked>
-                                    <span class="slider"></span>
+                            <h3>Delivery Method</h3>
+                            <div class="preference-options">
+                                <label>
+                                    <input type="radio" name="delivery" value="electronic" checked>
+                                    <span>Electronic (PDF Download)</span>
                                 </label>
-                                <span class="preference-status">Enabled</span>
+                                <label>
+                                    <input type="radio" name="delivery" value="email">
+                                    <span>Email Delivery</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="delivery" value="mail">
+                                    <span>Paper Mail ($5/month)</span>
+                                </label>
                             </div>
                         </div>
 
                         <div class="preference-card">
-                            <div class="preference-header">
-                                <i class="fas fa-mail-bulk"></i>
-                                <h3>Paper Statements</h3>
-                            </div>
-                            <p>Receive printed statements by mail ($2.50/month)</p>
-                            <div class="preference-controls">
-                                <label class="switch">
-                                    <input type="checkbox" id="paperDelivery">
-                                    <span class="slider"></span>
+                            <h3>Statement Frequency</h3>
+                            <div class="preference-options">
+                                <label>
+                                    <input type="radio" name="frequency" value="monthly" checked>
+                                    <span>Monthly</span>
                                 </label>
-                                <span class="preference-status">Disabled</span>
+                                <label>
+                                    <input type="radio" name="frequency" value="quarterly">
+                                    <span>Quarterly</span>
+                                </label>
                             </div>
                         </div>
+
+                        <div class="preference-card">
+                            <h3>Email Notifications</h3>
+                            <div class="preference-options">
+                                <label>
+                                    <input type="checkbox" checked>
+                                    <span>Statement Available Notification</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" checked>
+                                    <span>Low Balance Alert</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox">
+                                    <span>Large Transaction Alert</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="statement-actions">
+                        <button class="statement-btn" onclick="savePreferences()">
+                            <i class="fas fa-save"></i>
+                            Save Preferences
+                        </button>
                     </div>
                 </div>
             </div>
@@ -497,263 +507,316 @@
 
     <!-- Statement Viewer Modal -->
     <div id="statementModal" class="modal">
-        <div class="modal-content statement-viewer">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 id="statementTitle">Statement Viewer</h2>
-                <button class="close-btn" onclick="closeStatementViewer()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h2>Statement Viewer</h2>
+                <button class="close-btn" onclick="closeStatementViewer()">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="statement-preview">
-                    <div class="statement-header-preview">
-                        <div class="bank-letterhead">
-                            <i class="fas fa-university"></i>
-                            <h3>SecureBank Pro</h3>
-                            <p>123 Banking Street, Financial District, NY 10001</p>
-                        </div>
-                        <div class="statement-period">
-                            <h4 id="previewPeriod">Statement Period: January 1 - 31, 2025</h4>
-                        </div>
-                    </div>
-                    
-                    <div class="account-summary-preview">
-                        <h4>Account Summary</h4>
-                        <table class="summary-table">
-                            <tr>
-                                <td>Beginning Balance:</td>
-                                <td>$23,347.92</td>
-                            </tr>
-                            <tr>
-                                <td>Total Deposits:</td>
-                                <td class="positive">+$8,750.00</td>
-                            </tr>
-                            <tr>
-                                <td>Total Withdrawals:</td>
-                                <td class="negative">-$6,250.00</td>
-                            </tr>
-                            <tr>
-                                <td>Ending Balance:</td>
-                                <td class="balance">$25,847.92</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div class="download-options">
-                        <button class="download-btn" onclick="downloadCurrentStatement()">
-                            <i class="fas fa-download"></i>
-                            Download PDF
-                        </button>
-                        <button class="print-btn" onclick="printStatement()">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                    </div>
+                <div id="statementContent">
+                    <p>Loading statement...</p>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="downloadCurrentStatement()">Download PDF</button>
+                <button class="btn-secondary" onclick="closeStatementViewer()">Close</button>
             </div>
         </div>
     </div>
 
     <script src="js/bank-app.js"></script>
     <script>
-        let currentAccount = 'checking';
-        
-        // Global function wrappers for statements page
-        function setupStatementTabs() {
-            const tabs = document.querySelectorAll('.account-tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    currentAccount = this.dataset.account;
-                    updateStatementsForAccount(currentAccount);
-                    
-                    // Log account switch for fraud monitoring
-                    if (window.bankApp) {
-                        bankApp.logFraudEvent(`User switched to ${currentAccount} statements`);
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Statements page loading with anti-flash protection...');
+            
+            const initStatements = async () => {
+                let attempts = 0;
+                
+                // Wait for BankApp to be ready
+                while ((!window.bankApp || !window.bankApp.database) && attempts < 200) {
+                    console.log(`⏳ Waiting for BankApp... attempt ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                if (!window.bankApp || !window.bankApp.database) {
+                    console.log('❌ BankApp failed to initialize');
+                    return;
+                }
+                
+                console.log('✅ BankApp ready, loading user data with protection...');
+                
+                // Load user data (this will handle loading states automatically)
+                await window.bankApp.loadUserData();
+                
+                // Initialize statement functionality
+                setupAccountTabs();
+                setDefaultDates();
+                
+                // FORCE UPDATE: All statement elements
+                forceUpdateStatementElements();
+                
+                // Mark as loaded
+                document.documentElement.classList.add('loaded');
+                document.body.classList.add('content-loaded');
+            };
+            
+            // CRITICAL FIX: Force update ALL statement elements
+            function forceUpdateStatementElements() {
+                if (!window.bankApp || !window.bankApp.currentUser) return;
+                
+                const account = window.bankApp.accounts[window.bankApp.currentUser];
+                if (!account) return;
+                
+                console.log('🔧 FORCE UPDATING: All statement elements');
+                
+                // Use BankApp's existing methods first
+                window.bankApp.updateBalanceDisplays();
+                
+                // Update company name in corporate notice
+                const companyNameEl = document.getElementById('statementCompanyName');
+                if (companyNameEl && account.companyName) {
+                    companyNameEl.textContent = account.companyName;
+                }
+                
+                // Update account numbers in statements
+                const accountNumbers = [
+                    'account1Number', 'account2Number', 'account3Number', 'account4Number'
+                ];
+                accountNumbers.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element && account.checkingAccountNumber) {
+                        element.textContent = account.checkingAccountNumber;
                     }
                 });
-            });
-        }
+                
+                // Update current balance
+                const balanceEl = document.getElementById('account1Balance');
+                if (balanceEl && account.businessCheckingBalance) {
+                    balanceEl.textContent = window.bankApp.formatCurrency(account.businessCheckingBalance);
+                }
+                
+                console.log('✅ ALL statement elements force-updated');
+            }
+            
+            // Setup account tab functionality
+            function setupAccountTabs() {
+                const tabs = document.querySelectorAll('.account-tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Remove active class from all tabs
+                        tabs.forEach(t => t.classList.remove('active'));
+                        
+                        // Add active class to clicked tab
+                        this.classList.add('active');
+                        
+                        // Update current account type display
+                        const accountType = this.textContent.trim();
+                        const currentTypeEl = document.getElementById('currentAccountType');
+                        if (currentTypeEl) {
+                            currentTypeEl.textContent = accountType;
+                        }
+                        
+                        console.log('Switched to account type:', accountType);
+                    });
+                });
+            }
+            
+            // Set default dates for custom range
+            function setDefaultDates() {
+                const today = new Date();
+                const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                
+                const fromDateInput = document.getElementById('customFromDate');
+                const toDateInput = document.getElementById('customToDate');
+                
+                if (fromDateInput) {
+                    fromDateInput.value = firstOfMonth.toISOString().split('T')[0];
+                }
+                if (toDateInput) {
+                    toDateInput.value = today.toISOString().split('T')[0];
+                }
+            }
+            
+            initStatements();
+        });
 
-        function updateStatementsForAccount(account) {
-            const sectionTitle = document.querySelector('#monthlyStatementsSection h2');
-            const accountNames = {
-                'checking': 'Business Checking',
-                'savings': 'Business Savings', 
-                'credit': 'Business Credit'
-            };
-            sectionTitle.textContent = `Monthly Statements - ${accountNames[account]}`;
-        }
-
+        // Statement section management
         function showMonthlyStatements() {
-            hideAllSections();
             document.getElementById('monthlyStatementsSection').style.display = 'block';
-            logStatementAction('Viewed monthly statements');
-        }
-
-        function showCustomRange() {
-            hideAllSections();
-            document.getElementById('customRangeSection').style.display = 'block';
-            logStatementAction('Accessed custom date range generator');
-        }
-
-        function showAnnualSummary() {
-            hideAllSections();
-            document.getElementById('annualSummarySection').style.display = 'block';
-            logStatementAction('Viewed annual summary');
-        }
-
-        function hideAllSections() {
-            document.getElementById('monthlyStatementsSection').style.display = 'none';
             document.getElementById('customRangeSection').style.display = 'none';
             document.getElementById('annualSummarySection').style.display = 'none';
         }
 
+        function showCustomRange() {
+            document.getElementById('monthlyStatementsSection').style.display = 'none';
+            document.getElementById('customRangeSection').style.display = 'block';
+            document.getElementById('annualSummarySection').style.display = 'none';
+        }
+
+        function showAnnualSummary() {
+            document.getElementById('monthlyStatementsSection').style.display = 'none';
+            document.getElementById('customRangeSection').style.display = 'none';
+            document.getElementById('annualSummarySection').style.display = 'block';
+        }
+
+        // Statement actions
         function viewStatement(period) {
+            console.log('Viewing statement for:', period);
+            
             const modal = document.getElementById('statementModal');
-            const title = document.getElementById('statementTitle');
-            const periodElement = document.getElementById('previewPeriod');
+            const content = document.getElementById('statementContent');
             
-            title.textContent = `${period} Statement - ${currentAccount.charAt(0).toUpperCase() + currentAccount.slice(1)} Account`;
-            periodElement.textContent = `Statement Period: ${formatPeriod(period)}`;
-            
-            modal.classList.add('show');
-            logStatementAction(`Viewed statement for ${period}`);
+            if (modal && content) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-file-pdf" style="font-size: 48px; color: var(--bank-primary); margin-bottom: 16px;"></i>
+                        <h3>Statement Preview</h3>
+                        <p>Statement for period: ${period}</p>
+                        <p>This is a preview of your account statement. Use the Download button to get the PDF version.</p>
+                        <div style="background: var(--bank-background); border-radius: 8px; padding: 20px; margin: 20px 0;">
+                            <h4>Statement Summary</h4>
+                            <p><strong>Account:</strong> ${window.bankApp?.accounts[window.bankApp?.currentUser]?.checkingAccountNumber || '4521-1234-5678-9012'}</p>
+                            <p><strong>Statement Period:</strong> ${period}</p>
+                            <p><strong>Transactions:</strong> Multiple business transactions</p>
+                        </div>
+                    </div>
+                `;
+                modal.classList.add('show');
+            }
         }
 
         function downloadStatement(period) {
-            // Simulate download
-            const filename = `statement_${currentAccount}_${period}.pdf`;
-            
-            // Create fake download
-            const link = document.createElement('a');
-            link.href = '#';
-            link.download = filename;
-            link.click();
-            
-            showDownloadNotification(filename);
-            logStatementAction(`Downloaded statement for ${period}`);
+            console.log('Downloading statement for:', period);
+            alert(`Statement for ${period} would be downloaded as PDF. This feature will generate a real PDF with your transaction data.`);
         }
 
         function generateCustomStatement() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const format = document.getElementById('statementFormat').value;
+            const fromDate = document.getElementById('customFromDate')?.value;
+            const toDate = document.getElementById('customToDate')?.value;
             
-            if (!startDate || !endDate) {
-                alert('Please select both start and end dates');
+            if (!fromDate || !toDate) {
+                alert('Please select both from and to dates');
                 return;
             }
             
-            // Simulate generation
-            setTimeout(() => {
-                const filename = `custom_statement_${startDate}_to_${endDate}.${format}`;
-                showDownloadNotification(filename);
-                logStatementAction(`Generated custom statement: ${startDate} to ${endDate} in ${format} format`);
-            }, 2000);
+            if (new Date(fromDate) > new Date(toDate)) {
+                alert('From date cannot be later than to date');
+                return;
+            }
             
-            // Show processing message
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-            btn.disabled = true;
+            console.log('Generating custom statement from', fromDate, 'to', toDate);
+            alert(`Custom statement from ${fromDate} to ${toDate} would be generated. This feature will create a PDF with transactions from the selected date range.`);
+        }
+
+        function previewCustomStatement() {
+            const fromDate = document.getElementById('customFromDate')?.value;
+            const toDate = document.getElementById('customToDate')?.value;
             
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 2000);
+            if (!fromDate || !toDate) {
+                alert('Please select both from and to dates');
+                return;
+            }
+            
+            viewStatement(`${fromDate} to ${toDate}`);
         }
 
         function downloadTaxDoc(docType) {
-            const filename = `tax_document_${docType}_2024.pdf`;
-            showDownloadNotification(filename);
-            logStatementAction(`Downloaded tax document: ${docType}`);
+            console.log('Downloading tax document:', docType);
+            alert(`Tax document ${docType} would be downloaded. This feature will provide the actual tax documents for your business account.`);
+        }
+
+        function savePreferences() {
+            const delivery = document.querySelector('input[name="delivery"]:checked')?.value;
+            const frequency = document.querySelector('input[name="frequency"]:checked')?.value;
+            
+            console.log('Saving preferences:', { delivery, frequency });
+            alert('Statement preferences saved successfully!');
         }
 
         function closeStatementViewer() {
-            document.getElementById('statementModal').classList.remove('show');
+            const modal = document.getElementById('statementModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
         }
 
         function downloadCurrentStatement() {
-            const filename = `current_statement_${currentAccount}.pdf`;
-            showDownloadNotification(filename);
-            logStatementAction('Downloaded current statement from viewer');
+            alert('Current statement would be downloaded as PDF.');
+            closeStatementViewer();
         }
-
-        function printStatement() {
-            window.print();
-            logStatementAction('Printed current statement');
-        }
-
-        function formatPeriod(period) {
-            const [year, month] = period.split('-');
-            const date = new Date(year, month - 1);
-            const monthName = date.toLocaleString('default', { month: 'long' });
-            return `${monthName} 1 - ${new Date(year, month, 0).getDate()}, ${year}`;
-        }
-
-        function showDownloadNotification(filename) {
-            const notification = document.createElement('div');
-            notification.className = 'download-notification';
-            notification.innerHTML = `
-                <i class="fas fa-download"></i>
-                <span>Downloaded: ${filename}</span>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function logStatementAccess() {
-            if (window.bankApp) {
-                bankApp.logFraudEvent('User accessed statements page');
-            }
-        }
-
-        function logStatementAction(action) {
-            if (window.bankApp) {
-                bankApp.logFraudEvent(`Statement action: ${action}`);
-            }
-        }
-
-        // Initialize statements page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for bankApp to be fully initialized
-            const waitForBankApp = () => {
-                if (window.bankApp && window.bankApp.loadUserData) {
-                    // Initialize all statement functions
-                    loadUserData();
-                    
-                    // Wait a bit more for data to load, then initialize
-                    setTimeout(() => {
-                        setupStatementTabs();
-                        logStatementAccess();
-                        
-                        // Set default dates for custom range
-                        const today = new Date();
-                        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                        
-                        const endDateInput = document.getElementById('endDate');
-                        const startDateInput = document.getElementById('startDate');
-                        
-                        if (endDateInput) endDateInput.value = today.toISOString().split('T')[0];
-                        if (startDateInput) startDateInput.value = firstDay.toISOString().split('T')[0];
-                    }, 500);
-                } else {
-                    // Keep waiting for bankApp to initialize
-                    setTimeout(waitForBankApp, 100);
-                }
-            };
-            
-            waitForBankApp();
-        });
     </script>
+
+    <!-- Additional CSS for statement-specific styling -->
+    <style>
+        .preferences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .preference-card {
+            background: var(--bank-background);
+            border: 1px solid var(--bank-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .preference-card h3 {
+            margin-bottom: 16px;
+            color: var(--bank-text-primary);
+            font-size: 16px;
+        }
+
+        .preference-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .preference-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .preference-options label:hover {
+            background: var(--bank-surface);
+        }
+
+        .preference-options input[type="radio"],
+        .preference-options input[type="checkbox"] {
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .preferences-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .account-type-tabs {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .statement-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .statement-actions-inline {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
 </body>
 </html>

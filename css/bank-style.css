@@ -1,4 +1,5 @@
-/* Bank Application Styles - Complete Version */
+/* Bank Application Styles - Complete Version with Anti-Flash Protection */
+
 :root {
     --bank-primary: #1e40af;
     --bank-primary-dark: #1e3a8a;
@@ -12,6 +13,146 @@
     --bank-text-primary: #1e293b;
     --bank-text-secondary: #64748b;
     --bank-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ANTI-FLASH PROTECTION - Critical CSS at the top */
+html {
+    background: #1e40af;
+    overflow: hidden;
+}
+
+html.loaded {
+    background: var(--bank-background);
+    overflow: auto;
+}
+
+body {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+body.content-loaded {
+    opacity: 1;
+}
+
+/* PAGE LOADING OVERLAY SYSTEM */
+.page-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+    transition: opacity 0.5s ease-out;
+}
+
+.page-loading-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+.loading-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.loading-subtitle {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.loading-progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.loading-progress-bar {
+    height: 100%;
+    background: white;
+    border-radius: 2px;
+    width: 0%;
+    animation: loading-progress 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes loading-progress {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+
+/* HIDE CONTENT INITIALLY TO PREVENT FLASH */
+.bank-main {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+.bank-main.loaded {
+    opacity: 1;
+}
+
+/* HIDE SPECIFIC ELEMENTS THAT FLASH */
+.balance-amount,
+.account-number,
+.company-info-header h2,
+#currentUser,
+.business-details .value {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+}
+
+.content-loaded .balance-amount,
+.content-loaded .account-number,
+.content-loaded .company-info-header h2,
+.content-loaded #currentUser,
+.content-loaded .business-details .value {
+    opacity: 1;
+}
+
+/* DELIVERY STATUS STYLES */
+.transaction-delivery {
+    font-size: 12px;
+    color: var(--bank-warning);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.transaction-delivery i {
+    font-size: 10px;
 }
 
 * {
@@ -1804,11 +1945,6 @@ body {
     margin: 0 auto 16px;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 /* Notifications */
 .error-notification,
 .success-notification {
@@ -2210,11 +2346,11 @@ body.dark-mode {
     .bank-main {
         padding: 24px 16px;
     }
-    
+
     .accounts-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .business-info-grid {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
@@ -2225,34 +2361,34 @@ body.dark-mode {
     .login-container {
         flex-direction: column;
     }
-    
+
     .login-left {
         padding: 40px 20px;
     }
-    
+
     .login-right {
         padding: 40px 20px;
     }
-    
+
     /* Hide desktop header on mobile */
     .bank-header > .header-left,
-    .bank-header > .header-center, 
+    .bank-header > .header-center,
     .bank-header > .header-right {
         display: none !important;
     }
-    
+
     /* FORCE SHOW mobile header */
     .mobile-header {
         display: block !important;
     }
-    
+
     /* Reset header for mobile */
     .bank-header {
         padding: 0 !important;
         height: auto !important;
         flex-direction: column !important;
     }
-    
+
     /* Mobile header top row */
     .mobile-header-top {
         display: flex !important;
@@ -2263,14 +2399,14 @@ body.dark-mode {
         border-bottom: 1px solid var(--bank-border) !important;
         background: var(--bank-surface) !important;
     }
-    
+
     /* Mobile header bottom row */
     .mobile-header-bottom {
         display: flex !important;
         padding: 12px 16px !important;
         background: rgba(30, 64, 175, 0.05) !important;
-        }
-    
+    }
+
     /* Mobile navigation */
     .mobile-header-bottom .bank-nav {
         display: flex !important;
@@ -2278,7 +2414,7 @@ body.dark-mode {
         width: 100% !important;
         gap: 8px !important;
     }
-    
+
     /* Mobile nav items */
     .mobile-header-bottom .nav-item {
         flex: 1 !important;
@@ -2293,19 +2429,19 @@ body.dark-mode {
         text-decoration: none !important;
         border-radius: 6px !important;
     }
-    
+
     .mobile-header-bottom .nav-item.active {
         background: var(--bank-primary) !important;
         color: white !important;
     }
-    
+
     /* Mobile logo and user info */
     .mobile-header-top .header-left,
     .mobile-header-top .header-right {
         display: flex !important;
         align-items: center !important;
     }
-    
+
     .mobile-header-top .bank-logo {
         display: flex !important;
         align-items: center !important;
@@ -2314,18 +2450,18 @@ body.dark-mode {
         font-weight: 700 !important;
         color: var(--bank-primary) !important;
     }
-    
+
     .mobile-header-top .bank-logo i {
         font-size: 18px !important;
         color: var(--bank-warning) !important;
     }
-    
+
     .mobile-header-top .user-info {
         display: flex !important;
         align-items: center !important;
         gap: 12px !important;
     }
-    
+
     .mobile-header-top .logout-btn {
         padding: 6px 12px !important;
         background: transparent !important;
@@ -2338,45 +2474,45 @@ body.dark-mode {
         align-items: center !important;
         gap: 4px !important;
     }
-    
+
     .actions-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
-    
+
     .business-info-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .transfer-types {
         grid-template-columns: 1fr;
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .transaction-filters {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .filter-group {
         min-width: auto;
     }
-    
+
     .admin-stats {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
-    
+
     .footer-container {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 24px;
     }
-    
+
     .account-info-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .info-item {
         flex-direction: column;
         align-items: flex-start;
@@ -2388,105 +2524,105 @@ body.dark-mode {
     .bank-logo h1 {
         font-size: 24px;
     }
-    
+
     .company-tagline h2 {
         font-size: 20px;
     }
-    
+
     .login-form-container h2 {
         font-size: 24px;
     }
-    
+
     .corporate-account-header {
         flex-direction: column;
         text-align: center;
         gap: 16px;
         padding: 16px;
     }
-    
+
     .transaction-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
         padding: 16px;
     }
-    
+
     .transaction-amount {
         text-align: left;
         width: 100%;
     }
-    
+
     .transactions-table-container {
         overflow-x: scroll;
     }
-    
+
     .admin-header {
         flex-direction: column;
         gap: 16px;
         text-align: center;
         padding: 16px;
     }
-    
+
     .bank-main {
         padding: 12px;
     }
-    
+
     .footer-container {
         padding: 0 16px;
         grid-template-columns: 1fr;
     }
-    
+
     .footer-legal {
         padding: 0 12px;
     }
-    
+
     .footer-legal p {
         font-size: 11px;
     }
-    
+
     .mobile-header-top .welcome-text {
         display: none !important;
     }
-    
+
     .nav-item {
         padding: 4px 8px;
         font-size: 12px;
     }
-    
+
     .header-left .bank-logo {
         font-size: 16px;
     }
-    
+
     .accounts-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .account-actions {
         flex-direction: column;
     }
-    
+
     .quick-action-card {
         padding: 16px;
     }
-    
+
     .quick-action-card i {
         font-size: 24px;
     }
-    
+
     .statement-actions {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .date-range-picker {
         grid-template-columns: 1fr;
     }
-    
+
     .admin-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .stat-card {
         flex-direction: column;
         text-align: center;
@@ -2494,57 +2630,25 @@ body.dark-mode {
 }
 
 /* Additional utility classes */
-.text-center {
-    text-align: center;
-}
-
-.text-left {
-    text-align: left;
-}
-
-.text-right {
-    text-align: right;
-}
-
-.hidden {
-    display: none;
-}
-
-.visible {
-    display: block;
-}
-
-.flex {
-    display: flex;
-}
-
-.flex-column {
-    flex-direction: column;
-}
-
-.flex-center {
-    justify-content: center;
-    align-items: center;
-}
-
-.w-full {
-    width: 100%;
-}
-
-.h-full {
-    height: 100%;
-}
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.hidden { display: none; }
+.visible { display: block; }
+.flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-center { justify-content: center; align-items: center; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
 
 .mt-1 { margin-top: 0.25rem; }
 .mt-2 { margin-top: 0.5rem; }
 .mt-3 { margin-top: 0.75rem; }
 .mt-4 { margin-top: 1rem; }
-
 .mb-1 { margin-bottom: 0.25rem; }
 .mb-2 { margin-bottom: 0.5rem; }
 .mb-3 { margin-bottom: 0.75rem; }
 .mb-4 { margin-bottom: 1rem; }
-
 .p-1 { padding: 0.25rem; }
 .p-2 { padding: 0.5rem; }
 .p-3 { padding: 0.75rem; }
@@ -2559,11 +2663,11 @@ body.dark-mode {
     .logout-btn {
         display: none;
     }
-    
+
     .bank-main {
         padding: 0;
     }
-    
+
     .account-card,
     .business-card {
         break-inside: avoid;
@@ -2593,88 +2697,5 @@ body.dark-mode {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
-    }
-}
-
-/* EMERGENCY MOBILE HEADER FIX - Add to end of CSS file */
-@media (max-width: 768px) {
-    /* FORCE hide desktop header */
-    .bank-header > .header-left,
-    .bank-header > .header-center,
-    .bank-header > .header-right {
-        display: none !important;
-    }
-    
-    /* FORCE show mobile header */
-    .mobile-header {
-        display: block !important;
-        width: 100% !important;
-    }
-    
-    /* Mobile top row - logo + logout */
-    .mobile-header-top {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        padding: 0 16px !important;
-        height: 60px !important;
-        background: var(--bank-surface) !important;
-        border-bottom: 1px solid var(--bank-border) !important;
-    }
-    
-    /* Mobile logo */
-    .mobile-header-top .bank-logo {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        color: var(--bank-primary) !important;
-        font-weight: 700 !important;
-        font-size: 16px !important;
-    }
-    
-    /* Mobile logout */
-    .mobile-header-top .logout-btn {
-        display: flex !important;
-        align-items: center !important;
-        gap: 4px !important;
-        padding: 6px 12px !important;
-        border: 1px solid var(--bank-border) !important;
-        border-radius: 6px !important;
-        background: transparent !important;
-        color: var(--bank-text-secondary) !important;
-        font-size: 12px !important;
-    }
-    
-    /* Mobile navigation row */
-    .mobile-header-bottom {
-        display: flex !important;
-        padding: 12px 16px !important;
-        background: rgba(30, 64, 175, 0.05) !important;
-    }
-    
-    .mobile-header-bottom .bank-nav {
-        display: flex !important;
-        width: 100% !important;
-        justify-content: space-around !important;
-        gap: 8px !important;
-    }
-    
-    .mobile-header-bottom .nav-item {
-        flex: 1 !important;
-        text-align: center !important;
-        padding: 8px 4px !important;
-        font-size: 12px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 4px !important;
-        color: var(--bank-text-secondary) !important;
-        text-decoration: none !important;
-        border-radius: 6px !important;
-    }
-    
-    .mobile-header-bottom .nav-item.active {
-        background: var(--bank-primary) !important;
-        color: white !important;
     }
 }

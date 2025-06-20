@@ -38,8 +38,20 @@
     </script>
 </head>
 <body class="login-body">
+    <!-- ANTI-FLASH LOADING OVERLAY -->
+    <div id="pageLoadingOverlay" class="page-loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">SecureBank Pro</div>
+            <div class="loading-subtitle">Loading secure banking platform...</div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="login-container">
-        <!-- Left Side - Bank Branding -->
+        <!-- Left Side - Bank Branding and Information -->
         <div class="login-left">
             <div class="bank-brand">
                 <div class="bank-logo">
@@ -47,40 +59,55 @@
                     <h1>SecureBank Pro</h1>
                 </div>
                 <div class="company-tagline">
-                    <h2>Trusted Banking Since 1985</h2>
+                    <h2>Your Trusted Financial Partner</h2>
                     <p class="company-description">
-                        Your financial security is our priority. Access your accounts securely 
-                        with our advanced online banking platform trusted by over 2 million customers.
+                        Your financial security is our priority. Access your accounts securely with our 
+                        advanced online banking platform trusted by over 2 million customers worldwide. 
+                        Experience enterprise-grade security with user-friendly corporate banking solutions.
                     </p>
                 </div>
-                
+
                 <div class="company-credentials">
                     <div class="credential-item">
-                        <i class="fas fa-certificate"></i>
-                        <span>FDIC Member Bank</span>
-                    </div>
-                    <div class="credential-item">
                         <i class="fas fa-shield-alt"></i>
-                        <span>SOC 2 Certified</span>
+                        <span>FDIC Insured up to $250,000</span>
                     </div>
                     <div class="credential-item">
-                        <i class="fas fa-award"></i>
-                        <span>BBB A+ Rated</span>
+                        <i class="fas fa-lock"></i>
+                        <span>256-bit SSL Encryption</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>SOC 2 Type II Certified</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Multi-factor Authentication</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-clock"></i>
+                        <span>24/7 Fraud Monitoring</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile Banking App</span>
                     </div>
                 </div>
-                
+
                 <div class="company-contact">
                     <p><strong>Need Help?</strong></p>
-                    <p>Call us: +1 (555) 123-4567</p>
-                    <p>Email: support@securebankpro.com</p>
+                    <p><i class="fas fa-phone"></i> Call us: +1 (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> Email: support@securebankpro.com</p>
+                    <p><i class="fas fa-clock"></i> Available 24/7 for support</p>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Banking Street, Financial District</p>
                 </div>
-                
+
                 <div class="regulatory-info">
-                    <p class="reg-text">
+                    <div class="reg-text">
                         Licensed and regulated by the Financial Services Authority<br>
                         Registration Number: 987654321<br>
-                        Member FDIC • Equal Housing Lender
-                    </p>
+                        Member FDIC • Equal Housing Lender • NMLS ID: 123456
+                    </div>
                 </div>
             </div>
         </div>
@@ -108,6 +135,14 @@
                         </div>
                     </div>
 
+                    <div class="input-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="checkmark"></span>
+                            Keep me signed in
+                        </label>
+                    </div>
+
                     <button type="submit" class="login-btn">
                         <i class="fas fa-sign-in-alt"></i>
                         Sign In Securely
@@ -115,52 +150,650 @@
                 </form>
 
                 <div class="login-footer">
-                    <a href="#" class="forgot-link">Forgot Password?</a>
-                    <span class="divider">|</span>
-                    <a href="#" class="help-link">Need Help?</a>
-                    <span class="divider">|</span>
-                    <a href="admin-login.html" class="admin-link">Admin</a>
+                    <a href="#" class="forgot-link">
+                        <i class="fas fa-key"></i>
+                        Forgot Password?
+                    </a>
+                    <span class="divider">•</span>
+                    <a href="#" class="help-link">
+                        <i class="fas fa-question-circle"></i>
+                        Need Help?
+                    </a>
+                    <span class="divider">•</span>
+                    <a href="admin-login.html" class="admin-link">
+                        <i class="fas fa-cog"></i>
+                        Admin Access
+                    </a>
                 </div>
 
                 <div class="security-notice">
-                    <i class="fas fa-info-circle"></i>
-                    <span>For your security, never share your login credentials</span>
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Your connection is secured with bank-level encryption</span>
+                </div>
+
+                <!-- Additional Security Features -->
+                <div class="security-features">
+                    <h4>Advanced Security Features:</h4>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-fingerprint"></i>
+                            <span>Biometric Authentication</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-eye"></i>
+                            <span>Account Activity Monitoring</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-bell"></i>
+                            <span>Real-time Alerts</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-history"></i>
+                            <span>Session Timeout Protection</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Demo Notice -->
+    <!-- Demo Credentials Notice -->
     <div class="demo-notice">
-        <p><strong>Demo Account:</strong> Brown68 / brown6868</p>
-        <p><strong>Admin Access:</strong> admin / kech2025</p>
-        <p><i class="fas fa-exclamation-triangle"></i> Educational Fraud Simulation - For Training Only</p>
+        <div class="demo-header">
+            <i class="fas fa-info-circle"></i>
+            <strong>Demo Access Credentials</strong>
+        </div>
+        <div class="demo-content">
+            <div class="demo-account">
+                <span class="demo-label">Business Account:</span>
+                <span class="demo-creds">Brown68 / brown6868</span>
+            </div>
+            <div class="demo-account">
+                <span class="demo-label">Admin Access:</span>
+                <span class="demo-creds">admin / kech2025</span>
+            </div>
+            <div class="demo-disclaimer">
+                <small>Educational Fraud Simulation - For Training & Demonstration Only</small>
+            </div>
+        </div>
     </div>
 
-    <!-- Dark Mode Toggle -->
-    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
-        <i class="fas fa-moon"></i>
-    </button>
+    <!-- Trust Indicators -->
+    <div class="trust-indicators">
+        <div class="trust-badge">
+            <i class="fas fa-award"></i>
+            <span>Best Online Banking 2024</span>
+        </div>
+        <div class="trust-badge">
+            <i class="fas fa-users"></i>
+            <span>2M+ Customers</span>
+        </div>
+        <div class="trust-badge">
+            <i class="fas fa-globe"></i>
+            <span>Global Presence</span>
+        </div>
+    </div>
 
     <script src="js/bank-app.js"></script>
     <script>
-        // Dark mode toggle for login page
         document.addEventListener('DOMContentLoaded', function() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
+            console.log('🚀 Login page loading with anti-flash protection...');
             
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            const initLoginPage = async () => {
+                let attempts = 0;
+                
+                // Wait for BankApp to be ready (optional for login page)
+                while ((!window.bankApp || !window.bankApp.database) && attempts < 100) {
+                    console.log(`⏳ Waiting for BankApp... attempt ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    attempts++;
+                }
+                
+                if (window.bankApp && window.bankApp.database) {
+                    console.log('✅ BankApp ready');
+                    
+                    // Apply any stored branding
+                    if (window.bankApp.applyStoredBranding) {
+                        setTimeout(() => {
+                            window.bankApp.applyStoredBranding();
+                        }, 100);
+                    }
+                } else {
+                    console.log('⚠️ BankApp not available, continuing without it');
+                }
+                
+                // Initialize page-specific features
+                initializeLoginFeatures();
+                
+                // Mark as loaded
+                document.documentElement.classList.add('loaded');
+                document.body.classList.add('content-loaded');
+                
+                // Hide loading overlay with smooth transition
+                setTimeout(() => {
+                    const overlay = document.getElementById('pageLoadingOverlay');
+                    if (overlay) {
+                        overlay.classList.add('fade-out');
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 500);
+                    }
+                }, 800);
+            };
+            
+            function initializeLoginFeatures() {
+                // Auto-focus username field
+                const usernameField = document.getElementById('username');
+                if (usernameField) {
+                    setTimeout(() => {
+                        usernameField.focus();
+                    }, 1000);
+                }
+                
+                // Add demo credential click handlers
+                const demoCreds = document.querySelectorAll('.demo-creds');
+                demoCreds.forEach(cred => {
+                    cred.style.cursor = 'pointer';
+                    cred.title = 'Click to auto-fill';
+                    
+                    cred.addEventListener('click', function() {
+                        const credText = this.textContent.trim();
+                        if (credText.includes('Brown68')) {
+                            document.getElementById('username').value = 'Brown68';
+                            document.getElementById('password').value = 'brown6868';
+                            showSuccess('Demo credentials auto-filled!');
+                        }
+                    });
+                });
+                
+                // Enhanced form validation
+                const form = document.getElementById('loginForm');
+                const inputs = form.querySelectorAll('input[required]');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('blur', validateField);
+                    input.addEventListener('input', clearFieldError);
+                });
+                
+                // Password visibility toggle
+                addPasswordToggle();
+                
+                // Login attempt tracking
+                initializeLoginTracking();
+                
+                console.log('✅ Login features initialized');
+            }
+            
+            function validateField(e) {
+                const field = e.target;
+                const value = field.value.trim();
+                
+                // Remove existing error styling
+                field.classList.remove('error');
+                
+                if (!value) {
+                    field.classList.add('error');
+                    showFieldError(field, `${field.labels[0].textContent} is required`);
+                } else if (field.type === 'password' && value.length < 6) {
+                    field.classList.add('error');
+                    showFieldError(field, 'Password must be at least 6 characters');
+                }
+            }
+            
+            function clearFieldError(e) {
+                const field = e.target;
+                field.classList.remove('error');
+                const errorEl = field.parentNode.querySelector('.field-error');
+                if (errorEl) {
+                    errorEl.remove();
+                }
+            }
+            
+            function showFieldError(field, message) {
+                // Remove existing error message
+                const existingError = field.parentNode.querySelector('.field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Add new error message
+                const errorEl = document.createElement('div');
+                errorEl.className = 'field-error';
+                errorEl.textContent = message;
+                field.parentNode.appendChild(errorEl);
+            }
+            
+            function addPasswordToggle() {
+                const passwordField = document.getElementById('password');
+                const wrapper = passwordField.parentNode;
+                
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'password-toggle';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = 'Show/Hide Password';
+                
+                toggleBtn.addEventListener('click', function() {
+                    const isPassword = passwordField.type === 'password';
+                    passwordField.type = isPassword ? 'text' : 'password';
+                    this.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+                });
+                
+                wrapper.appendChild(toggleBtn);
+            }
+            
+            function initializeLoginTracking() {
+                const attemptKey = 'loginAttempts';
+                const timeKey = 'lastAttemptTime';
+                const maxAttempts = 5;
+                const lockoutTime = 15 * 60 * 1000; // 15 minutes
+                
+                window.trackLoginAttempt = function(success) {
+                    const now = Date.now();
+                    const attempts = parseInt(localStorage.getItem(attemptKey) || '0');
+                    const lastAttempt = parseInt(localStorage.getItem(timeKey) || '0');
+                    
+                    if (success) {
+                        // Clear attempts on successful login
+                        localStorage.removeItem(attemptKey);
+                        localStorage.removeItem(timeKey);
+                    } else {
+                        // Increment failed attempts
+                        if (now - lastAttempt > lockoutTime) {
+                            // Reset if lockout period has passed
+                            localStorage.setItem(attemptKey, '1');
+                        } else {
+                            localStorage.setItem(attemptKey, (attempts + 1).toString());
+                        }
+                        localStorage.setItem(timeKey, now.toString());
+                        
+                        // Check if account should be locked
+                        const newAttempts = parseInt(localStorage.getItem(attemptKey));
+                        if (newAttempts >= maxAttempts) {
+                            const timeLeft = Math.ceil((lockoutTime - (now - lastAttempt)) / 60000);
+                            showError(`Too many failed attempts. Please wait ${timeLeft} minutes before trying again.`);
+                            document.getElementById('loginForm').style.pointerEvents = 'none';
+                            setTimeout(() => {
+                                document.getElementById('loginForm').style.pointerEvents = 'auto';
+                                localStorage.removeItem(attemptKey);
+                                localStorage.removeItem(timeKey);
+                            }, lockoutTime - (now - lastAttempt));
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+            }
+            
+            initLoginPage();
+        });
+
+        // Enhanced login handling with anti-flash protection
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showError('Please enter both username and password');
+                return;
             }
 
-            darkModeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('darkMode', isDark);
-                darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            });
+            // Check login attempt limits
+            if (window.trackLoginAttempt && !window.trackLoginAttempt(false)) {
+                return;
+            }
+
+            const loginBtn = document.querySelector('.login-btn');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+            loginBtn.disabled = true;
+
+            try {
+                // Wait for BankApp if available
+                if (window.bankApp && window.bankApp.authenticate) {
+                    const success = await window.bankApp.authenticate(username, password);
+                    if (success) {
+                        // Track successful login
+                        if (window.trackLoginAttempt) {
+                            window.trackLoginAttempt(true);
+                        }
+                        
+                        // Store user session
+                        localStorage.setItem('currentBankUser', username);
+                        localStorage.setItem('loginTime', new Date().toISOString());
+                        
+                        // Log fraud event if available
+                        if (window.bankApp.logFraudEvent) {
+                            window.bankApp.logFraudEvent(`User ${username} logged in successfully from login page`);
+                        }
+                        
+                        showSuccess('Login successful! Redirecting...');
+                        
+                        // Redirect based on user type
+                        setTimeout(() => {
+                            if (username === 'admin') {
+                                window.location.href = 'admin.html';
+                            } else {
+                                window.location.href = 'dashboard.html';
+                            }
+                        }, 1000);
+                    } else {
+                        showError('Invalid username or password');
+                    }
+                } else {
+                    // Fallback authentication without BankApp
+                    if ((username === 'Brown68' && password === 'brown6868') ||
+                        (username === 'admin' && password === 'kech2025')) {
+                        
+                        localStorage.setItem('currentBankUser', username);
+                        showSuccess('Login successful! Redirecting...');
+                        
+                        setTimeout(() => {
+                            if (username === 'admin') {
+                                window.location.href = 'admin.html';
+                            } else {
+                                window.location.href = 'dashboard.html';
+                            }
+                        }, 1000);
+                    } else {
+                        showError('Invalid username or password');
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Login failed. Please try again.');
+            } finally {
+                setTimeout(() => {
+                    loginBtn.innerHTML = originalText;
+                    loginBtn.disabled = false;
+                }, 1000);
+            }
         });
+
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.className = 'error-notification';
+            notification.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const notification = document.createElement('div');
+            notification.className = 'success-notification';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Auto-redirect if already logged in
+        if (localStorage.getItem('currentBankUser')) {
+            const user = localStorage.getItem('currentBankUser');
+            if (user === 'admin' && localStorage.getItem('adminAuth') === 'true') {
+                window.location.href = 'admin.html';
+            } else if (user && user !== 'admin') {
+                window.location.href = 'dashboard.html';
+            }
+        }
     </script>
+
+    <!-- Additional CSS for enhanced login page -->
+    <style>
+        .security-features {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(30, 64, 175, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(30, 64, 175, 0.1);
+        }
+
+        .security-features h4 {
+            margin: 0 0 16px 0;
+            color: var(--bank-primary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--bank-text-secondary);
+        }
+
+        .feature-item i {
+            color: var(--bank-primary);
+            width: 16px;
+        }
+
+        .demo-notice {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            max-width: 320px;
+            z-index: 1000;
+            border-left: 4px solid #60a5fa;
+        }
+
+        .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .demo-account {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        .demo-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .demo-creds {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-creds:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .demo-disclaimer {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .trust-indicators {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--bank-primary);
+            border: 1px solid rgba(30, 64, 175, 0.1);
+        }
+
+        .trust-badge i {
+            color: var(--bank-warning);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--bank-text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .password-toggle:hover {
+            color: var(--bank-primary);
+            background: rgba(30, 64, 175, 0.1);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .field-error {
+            color: var(--bank-danger);
+            font-size: 12px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .field-error::before {
+            content: "⚠";
+            font-size: 10px;
+        }
+
+        .input-wrapper input.error {
+            border-color: var(--bank-danger);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--bank-text-secondary);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--bank-border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            background: var(--bank-primary);
+            border-color: var(--bank-primary);
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+            content: "✓";
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .demo-notice {
+                position: static;
+                margin: 20px;
+                margin-bottom: 80px;
+            }
+
+            .trust-indicators {
+                position: static;
+                margin: 20px;
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+
+            .company-credentials {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .demo-account {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .demo-creds {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
 </body>
 </html>

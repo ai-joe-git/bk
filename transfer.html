@@ -48,6 +48,18 @@
     </script>
 </head>
 <body>
+    <!-- ANTI-FLASH LOADING OVERLAY -->
+    <div id="pageLoadingOverlay" class="page-loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">SecureBank Pro</div>
+            <div class="loading-subtitle">Loading transfer interface...</div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="bank-app">
         <!-- Header -->
         <header class="bank-header">
@@ -80,7 +92,7 @@
             </div>
             <div class="header-right">
                 <div class="user-info">
-                    <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
+                    <span class="welcome-text">Welcome, <span id="currentUser">Loading...</span></span>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
@@ -91,21 +103,14 @@
             <!-- Mobile: Two-row layout -->
             <div class="mobile-header">
                 <div class="mobile-header-top">
-                    <div class="header-left">
-                        <div class="bank-logo">
-                            <i class="fas fa-university"></i>
-                            <span>SecureBank Pro</span>
-                        </div>
+                    <div class="bank-logo">
+                        <i class="fas fa-university"></i>
+                        <span>SecureBank Pro</span>
                     </div>
-                    <div class="header-right">
-                        <div class="user-info">
-                            <span class="welcome-text">Welcome, <span id="currentUser">azerty</span></span>
-                            <button class="logout-btn" onclick="logout()">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </button>
-                        </div>
-                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
                 </div>
                 <div class="mobile-header-bottom">
                     <nav class="bank-nav">
@@ -133,32 +138,35 @@
         <!-- Main Content -->
         <main class="bank-main">
             <div class="transfer-container">
+                <!-- Page Header -->
                 <div class="page-header">
                     <h1>Transfer Money</h1>
                     <p>Send money securely to bank accounts worldwide</p>
                 </div>
 
-                <!-- ENHANCED: Dynamic Corporate Transfer Notice -->
+                <!-- Corporate Transfer Notice -->
                 <div class="corporate-transfer-notice">
                     <i class="fas fa-building"></i>
                     <div>
                         <h4>Corporate Account Transfer</h4>
-                        <p>All transfers will be processed under <span id="transferCompanyName">Loading...</span> business account</p>
+                        <p>All transfers will be processed under <span id="transferCompanyName">TechSolutions Inc.</span> business account</p>
                     </div>
                 </div>
 
-                <!-- Transfer Types -->
+                <!-- Transfer Type Selection -->
                 <div class="transfer-types">
-                    <div class="transfer-type-card active" data-type="domestic">
-                        <i class="fas fa-building"></i>
+                    <div class="transfer-type-card" data-type="domestic">
+                        <i class="fas fa-landmark"></i>
                         <h3>Domestic Transfer</h3>
                         <p>Transfer within the country</p>
                     </div>
+
                     <div class="transfer-type-card" data-type="international">
                         <i class="fas fa-globe"></i>
                         <h3>International Wire</h3>
                         <p>Send money worldwide</p>
                     </div>
+
                     <div class="transfer-type-card" data-type="internal">
                         <i class="fas fa-exchange-alt"></i>
                         <h3>Between My Accounts</h3>
@@ -166,44 +174,59 @@
                     </div>
                 </div>
 
-                <!-- Transfer Form -->
+                <!-- Transfer Form Container -->
                 <div class="transfer-form-container">
                     <form id="transferForm" class="transfer-form">
-                        <!-- From Account -->
+                        <!-- From Account Section -->
                         <div class="form-section">
-                            <h3>From Business Account</h3>
+                            <h3>From Account</h3>
                             <div class="account-selector">
                                 <select id="fromAccount" required>
                                     <option value="">Select Business Account</option>
+                                    <option value="business-checking" selected>Business Checking (4521-1234-5678-9012) - $125,847.92</option>
+                                    <option value="business-savings">Business Savings (4521-5678-9012-3456) - $289,234.15</option>
                                 </select>
                             </div>
-                            <!-- ENHANCED: Dynamic Account Information -->
-                            <div class="account-holder-info" id="accountHolderInfo">
-                                <h4>Account Information</h4>
+
+                            <!-- Account Holder Information -->
+                            <div class="account-holder-info">
+                                <h4>Account Holder Information</h4>
                                 <div class="account-info-grid">
                                     <div class="info-item">
                                         <span class="label">Account Holder:</span>
-                                        <span class="value" id="transferAccountHolder">Loading...</span>
+                                        <span class="value" id="transferAccountHolder">TechSolutions Inc.</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Account Number:</span>
+                                        <span class="value" id="transferAccountNumber">4521-1234-5678-9012</span>
                                     </div>
                                     <div class="info-item">
                                         <span class="label">EIN:</span>
-                                        <span class="value" id="transferEIN">Loading...</span>
+                                        <span class="value" id="transferEIN">12-3456789</span>
                                     </div>
                                     <div class="info-item">
                                         <span class="label">Business Type:</span>
-                                        <span class="value" id="transferBusinessType">Loading...</span>
+                                        <span class="value" id="transferBusinessType">C-Corporation</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">IBAN:</span>
+                                        <span class="value" id="transferIBAN">US12BANK4521123456789012</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">SWIFT:</span>
+                                        <span class="value" id="transferSWIFT">SBPROUS33</span>
                                     </div>
                                     <div class="info-item">
                                         <span class="label">Authorized Signatory:</span>
-                                        <span class="value" id="transferSignatory">Loading...</span>
+                                        <span class="value" id="transferSignatory">Robert Brown (CEO)</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- To Account -->
+                        <!-- To Account Section (will be dynamically populated) -->
                         <div class="form-section">
-                            <h3>To Account</h3>
+                            <h3>To Account (Domestic)</h3>
                             <div class="form-grid">
                                 <div class="input-group">
                                     <label for="recipientName">Recipient Name</label>
@@ -224,7 +247,7 @@
                             </div>
                         </div>
 
-                        <!-- Transfer Details -->
+                        <!-- Transfer Details Section -->
                         <div class="form-section">
                             <h3>Transfer Details</h3>
                             <div class="form-grid">
@@ -232,7 +255,7 @@
                                     <label for="transferAmount">Amount</label>
                                     <div class="amount-input">
                                         <span class="currency">$</span>
-                                        <input type="number" id="transferAmount" required placeholder="0.00" step="0.01" min="0.01">
+                                        <input type="number" id="transferAmount" step="0.01" min="0.01" required placeholder="0.00">
                                     </div>
                                 </div>
                                 <div class="input-group">
@@ -240,44 +263,47 @@
                                     <input type="date" id="transferDate" required>
                                 </div>
                                 <div class="input-group full-width">
-                                    <label for="transferMemo">Memo (Optional)</label>
-                                    <input type="text" id="transferMemo" placeholder="Purpose of transfer">
+                                    <label for="transferMemo">Memo/Reference</label>
+                                    <input type="text" id="transferMemo" placeholder="Payment reference or memo">
+                                </div>
+                            </div>
+
+                            <!-- Transfer Summary -->
+                            <div class="transfer-summary">
+                                <h3>Transfer Summary</h3>
+                                <div class="summary-details">
+                                    <div class="summary-row">
+                                        <span>Transfer Amount:</span>
+                                        <span id="summaryAmount">$0.00</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span>Transfer Fee:</span>
+                                        <span id="summaryFee">$0.00</span>
+                                    </div>
+                                    <div class="summary-row total">
+                                        <span>Total Debit:</span>
+                                        <span id="summaryTotal">$0.00</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Transfer Summary -->
-                        <div class="transfer-summary">
-                            <h3>Transfer Summary</h3>
-                            <div class="summary-details">
-                                <div class="summary-row">
-                                    <span>Transfer Amount:</span>
-                                    <span id="summaryAmount">$0.00</span>
-                                </div>
-                                <div class="summary-row">
-                                    <span>Transfer Fee:</span>
-                                    <span id="summaryFee">$0.00</span>
-                                </div>
-                                <div class="summary-row total">
-                                    <span>Total Debit:</span>
-                                    <span id="summaryTotal">$0.00</span>
+                        <!-- Security Section -->
+                        <div class="form-section">
+                            <div class="security-section">
+                                <h3>Security Verification</h3>
+                                <div class="input-group">
+                                    <label for="securityCode">4-Digit Security Code</label>
+                                    <input type="password" id="securityCode" maxlength="4" pattern="[0-9]{4}" required placeholder="Enter 4-digit code">
+                                    <small>Enter your 4-digit security PIN to authorize this transfer</small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Security Verification -->
-                        <div class="security-section">
-                            <h3>Security Verification</h3>
-                            <div class="input-group">
-                                <label for="securityCode">Enter your 4-digit security code</label>
-                                <input type="password" id="securityCode" maxlength="4" placeholder="****" required>
-                                <small>This is the 4-digit code you set up for wire transfers</small>
-                            </div>
-                        </div>
-
+                        <!-- Submit Button -->
                         <button type="submit" class="transfer-submit-btn">
                             <i class="fas fa-paper-plane"></i>
-                            Send Transfer
+                            Process Transfer
                         </button>
                     </form>
                 </div>
@@ -361,45 +387,57 @@
     <div id="transferModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <i class="fas fa-check-circle success-icon"></i>
-                <h2>Transfer Initiated</h2>
+                <h2>Transfer Confirmation</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="transfer-confirmation">
-                    <p><strong>Your transfer has been successfully initiated.</strong></p>
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Transfer Successful!</h3>
+                    <p>Your transfer has been processed successfully.</p>
+                    
                     <div class="confirmation-details">
                         <div class="detail-row">
                             <span>Reference Number:</span>
-                            <span id="confirmationRef"></span>
+                            <span id="confirmationRef">TXN123456789</span>
                         </div>
                         <div class="detail-row">
                             <span>Amount:</span>
-                            <span id="confirmationAmount"></span>
+                            <span id="confirmationAmount">$0.00</span>
                         </div>
                         <div class="detail-row">
                             <span>Recipient:</span>
-                            <span id="confirmationRecipient"></span>
+                            <span id="confirmationRecipient">-</span>
                         </div>
                         <div class="detail-row">
                             <span>Expected Delivery:</span>
-                            <span id="confirmationDelivery"></span>
+                            <span id="confirmationDelivery">Next business day</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button onclick="closeModal()" class="btn-primary">Continue</button>
+                <button class="btn-primary" onclick="closeModal()">Done</button>
+                <button class="btn-secondary" onclick="location.href='transactions.html'">View Transactions</button>
             </div>
         </div>
     </div>
 
     <script src="js/bank-app.js"></script>
     <script>
-        // ENHANCED: Transfer page with complete Firebase sync
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Transfer page loading...');
+            console.log('🚀 Transfer page loading with anti-flash protection...');
             
-            const initTransferPage = async () => {
+            // Set default transfer date to today
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('transferDate');
+            if (dateInput) {
+                dateInput.value = today;
+            }
+            
+            const initTransfer = async () => {
                 let attempts = 0;
                 
                 // Wait for BankApp to be ready
@@ -414,146 +452,65 @@
                     return;
                 }
                 
-                console.log('✅ BankApp ready, loading user data...');
+                console.log('✅ BankApp ready, loading user data with protection...');
                 
-                // Load user data first
+                // Load user data (this will handle loading states automatically)
                 await window.bankApp.loadUserData();
                 
-                // Set up real-time Firebase sync
-                setupTransferRealTimeSync();
-                
-                // Initialize form elements
+                // Initialize transfer form
                 initializeTransferForm();
+                
+                // FORCE UPDATE: All transfer elements to eliminate any missed updates
+                forceUpdateTransferElements();
+                
+                // Mark as loaded
+                document.documentElement.classList.add('loaded');
+                document.body.classList.add('content-loaded');
             };
             
-            // Real-time Firebase sync for transfer page
-            function setupTransferRealTimeSync() {
-                console.log('🔄 Setting up transfer page Firebase sync...');
-                
-                window.firebaseOnValue(window.bankApp.accountsRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const newData = snapshot.val();
-                        console.log('📡 Transfer page: Firebase data received');
-                        
-                        // Update BankApp data
-                        window.bankApp.accounts = newData;
-                        
-                        // Force update all elements
-                        updateTransferPageElements();
-                    }
-                });
-                
-                // Initial update
-                setTimeout(() => {
-                    updateTransferPageElements();
-                }, 500);
-            }
-            
-            // Update all transfer page elements with Firebase data
-            function updateTransferPageElements() {
-                if (!window.bankApp || !window.bankApp.currentUser) {
-                    console.log('❌ No current user for transfer page update');
-                    return;
-                }
+            // CRITICAL FIX: Force update ALL transfer elements
+            function forceUpdateTransferElements() {
+                if (!window.bankApp || !window.bankApp.currentUser) return;
                 
                 const account = window.bankApp.accounts[window.bankApp.currentUser];
-                if (!account) {
-                    console.log('❌ No account data for transfer page');
-                    return;
-                }
+                if (!account) return;
                 
-                console.log('🔄 Updating transfer page with account:', account);
+                console.log('🔧 FORCE UPDATING: All transfer elements');
                 
-                // Update user display
-                const userEl = document.getElementById('currentUser');
-                if (userEl) userEl.textContent = window.bankApp.currentUser;
+                // Use BankApp's existing methods first
+                window.bankApp.updateBalanceDisplays();
+                window.bankApp.updateAccountSelector();
+                window.bankApp.updateTransferAccountInfo('business-checking');
                 
-                // Update company name in notice
-                const companyNameEl = document.getElementById('transferCompanyName');
-                if (companyNameEl) {
-                    companyNameEl.textContent = account.companyName || window.bankApp.currentUser;
-                }
-                
-                // Update account selector
-                updateAccountSelector(account);
-                
-                // Update account information
-                updateAccountInfo(account);
-            }
-            
-            // Update account selector with current balances
-            function updateAccountSelector(account) {
-                const fromAccount = document.getElementById('fromAccount');
-                if (!fromAccount) return;
-                
-                fromAccount.innerHTML = `
-                    <option value="">Select Business Account</option>
-                    <option value="business-checking" selected>Business Checking (****1234) - ${window.bankApp.formatCurrency(account.businessCheckingBalance)}</option>
-                    <option value="business-savings">Business Savings (****5678) - ${window.bankApp.formatCurrency(account.businessSavingsBalance)}</option>
-                `;
-                
-                // Add event listener for account selection change
-                fromAccount.addEventListener('change', (e) => {
-                    updateAccountInfo(account, e.target.value);
-                });
-            }
-            
-            // Update account information based on Firebase data
-            function updateAccountInfo(account, selectedAccount = 'business-checking') {
-                console.log('🔄 Updating account info with:', account);
-                
-                // Update account holder information
-                const accountHolderEl = document.getElementById('transferAccountHolder');
-                const einEl = document.getElementById('transferEIN');
-                const businessTypeEl = document.getElementById('transferBusinessType');
-                const signatoryEl = document.getElementById('transferSignatory');
-                
-                if (accountHolderEl) {
-                    accountHolderEl.textContent = account.companyName || window.bankApp.currentUser;
-                    console.log('✅ Updated account holder to:', account.companyName);
-                }
-                
-                if (einEl) {
-                    einEl.textContent = account.ein || 'Not provided';
-                    console.log('✅ Updated EIN to:', account.ein);
-                }
-                
-                if (businessTypeEl) {
-                    businessTypeEl.textContent = account.businessType || 'Not specified';
-                    console.log('✅ Updated business type to:', account.businessType);
-                }
-                
-                if (signatoryEl) {
-                    if (account.signatories && account.signatories.primary && account.signatories.primary.name) {
-                        signatoryEl.textContent = `${account.signatories.primary.name} (${account.signatories.primary.title})`;
-                    } else {
-                        signatoryEl.textContent = 'Not specified';
+                // FORCE UPDATE: Transfer-specific elements
+                const updateElement = (id, value) => {
+                    const element = document.getElementById(id);
+                    if (element && value !== undefined && value !== null) {
+                        element.textContent = value;
+                        console.log(`✅ FIXED: ${id} = ${value}`);
                     }
-                    console.log('✅ Updated signatory');
-                }
-            }
-            
-            // Initialize form elements
-            function initializeTransferForm() {
-                // Set today's date
-                const dateInput = document.getElementById('transferDate');
-                if (dateInput) {
-                    dateInput.value = new Date().toISOString().split('T')[0];
-                }
+                };
                 
-                // Initialize transfer summary
-                if (window.bankApp && window.bankApp.updateTransferSummary) {
-                    window.bankApp.updateTransferSummary();
-                }
+                // Update company name in corporate notice
+                updateElement('transferCompanyName', account.companyName);
+                
+                console.log('✅ ALL transfer elements force-updated');
             }
             
-            initTransferPage();
+            initTransfer();
         });
 
-        // Global function wrappers for transfer page
+        // Global function wrappers
         function initializeTransferForm() {
             if (window.bankApp && window.bankApp.updateTransferSummary) {
                 window.bankApp.updateTransferSummary();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('transferModal');
+            if (modal) {
+                modal.classList.remove('show');
             }
         }
     </script>
